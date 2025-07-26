@@ -47,13 +47,22 @@ The application implements a sophisticated AI routing system that automatically 
 - Routes to appropriate AI provider
 - Detects target country for SEO optimization
 
-### C.R.A.F.T Framework Implementation
-A content optimization system that applies five steps:
-1. **Cut**: Remove unnecessary fluff and improve clarity
-2. **Review**: Optimize structure, headings, and SEO elements
-3. **Add**: Suggest media and visual enhancements
-4. **Fact-check**: Add verification indicators and citations
-5. **Trust-build**: Include authority signals and credibility markers
+### C.R.A.F.T Framework Implementation (Enhanced with RankMath SEO)
+A content optimization system that applies five steps with RankMath SEO principles:
+1. **Cut**: Remove unnecessary fluff and improve clarity (RankMath readability optimization)
+2. **Review**: Apply RankMath SEO principles - keyword optimization, proper heading structure, meta elements
+3. **Add**: Suggest media and visual enhancements (break up text, improve engagement)
+4. **Fact-check**: Add verification indicators and citations (E-A-T optimization)
+5. **Trust-build**: Include authority signals and credibility markers (conversational "you" language)
+
+**RankMath SEO Integration Features:**
+- Focus keyword optimization with 0.5-2.5% density
+- Proper heading hierarchy (H1 > H2 > H3) with keyword integration
+- Table of contents for content >2000 words
+- Internal/external linking opportunities
+- Meta description optimization
+- Government/academic source verification (.gov/.edu)
+- Content scoring for 100/100 RankMath SEO tests
 
 ### Storage Architecture
 - Interface-based design allowing easy database swapping

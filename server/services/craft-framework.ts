@@ -2,7 +2,7 @@ import { CraftStep } from "@shared/schema";
 
 export class CraftFramework {
   
-  async applyCraftFramework(content: string, targetCountry: string = 'usa'): Promise<{
+  async applyCraftFramework(content: string, targetCountry: string = 'usa', focusKeyword?: string): Promise<{
     optimizedContent: string;
     steps: CraftStep[];
   }> {
@@ -18,12 +18,12 @@ export class CraftFramework {
       applied: cutApplied
     });
 
-    // Step 2: Review and optimize
-    const { content: reviewedContent, applied: reviewApplied } = this.reviewAndOptimize(optimizedContent, targetCountry);
+    // Step 2: Review and optimize (with RankMath principles)
+    const { content: reviewedContent, applied: reviewApplied } = this.reviewAndOptimize(optimizedContent, targetCountry, focusKeyword);
     optimizedContent = reviewedContent;
     steps.push({
       step: 'review',
-      description: 'Optimized structure, headings, and SEO elements',
+      description: 'Applied RankMath SEO principles: keyword optimization, structured headings, meta elements',
       applied: reviewApplied
     });
 
@@ -81,22 +81,41 @@ export class CraftFramework {
     return { content: optimized, applied: changesMade };
   }
 
-  private reviewAndOptimize(content: string, targetCountry: string): { content: string; applied: boolean } {
+  private reviewAndOptimize(content: string, targetCountry: string, focusKeyword?: string): { content: string; applied: boolean } {
     let optimized = content;
     let changesMade = false;
 
-    // Add proper HTML structure if missing
+    // RankMath SEO Principle 1: Proper heading structure with focus keyword
     if (!content.includes('<h1>') && !content.includes('<h2>')) {
-      // Add basic HTML structure
       const lines = content.split('\n');
       const firstLine = lines[0];
       if (firstLine && firstLine.length > 10) {
-        optimized = `<h1>${firstLine}</h1>\n${lines.slice(1).join('\n')}`;
+        // Include focus keyword in H1 if provided
+        const h1Content = focusKeyword && !firstLine.toLowerCase().includes(focusKeyword.toLowerCase()) 
+          ? `${firstLine} - ${focusKeyword}` 
+          : firstLine;
+        optimized = `<h1>${h1Content}</h1>\n${lines.slice(1).join('\n')}`;
         changesMade = true;
       }
     }
 
-    // Ensure conversational "you" language
+    // RankMath SEO Principle 2: Add table of contents for longer content
+    if (content.length > 2000 && !content.includes('Table of Contents')) {
+      const headings = content.match(/<h[2-6][^>]*>(.*?)<\/h[2-6]>/gi);
+      if (headings && headings.length > 2) {
+        const tocItems = headings.map(heading => {
+          const text = heading.replace(/<[^>]*>/g, '');
+          const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+          return `<li><a href="#${id}">${text}</a></li>`;
+        }).join('\n');
+        
+        const toc = `<h2>Table of Contents</h2>\n<ul>\n${tocItems}\n</ul>\n\n`;
+        optimized = optimized.replace(/(<h1>.*?<\/h1>)/i, `$1\n\n${toc}`);
+        changesMade = true;
+      }
+    }
+
+    // RankMath SEO Principle 3: Ensure conversational "you" language and keyword density
     const impersonalPatterns = [
       { from: /\bone can\b/gi, to: 'you can' },
       { from: /\bpeople should\b/gi, to: 'you should' },
@@ -109,6 +128,29 @@ export class CraftFramework {
       optimized = optimized.replace(from, to);
       if (original !== optimized) changesMade = true;
     });
+
+    // RankMath SEO Principle 4: Optimize keyword density and distribution
+    if (focusKeyword) {
+      const wordCount = optimized.split(/\s+/).length;
+      const keywordMatches = (optimized.toLowerCase().match(new RegExp(focusKeyword.toLowerCase(), 'g')) || []).length;
+      const keywordDensity = (keywordMatches / wordCount) * 100;
+      
+      // Target 0.5-2.5% keyword density
+      if (keywordDensity < 0.5 && wordCount > 300) {
+        // Add keyword naturally in conclusion if missing
+        if (!optimized.toLowerCase().includes('conclusion') && !optimized.toLowerCase().includes('summary')) {
+          optimized += `\n\n<h2>Conclusion</h2>\n<p>Understanding ${focusKeyword} is essential for achieving your goals. By following these guidelines, you'll be well-equipped to make informed decisions.</p>`;
+          changesMade = true;
+        }
+      }
+    }
+
+    // RankMath SEO Principle 5: Add internal/external linking opportunities
+    if (!optimized.includes('<a href=') && optimized.length > 500) {
+      // Suggest linking opportunities in the content
+      optimized += `\n\n<!-- SEO Note: Consider adding 2-3 relevant internal links and 1-2 authoritative external links -->`;
+      changesMade = true;
+    }
 
     return { content: optimized, applied: changesMade };
   }

@@ -36,33 +36,43 @@ export class PerplexityService {
 
 Your mission:
 1. Research live data from top Google results
-2. Apply C.R.A.F.T framework (Cut fluff, Review/optimize, Add media, Fact-check, Trust-build)
+2. Apply C.R.A.F.T framework enhanced with RankMath SEO principles
 3. Focus on ${targetCountry.toUpperCase()} market data and sources
 4. Use conversational "you" language
-5. Provide properly formatted HTML output with real tags (h1, h2, h3, ul, li, table, etc.)
+5. Provide properly formatted HTML output scoring 100/100 on RankMath SEO tests
 6. Include government and academic sources (.gov/.edu)
+7. Implement keyword optimization and proper SEO structure
 
 Always ask yourself: "What target country should I focus on for SEO and sourcing?" - Answer: ${targetCountry.toUpperCase()}
 
-Format responses with:
-- Clear structure using proper HTML headings and formatting
-- Fact-based information with citations formatted as HTML
-- Actionable insights
-- Government/academic source verification
-- C.R.A.F.T framework indicators where applicable
-- Output should be ready for direct copy-paste as functional HTML
+Format responses with RankMath SEO optimization:
+- Focus keyword naturally integrated in H1 and throughout content
+- Proper heading hierarchy for SEO (H1 > H2 > H3)
+- Table of contents for comprehensive topics
+- Fact-based information with authoritative citations
+- Keyword density 0.5-2.5% for optimal SEO scoring
+- Government/academic source verification (.gov/.edu)
+- Internal/external linking opportunities
+- Output ready for direct copy-paste as functional HTML
 
-Example HTML format:
-<h1>Main Title</h1>
-<h2>Section Heading</h2>
-<p>Paragraph content here...</p>
+RankMath SEO-Optimized HTML format:
+<h1>Primary Title with Focus Keyword</h1>
+<h2>Table of Contents</h2>
 <ul>
-<li>Bullet point one</li>
-<li>Bullet point two</li>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#details">Detailed Analysis</a></li>
+<li><a href="#conclusion">Conclusion</a></li>
+</ul>
+<h2 id="overview">Section with Natural Keyword Integration</h2>
+<p>Content with focus keyword naturally placed and valuable information...</p>
+<ul>
+<li>Research-backed point with citation</li>
+<li>Government source verification</li>
 </ul>
 <table>
-<tr><th>Header</th><th>Header</th></tr>
-<tr><td>Data</td><td>Data</td></tr>
+<tr><th>Source Type</th><th>Authority Level</th></tr>
+<tr><td>.gov sources</td><td>High</td></tr>
+<tr><td>.edu sources</td><td>High</td></tr>
 </table>`;
 
       const messages: PerplexityMessage[] = [
