@@ -8,7 +8,7 @@ import Landing from "@/pages/landing";
 import NotFound from "@/pages/not-found";
 import { useAuth } from "@/hooks/useAuth";
 
-function Router() {
+function AuthWrapper({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
@@ -19,16 +19,26 @@ function Router() {
     );
   }
 
+  if (!isAuthenticated) {
+    return <Landing />;
+  }
+
+  return <>{children}</>;
+}
+
+function Router() {
   return (
     <Switch>
-      {isAuthenticated ? (
-        <>
-          <Route path="/" component={Chat} />
-          <Route path="/chat/:id?" component={Chat} />
-        </>
-      ) : (
-        <Route path="/" component={Landing} />
-      )}
+      <Route path="/">
+        <AuthWrapper>
+          <Chat />
+        </AuthWrapper>
+      </Route>
+      <Route path="/chat/:id?">
+        <AuthWrapper>
+          <Chat />
+        </AuthWrapper>
+      </Route>
       <Route component={NotFound} />
     </Switch>
   );

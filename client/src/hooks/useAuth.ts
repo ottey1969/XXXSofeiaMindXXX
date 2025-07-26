@@ -9,8 +9,26 @@ export interface User {
 }
 
 export function useAuth() {
+  const queryClient = useQueryClient();
+  
   const { data: user, isLoading, error } = useQuery<User>({
     queryKey: ["/api/auth/me"],
+    queryFn: async () => {
+      try {
+        const response = await fetch('/api/auth/me', {
+          credentials: 'include'
+        });
+        if (response.status === 401) {
+          return null;
+        }
+        if (!response.ok) {
+          throw new Error('Failed to fetch user');
+        }
+        return response.json();
+      } catch (error) {
+        return null;
+      }
+    },
     retry: false,
   });
 
@@ -25,11 +43,8 @@ export function useAuth() {
 export function useRegister() {
   return useMutation({
     mutationFn: async (email: string) => {
-      return apiRequest('/api/auth/register', {
-        method: 'POST',
-        body: JSON.stringify({ email }),
-        headers: { 'Content-Type': 'application/json' }
-      });
+      const response = await apiRequest('POST', '/api/auth/register', { email });
+      return response.json();
     }
   });
 }
@@ -39,11 +54,8 @@ export function useVerifyEmail() {
   
   return useMutation({
     mutationFn: async (token: string) => {
-      return apiRequest('/api/auth/verify', {
-        method: 'POST',
-        body: JSON.stringify({ token }),
-        headers: { 'Content-Type': 'application/json' }
-      });
+      const response = await apiRequest('POST', '/api/auth/verify', { token });
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
@@ -56,9 +68,8 @@ export function useLogout() {
   
   return useMutation({
     mutationFn: async () => {
-      return apiRequest('/api/auth/logout', {
-        method: 'POST'
-      });
+      const response = await apiRequest('POST', '/api/auth/logout');
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
