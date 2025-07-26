@@ -20,6 +20,8 @@ import { notifications } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import { db } from "./db";
 
+const ADMIN_KEY = "0f5db72a966a8d5f7ebae96c6a1e2cc574c2bf926c62dc4526bd43df1c0f42eb";
+
 // Ensure uploads directory exists
 const uploadsDir = path.join(process.cwd(), 'uploads');
 if (!fs.existsSync(uploadsDir)) {
@@ -570,6 +572,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting file:", error);
       res.status(500).json({ message: "Failed to delete file" });
+    }
+  });
+
+  // Admin Messages Routes
+  app.get('/api/admin/messages', async (req, res) => {
+    const adminKey = req.headers['x-admin-key'] || req.query.adminKey;
+    
+    if (adminKey !== ADMIN_KEY) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    try {
+      const messages = await storage.getAdminMessages();
+      res.json(messages);
+    } catch (error) {
+      console.error('Error fetching admin messages:', error);
+      res.status(500).json({ message: 'Failed to fetch messages' });
+    }
+  });
+
+  app.patch('/api/admin/messages/:messageId/read', async (req, res) => {
+    const adminKey = req.headers['x-admin-key'] || req.body.adminKey;
+    
+    if (adminKey !== ADMIN_KEY) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    try {
+      const { messageId } = req.params;
+      await storage.markAdminMessageAsRead(messageId);
+      res.json({ message: 'Message marked as read' });
+    } catch (error) {
+      console.error('Error marking message as read:', error);
+      res.status(500).json({ message: 'Failed to mark message as read' });
     }
   });
 

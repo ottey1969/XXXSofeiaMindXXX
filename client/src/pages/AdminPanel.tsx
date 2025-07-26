@@ -56,6 +56,91 @@ export default function AdminPanel() {
   
   const { toast } = useToast();
 
+  // User Messages Component
+  const UserMessages = () => {
+    const { data: userMessages = [], refetch } = useQuery({
+      queryKey: ["/api/admin/messages"],
+      refetchInterval: 30000, // Refresh every 30 seconds
+    });
+
+    const markAsReadMutation = useMutation({
+      mutationFn: async (messageId: string) => {
+        await apiRequest("PATCH", `/api/admin/messages/${messageId}/read`, {
+          adminKey: ADMIN_KEY,
+        });
+      },
+      onSuccess: () => {
+        refetch();
+      },
+    });
+
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MessageSquare className="w-5 h-5" />
+            User Messages
+            {Array.isArray(userMessages) && userMessages.filter((msg: any) => !msg.isRead).length > 0 && (
+              <Badge variant="destructive">
+                {userMessages.filter((msg: any) => !msg.isRead).length} new
+              </Badge>
+            )}
+          </CardTitle>
+          <CardDescription>
+            Messages from users that need your attention
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {Array.isArray(userMessages) && userMessages.length === 0 ? (
+            <div className="text-center text-gray-500 py-8">
+              <MessageSquare className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+              <p>No messages yet</p>
+              <p className="text-sm">User messages will appear here when they contact you.</p>
+            </div>
+          ) : (
+            <div className="space-y-4 max-h-96 overflow-y-auto">
+              {Array.isArray(userMessages) && userMessages.map((message: any) => (
+                <div 
+                  key={message.id} 
+                  className={`p-4 border rounded-lg ${message.isRead ? 'bg-gray-50' : 'bg-blue-50 border-blue-200'}`}
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <Badge variant={message.isRead ? "secondary" : "default"}>
+                        {message.isRead ? "Read" : "New"}
+                      </Badge>
+                      <span className="font-medium text-sm">{message.userEmail}</span>
+                      <span className="text-xs text-gray-500">
+                        {new Date(message.createdAt).toLocaleString()}
+                      </span>
+                    </div>
+                    {!message.isRead && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => markAsReadMutation.mutate(message.id)}
+                        disabled={markAsReadMutation.isPending}
+                      >
+                        Mark as Read
+                      </Button>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className="font-medium">{message.subject}</h4>
+                    <p className="text-sm text-gray-700 whitespace-pre-wrap">{message.message}</p>
+                    {message.userCredits !== undefined && (
+                      <p className="text-xs text-gray-500">User has {message.userCredits} credits</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    );
+  };
+
   // Security action handlers
   const handleIpAction = async (action: "block" | "allow") => {
     if (!ipAddress.trim()) {
@@ -597,24 +682,7 @@ export default function AdminPanel() {
 
           {/* Admin Messages Section */}
           {activeTab === "adminMessages" && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MessageSquare className="w-5 h-5" />
-                User Messages
-              </CardTitle>
-              <CardDescription>
-                Messages from users that need your attention
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center text-gray-500 py-8">
-                <MessageSquare className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                <p>Feature coming soon!</p>
-                <p className="text-sm">Users can now send messages via the chat interface.</p>
-              </div>
-            </CardContent>
-          </Card>
+            <UserMessages />
           )}
 
           {/* Security Section */}
@@ -855,6 +923,7 @@ export default function AdminPanel() {
     </div>
   );
 }
+
 
 // Security Activity Log Component
 function SecurityActivityLog() {

@@ -219,6 +219,67 @@ export class MemStorage implements IStorage {
     this.messages.set(id, updated);
     return updated;
   }
+
+  // Upload file management
+  private uploads: Map<string, UploadedFile> = new Map();
+
+  async createUpload(uploadData: any): Promise<UploadedFile> {
+    const id = `upload_${Date.now()}`;
+    const upload = {
+      id,
+      ...uploadData,
+      createdAt: new Date(),
+    };
+    this.uploads.set(id, upload);
+    return upload;
+  }
+
+  async getUserUploads(userId: string): Promise<UploadedFile[]> {
+    return Array.from(this.uploads.values())
+      .filter(upload => upload.userId === userId)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  async getUpload(id: string): Promise<UploadedFile | undefined> {
+    return this.uploads.get(id);
+  }
+
+  async deleteUpload(id: string): Promise<boolean> {
+    return this.uploads.delete(id);
+  }
+
+  // Admin Messages Methods
+  private adminMessages: Map<string, any> = new Map();
+
+  async createAdminMessage(messageData: any): Promise<any> {
+    const id = `msg_${Date.now()}`;
+    const message = {
+      id,
+      ...messageData,
+      isRead: false,
+      createdAt: new Date(),
+    };
+    this.adminMessages.set(id, message);
+    return message;
+  }
+
+  async getAdminMessages(): Promise<any[]> {
+    return Array.from(this.adminMessages.values())
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  async markAdminMessageAsRead(messageId: string): Promise<void> {
+    const message = this.adminMessages.get(messageId);
+    if (message) {
+      message.isRead = true;
+      message.readAt = new Date();
+      this.adminMessages.set(messageId, message);
+    }
+  }
+
+  async getUserByEmail(email: string): Promise<any> {
+    return Array.from(this.users.values()).find(user => user.email === email);
+  }
 }
 
 export const storage = new MemStorage();
