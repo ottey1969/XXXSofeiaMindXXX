@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useRegister, useLogin } from "@/hooks/useAuth";
+import { useRegister, useLogin, useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
 interface AuthDialogProps {
@@ -19,8 +19,16 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
   const [isReturningUser, setIsReturningUser] = useState(false);
 
   const { toast } = useToast();
+  const { user } = useAuth();
   const registerMutation = useRegister();
   const loginMutation = useLogin();
+
+  // Set email from logged-in user and make it permanent
+  useEffect(() => {
+    if (user?.email) {
+      setEmail(user.email);
+    }
+  }, [user?.email]);
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,7 +86,14 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
                 required
+                readOnly={!!user?.email}
+                className={user?.email ? "bg-muted cursor-not-allowed" : ""}
               />
+              {user?.email && (
+                <p className="text-xs text-muted-foreground">
+                  This is your registered email address
+                </p>
+              )}
             </div>
             
             {/* GDPR Compliance */}
