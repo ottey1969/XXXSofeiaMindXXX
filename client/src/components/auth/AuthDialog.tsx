@@ -57,16 +57,7 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
         }
       }
     } catch (error: any) {
-      if (error.message?.includes('already registered and verified')) {
-        toast({
-          title: "Welcome back!",
-          description: "Your account is already verified. Refreshing page..."
-        });
-        onOpenChange(false);
-        setTimeout(() => window.location.reload(), 1000);
-        return;
-      }
-      
+      console.error('Registration error:', error);
       toast({
         title: "Registration failed",
         description: error.message || "Please try again",
@@ -196,7 +187,7 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
               variant="outline" 
               className="w-full"
               onClick={() => {
-                setStep("email");
+                setIsVerifying(false);
                 setIsReturningUser(false);
                 setEmail("");
               }}
@@ -245,7 +236,7 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
                   type="button" 
                   variant="ghost" 
                   className="w-full"
-                  onClick={() => setStep("email")}
+                  onClick={() => setIsVerifying(false)}
                 >
                   Use Different Email
                 </Button>
