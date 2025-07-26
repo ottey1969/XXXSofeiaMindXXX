@@ -77,6 +77,84 @@ export class MemStorage implements IStorage {
     return exists;
   }
 
+  // Security Management Methods
+  private ipRules = new Map<string, any>();
+  private blockedUsers = new Map<string, any>();
+  private activityLog: any[] = [];
+
+  async createIpSecurityRule(rule: any): Promise<any> {
+    const id = `rule_${Date.now()}`;
+    const newRule = {
+      id,
+      ...rule,
+      createdAt: new Date(),
+      isActive: true
+    };
+    this.ipRules.set(id, newRule);
+    
+    // Log the activity
+    this.activityLog.unshift({
+      id: `activity_${Date.now()}`,
+      action: `ip_${rule.ruleType}`,
+      ipAddress: rule.ipAddress,
+      details: rule.reason,
+      createdAt: new Date()
+    });
+    
+    return newRule;
+  }
+
+  async blockUser(blockData: any): Promise<any> {
+    const id = `block_${Date.now()}`;
+    const blockRecord = {
+      id,
+      ...blockData,
+      blockedAt: new Date(),
+      isActive: true
+    };
+    this.blockedUsers.set(id, blockRecord);
+    
+    // Log the activity
+    this.activityLog.unshift({
+      id: `activity_${Date.now()}`,
+      action: "user_blocked",
+      userId: blockData.userId,
+      details: blockData.reason,
+      createdAt: new Date()
+    });
+    
+    return blockRecord;
+  }
+
+  async logUserActivity(activity: any): Promise<void> {
+    this.activityLog.unshift({
+      id: `activity_${Date.now()}`,
+      ...activity,
+      createdAt: new Date()
+    });
+    
+    // Keep only last 100 activities
+    if (this.activityLog.length > 100) {
+      this.activityLog = this.activityLog.slice(0, 100);
+    }
+  }
+
+  async getRecentActivity(): Promise<any[]> {
+    return this.activityLog.slice(0, 20); // Return last 20 activities
+  }
+
+  async isIpBlocked(ipAddress: string): Promise<boolean> {
+    return Array.from(this.ipRules.values()).some(
+      rule => rule.ipAddress === ipAddress && rule.ruleType === "block" && rule.isActive
+    );
+  }
+
+  async isUserBlocked(userId: string): Promise<boolean> {
+    return Array.from(this.blockedUsers.values()).some(
+      block => block.userId === userId && block.isActive
+    );
+  }
+
   async getMessage(id: string): Promise<Message | undefined> {
     return this.messages.get(id);
   }

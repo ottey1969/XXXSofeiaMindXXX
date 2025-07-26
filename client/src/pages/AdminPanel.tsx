@@ -45,7 +45,15 @@ export default function AdminPanel() {
   const [notificationMessage, setNotificationMessage] = useState("");
   const [notificationType, setNotificationType] = useState<"info" | "warning" | "success" | "error">("info");
   const [expiresInHours, setExpiresInHours] = useState<string>("24");
-  const [activeTab, setActiveTab] = useState<"addCredits" | "searchUser" | "sendNotification" | "adminMessages">("addCredits");
+  const [activeTab, setActiveTab] = useState<"addCredits" | "searchUser" | "sendNotification" | "adminMessages" | "security">("addCredits");
+  
+  // Security tab fields
+  const [ipAddress, setIpAddress] = useState("");
+  const [ipReason, setIpReason] = useState("");
+  const [blockUserEmail, setBlockUserEmail] = useState("");
+  const [blockReason, setBlockReason] = useState("");
+  const [logoutUserEmail, setLogoutUserEmail] = useState("");
+  
   const { toast } = useToast();
 
   const handleAdminLogin = () => {
@@ -293,6 +301,10 @@ export default function AdminPanel() {
           <MessageSquare className="w-4 h-4 mr-2" />
           User Messages
         </Button>
+        <Button onClick={() => setActiveTab("security")} variant={activeTab === "security" ? "default" : "outline"}>
+          <Shield className="w-4 h-4 mr-2" />
+          Security
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 gap-6">
@@ -505,6 +517,149 @@ export default function AdminPanel() {
             </CardContent>
           </Card>
           )}
+
+          {/* Security Section */}
+          {activeTab === "security" && (
+            <div className="space-y-6">
+              {/* IP Management */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="w-5 h-5" />
+                    IP Address Management
+                  </CardTitle>
+                  <CardDescription>
+                    Block or allow specific IP addresses for security control
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="ipAddress">IP Address</Label>
+                      <Input
+                        id="ipAddress"
+                        value={ipAddress}
+                        onChange={(e) => setIpAddress(e.target.value)}
+                        placeholder="192.168.1.1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="ipReason">Reason</Label>
+                      <Input
+                        id="ipReason"
+                        value={ipReason}
+                        onChange={(e) => setIpReason(e.target.value)}
+                        placeholder="Suspicious activity, spam, etc."
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button 
+                      onClick={() => handleIpAction("block")}
+                      variant="destructive"
+                      className="flex items-center gap-2"
+                    >
+                      <Ban className="w-4 h-4" />
+                      Block IP
+                    </Button>
+                    <Button 
+                      onClick={() => handleIpAction("allow")}
+                      variant="default"
+                      className="flex items-center gap-2"
+                    >
+                      <Check className="w-4 h-4" />
+                      Allow IP
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* User Management */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="w-5 h-5" />
+                    User Security Actions
+                  </CardTitle>
+                  <CardDescription>
+                    Block users or force logout for security reasons
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Block User */}
+                  <div className="space-y-4">
+                    <h4 className="font-medium">Block User Account</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="blockUserEmail">User Email</Label>
+                        <Input
+                          id="blockUserEmail"
+                          value={blockUserEmail}
+                          onChange={(e) => setBlockUserEmail(e.target.value)}
+                          placeholder="user@example.com"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="blockReason">Block Reason</Label>
+                        <Input
+                          id="blockReason"
+                          value={blockReason}
+                          onChange={(e) => setBlockReason(e.target.value)}
+                          placeholder="Violation of terms, abuse, etc."
+                        />
+                      </div>
+                    </div>
+                    <Button 
+                      onClick={handleBlockUser}
+                      variant="destructive"
+                      className="flex items-center gap-2"
+                    >
+                      <Ban className="w-4 h-4" />
+                      Block User
+                    </Button>
+                  </div>
+
+                  {/* Force Logout */}
+                  <div className="space-y-4">
+                    <h4 className="font-medium">Force User Logout</h4>
+                    <div>
+                      <Label htmlFor="logoutUserEmail">User Email</Label>
+                      <Input
+                        id="logoutUserEmail"
+                        value={logoutUserEmail}
+                        onChange={(e) => setLogoutUserEmail(e.target.value)}
+                        placeholder="user@example.com"
+                      />
+                    </div>
+                    <Button 
+                      onClick={handleForceLogout}
+                      variant="outline"
+                      className="flex items-center gap-2"
+                    >
+                      <X className="w-4 h-4" />
+                      Force Logout
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Activity Log */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Activity className="w-5 h-5" />
+                    Recent Security Activity
+                  </CardTitle>
+                  <CardDescription>
+                    Monitor user activity and security events
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <SecurityActivityLog />
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </div>
 
         {/* Credit Packages Pricing */}
@@ -598,6 +753,143 @@ export default function AdminPanel() {
           </CardContent>
         </Card>
       </div>
+    </div>
+  );
+
+  // Security action handlers
+  const handleIpAction = async (action: "block" | "allow") => {
+    if (!ipAddress.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter an IP address",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await apiRequest("POST", "/api/admin/ip-security", {
+        adminKey: ADMIN_KEY,
+        ipAddress: ipAddress.trim(),
+        ruleType: action,
+        reason: ipReason.trim() || undefined,
+      });
+
+      toast({
+        title: "Success",
+        description: `IP address ${action === "block" ? "blocked" : "allowed"} successfully`,
+      });
+
+      setIpAddress("");
+      setIpReason("");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: `Failed to ${action} IP address`,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleBlockUser = async () => {
+    if (!blockUserEmail.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a user email",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await apiRequest("POST", "/api/admin/block-user", {
+        adminKey: ADMIN_KEY,
+        userEmail: blockUserEmail.trim(),
+        reason: blockReason.trim() || undefined,
+      });
+
+      toast({
+        title: "Success",
+        description: "User blocked successfully",
+      });
+
+      setBlockUserEmail("");
+      setBlockReason("");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to block user",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleForceLogout = async () => {
+    if (!logoutUserEmail.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a user email",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await apiRequest("POST", "/api/admin/force-logout", {
+        adminKey: ADMIN_KEY,
+        userEmail: logoutUserEmail.trim(),
+      });
+
+      toast({
+        title: "Success",
+        description: "User logged out successfully",
+      });
+
+      setLogoutUserEmail("");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to logout user",
+        variant: "destructive",
+      });
+    }
+  };
+}
+
+// Security Activity Log Component
+function SecurityActivityLog() {
+  const { data: activityLog = [] } = useQuery({
+    queryKey: ["/api/admin/activity-log"],
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
+
+  return (
+    <div className="space-y-4">
+      {activityLog.length === 0 ? (
+        <p className="text-muted-foreground">No recent activity</p>
+      ) : (
+        <div className="space-y-2">
+          {activityLog.slice(0, 10).map((log: any) => (
+            <div key={log.id} className="flex items-center justify-between p-3 border rounded-lg">
+              <div>
+                <div className="flex items-center gap-2">
+                  <Badge variant={log.action.includes("block") ? "destructive" : "default"}>
+                    {log.action}
+                  </Badge>
+                  <span className="font-medium">{log.userEmail || log.userId}</span>
+                </div>
+                <p className="text-sm text-muted-foreground">IP: {log.ipAddress}</p>
+                {log.details && (
+                  <p className="text-sm text-muted-foreground">{log.details}</p>
+                )}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {new Date(log.createdAt).toLocaleString()}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

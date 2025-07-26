@@ -331,6 +331,110 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // IP Security Management (Admin)
+  app.post("/api/admin/ip-security", async (req, res) => {
+    const { adminKey, ipAddress, ruleType, reason } = req.body;
+    
+    if (adminKey !== "0f5db72a966a8d5f7ebae96c6a1e2cc574c2bf926c62dc4526bd43df1c0f42eb") {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      const rule = await storage.createIpSecurityRule({
+        ipAddress,
+        ruleType,
+        reason,
+        createdBy: "admin"
+      });
+      
+      res.json({ 
+        message: `IP ${ipAddress} ${ruleType}ed successfully`,
+        rule 
+      });
+    } catch (error) {
+      console.error("Error managing IP:", error);
+      res.status(500).json({ message: "Failed to manage IP" });
+    }
+  });
+
+  // Block User (Admin)
+  app.post("/api/admin/block-user", async (req, res) => {
+    const { adminKey, userEmail, reason } = req.body;
+    
+    if (adminKey !== "0f5db72a966a8d5f7ebae96c6a1e2cc574c2bf926c62dc4526bd43df1c0f42eb") {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      const user = await storage.getUserByEmail(userEmail);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const blockRecord = await storage.blockUser({
+        userId: user.id,
+        reason,
+        blockedBy: "admin"
+      });
+      
+      res.json({ 
+        message: `User ${userEmail} blocked successfully`,
+        blockRecord 
+      });
+    } catch (error) {
+      console.error("Error blocking user:", error);
+      res.status(500).json({ message: "Failed to block user" });
+    }
+  });
+
+  // Force User Logout (Admin)
+  app.post("/api/admin/force-logout", async (req, res) => {
+    const { adminKey, userEmail } = req.body;
+    
+    if (adminKey !== "0f5db72a966a8d5f7ebae96c6a1e2cc574c2bf926c62dc4526bd43df1c0f42eb") {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      const user = await storage.getUserByEmail(userEmail);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      await storage.logUserActivity({
+        userId: user.id,
+        ipAddress: req.ip || "unknown",
+        userAgent: req.get("User-Agent") || "",
+        action: "forced_logout",
+        details: { reason: "Admin forced logout" }
+      });
+      
+      res.json({ 
+        message: `User ${userEmail} logout forced successfully`
+      });
+    } catch (error) {
+      console.error("Error forcing logout:", error);
+      res.status(500).json({ message: "Failed to force logout" });
+    }
+  });
+
+  // Get Activity Log (Admin)
+  app.get("/api/admin/activity-log", async (req, res) => {
+    const { adminKey } = req.query;
+    
+    if (adminKey !== "0f5db72a966a8d5f7ebae96c6a1e2cc574c2bf926c62dc4526bd43df1c0f42eb") {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      const activities = await storage.getRecentActivity();
+      res.json(activities);
+    } catch (error) {
+      console.error("Error fetching activity log:", error);
+      res.status(500).json({ message: "Failed to fetch activity log" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

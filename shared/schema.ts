@@ -112,8 +112,46 @@ export type InsertConversation = z.infer<typeof insertConversationSchema>;
 export type InsertMessage = z.infer<typeof insertMessageSchema>;
 export type Conversation = typeof conversations.$inferSelect;
 export type Message = typeof messages.$inferSelect;
+// IP Security Management
+export const ipSecurityRules = pgTable("ip_security_rules", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  ipAddress: varchar("ip_address").notNull(),
+  ruleType: varchar("rule_type", { enum: ["allow", "block"] }).notNull(),
+  reason: text("reason"),
+  createdBy: varchar("created_by").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  isActive: boolean("is_active").default(true),
+});
+
+// User Activity and Security Log
+export const userActivityLog = pgTable("user_activity_log", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  ipAddress: varchar("ip_address").notNull(),
+  userAgent: text("user_agent"),
+  action: varchar("action").notNull(),
+  details: jsonb("details"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Blocked Users
+export const blockedUsers = pgTable("blocked_users", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  reason: text("reason"),
+  blockedBy: varchar("blocked_by").notNull(),
+  blockedAt: timestamp("blocked_at").defaultNow(),
+  isActive: boolean("is_active").default(true),
+});
+
 export type AdminMessage = typeof adminMessages.$inferSelect;
 export type InsertAdminMessage = z.infer<typeof insertAdminMessageSchema>;
+export type IpSecurityRule = typeof ipSecurityRules.$inferSelect;
+export type InsertIpSecurityRule = typeof ipSecurityRules.$inferInsert;
+export type UserActivityLog = typeof userActivityLog.$inferSelect;
+export type InsertUserActivityLog = typeof userActivityLog.$inferInsert;
+export type BlockedUser = typeof blockedUsers.$inferSelect;
+export type InsertBlockedUser = typeof blockedUsers.$inferInsert;
 
 // AI Provider Types
 export interface AIResponse {
