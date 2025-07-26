@@ -120,6 +120,8 @@ export function useLogout() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
       queryClient.clear();
+      // Force redirect to home page after logout
+      window.location.href = '/';
     }
   });
 }
