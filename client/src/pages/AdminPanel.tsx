@@ -798,24 +798,69 @@ export default function AdminPanel() {
               </Button>
               
               {searchedUser && (
-                <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">Email:</span>
-                    <span>{searchedUser.email}</span>
+                <div className="space-y-4">
+                  <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium">Email:</span>
+                      <span>{searchedUser.email}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium">Credits:</span>
+                      <Badge variant="secondary">{searchedUser.credits}</Badge>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium">Verified:</span>
+                      <Badge variant={searchedUser.emailVerified ? "default" : "destructive"}>
+                        {searchedUser.emailVerified ? "Yes" : "No"}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium">Joined:</span>
+                      <span className="text-sm">{new Date(searchedUser.createdAt).toLocaleDateString()}</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">Credits:</span>
-                    <Badge variant="secondary">{searchedUser.credits}</Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">Verified:</span>
-                    <Badge variant={searchedUser.emailVerified ? "default" : "destructive"}>
-                      {searchedUser.emailVerified ? "Yes" : "No"}
-                    </Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">Joined:</span>
-                    <span className="text-sm">{new Date(searchedUser.createdAt).toLocaleDateString()}</span>
+                  
+                  {/* Login Troubleshooting Section */}
+                  <div className="p-4 border rounded-lg bg-blue-50 dark:bg-blue-900/20">
+                    <h4 className="font-semibold mb-3 text-blue-800 dark:text-blue-200 flex items-center gap-2">
+                      🔧 Login Troubleshooting Guide
+                    </h4>
+                    <div className="text-sm text-blue-700 dark:text-blue-300 space-y-3">
+                      <div>
+                        <p className="font-medium mb-2">If user can't login, try these steps:</p>
+                        <ul className="list-disc list-inside space-y-1 ml-2">
+                          <li>Ask user to clear browser cookies and try again</li>
+                          <li>Try incognito/private browsing mode</li>
+                          <li>Check email format (no spaces, valid domain)</li>
+                          <li>Try different browser (Chrome, Firefox, Safari)</li>
+                          <li>Ask user to refresh page and try again</li>
+                        </ul>
+                      </div>
+                      
+                      {/* Status-based recommendations */}
+                      {!searchedUser.emailVerified && (
+                        <div className="p-2 bg-orange-100 dark:bg-orange-900/30 rounded border border-orange-200">
+                          <p className="font-medium text-orange-800 dark:text-orange-200">⚠️ User Not Verified</p>
+                          <p className="text-orange-700 dark:text-orange-300">Manual verification needed via WhatsApp contact.</p>
+                        </div>
+                      )}
+                      
+                      {searchedUser.credits === 0 && (
+                        <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded border border-red-200">
+                          <p className="font-medium text-red-800 dark:text-red-200">❌ No Credits Remaining</p>
+                          <p className="text-red-700 dark:text-red-300">Add credits first before user can access the system.</p>
+                        </div>
+                      )}
+                      
+                      <div className="p-3 bg-white dark:bg-gray-800 rounded border">
+                        <p className="font-medium mb-2">Share with user:</p>
+                        <div className="space-y-1 text-xs">
+                          <p><strong>WhatsApp Support:</strong> +31 6 2807 3996</p>
+                          <p><strong>Community:</strong> https://www.facebook.com/groups/1079321647257618</p>
+                          <p><strong>Quick Fix:</strong> Clear browser data (Ctrl+Shift+Delete)</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
