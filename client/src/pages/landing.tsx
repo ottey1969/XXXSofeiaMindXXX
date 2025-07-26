@@ -43,7 +43,7 @@ export default function Landing() {
               </h1>
             </div>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Free AI SEO content generator with C.R.A.F.T optimization framework. Create high-ranking articles, blogs & copy using advanced multi-AI routing. Outperforms ContentScale & BrandWell with superior HTML output.
+              Free AI SEO content generator by ContentScale with C.R.A.F.T optimization framework. Create high-ranking articles, blogs & copy using advanced multi-AI routing for superior HTML output.
             </p>
             <Button 
               size="lg" 
@@ -90,7 +90,7 @@ export default function Landing() {
 
           {/* Competitive Advantages */}
           <div className="mb-16">
-            <h2 className="text-3xl font-bold mb-8">Why Choose Sofeia AI Over ContentScale & BrandWell?</h2>
+            <h2 className="text-3xl font-bold mb-8">Why Choose Sofeia AI by ContentScale?</h2>
             <div className="grid md:grid-cols-2 gap-6">
               <Card className="border-green-200 bg-green-50 dark:bg-green-900/20">
                 <CardHeader>
@@ -105,23 +105,25 @@ export default function Landing() {
                     <li>• RankMath SEO integration built-in</li>
                     <li>• Real-time AI query optimization</li>
                     <li>• Schema markup automatically included</li>
+                    <li>• Built by ContentScale team expertise</li>
                   </ul>
                 </CardContent>
               </Card>
               
-              <Card className="border-red-200 bg-red-50 dark:bg-red-900/20">
+              <Card className="border-blue-200 bg-blue-50 dark:bg-blue-900/20">
                 <CardHeader>
-                  <CardTitle className="text-red-800 dark:text-red-200">✗ ContentScale/BrandWell Limitations</CardTitle>
+                  <CardTitle className="text-blue-800 dark:text-blue-200">⚡ vs Other AI Tools</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2 text-sm">
-                    <li>• Single AI provider (limited capability)</li>
-                    <li>• Expensive pricing ($249+/month)</li>
-                    <li>• Basic content optimization</li>
-                    <li>• Limited HTML formatting options</li>
-                    <li>• No free trial or credits</li>
-                    <li>• Generic SEO approach</li>
-                    <li>• Complex enterprise-focused interface</li>
+                    <li>• Most tools: Single AI provider (limited capability)</li>
+                    <li>• Most tools: Expensive pricing ($249+/month)</li>
+                    <li>• Most tools: Basic content optimization</li>
+                    <li>• Most tools: Limited HTML formatting options</li>
+                    <li>• Most tools: No free trial or credits</li>
+                    <li>• Most tools: Generic SEO approach</li>
+                    <li>• Most tools: Complex enterprise-focused interface</li>
+                    <li>• Sofeia AI: Free, advanced, user-friendly</li>
                   </ul>
                 </CardContent>
               </Card>

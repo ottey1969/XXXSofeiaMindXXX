@@ -16,11 +16,12 @@ Target Keywords (High Volume, Low Competition):
 - Secondary: "free AI content generator" (9,900/month, medium competition) 
 - Long-tail: "AI content generator with SEO optimization" (340/month, very low competition)
 
-Competitive Targets: ContentScale (BrandWell) and Brandwell.com
-- Position as superior alternative with multi-AI routing
+Company: ContentScale (BrandWell is part of ContentScale)
+- Position Sofeia AI as free alternative to expensive AI tools
 - Emphasize free credits vs expensive monthly subscriptions ($249+)
 - Highlight ready-to-use HTML output advantage
 - Focus on C.R.A.F.T framework + RankMath SEO integration
+- Target competitors: Jasper, Copy.ai, Writesonic, other premium AI tools
 
 SEO Implementation (Updated Jan 26, 2025):
 - Comprehensive schema markup (SoftwareApplication, Organization, FAQ, WebSite)
