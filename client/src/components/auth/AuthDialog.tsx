@@ -23,10 +23,23 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
   const registerMutation = useRegister();
   const loginMutation = useLogin();
 
-  // Set email from logged-in user and make it permanent
+  // Load email from localStorage or user data and make it permanent
+  useEffect(() => {
+    // First try to get from localStorage (browser permanent storage)
+    const savedEmail = localStorage.getItem('sofeia_user_email');
+    if (savedEmail) {
+      setEmail(savedEmail);
+    } else if (user?.email) {
+      // If not in localStorage but user is logged in, save it permanently
+      setEmail(user.email);
+      localStorage.setItem('sofeia_user_email', user.email);
+    }
+  }, [user?.email]);
+
+  // Save email to localStorage whenever user registers/logs in
   useEffect(() => {
     if (user?.email) {
-      setEmail(user.email);
+      localStorage.setItem('sofeia_user_email', user.email);
     }
   }, [user?.email]);
 
@@ -83,15 +96,21 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  // Only allow changes if no email is saved in localStorage
+                  const savedEmail = localStorage.getItem('sofeia_user_email');
+                  if (!savedEmail && !user?.email) {
+                    setEmail(e.target.value);
+                  }
+                }}
                 placeholder="Enter your email"
                 required
-                readOnly={!!user?.email}
-                className={user?.email ? "bg-muted cursor-not-allowed" : ""}
+                readOnly={!!(localStorage.getItem('sofeia_user_email') || user?.email)}
+                className={(localStorage.getItem('sofeia_user_email') || user?.email) ? "bg-muted cursor-not-allowed" : ""}
               />
-              {user?.email && (
+              {(localStorage.getItem('sofeia_user_email') || user?.email) && (
                 <p className="text-xs text-muted-foreground">
-                  This is your registered email address
+                  🔒 This email is permanently registered on this browser
                 </p>
               )}
             </div>
