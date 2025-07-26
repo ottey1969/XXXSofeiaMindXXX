@@ -18,7 +18,7 @@ class EmailService {
     // Try multiple email service configurations
     if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
       // Custom SMTP (most flexible)
-      this.transporter = nodemailer.createTransporter({
+      this.transporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST,
         port: parseInt(process.env.SMTP_PORT || '587'),
         secure: process.env.SMTP_SECURE === 'true',
@@ -29,7 +29,7 @@ class EmailService {
       });
     } else if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
       // Gmail with App Password (free option)
-      this.transporter = nodemailer.createTransporter({
+      this.transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
           user: process.env.GMAIL_USER,
@@ -38,7 +38,7 @@ class EmailService {
       });
     } else if (process.env.MAILGUN_API_KEY && process.env.MAILGUN_DOMAIN) {
       // Mailgun (alternative to SendGrid)
-      this.transporter = nodemailer.createTransporter({
+      this.transporter = nodemailer.createTransport({
         host: 'smtp.mailgun.org',
         port: 587,
         auth: {

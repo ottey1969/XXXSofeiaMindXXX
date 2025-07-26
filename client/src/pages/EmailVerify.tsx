@@ -21,9 +21,18 @@ export default function EmailVerify() {
     }
 
     // Verify the token
-    apiRequest('/api/auth/verify', {
+    fetch('/api/auth/verify', {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({ token }),
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Verification failed');
+      }
+      return response.json();
     })
     .then(() => {
       setStatus('success');
