@@ -1,0 +1,184 @@
+Critical Issues Found:
+Session Management:
+
+The session middleware is configured but doesn't properly persist user sessions
+
+Missing proper session store configuration (should use Redis or database store)
+
+Login Flow:
+
+The frontend expects a login endpoint that may not be properly implemented
+
+No visible email verification token generation
+
+Cookie Problems:
+
+Cookies aren't being set securely for the Replit environment
+
+Missing proper SameSite and Secure flags
+
+Here's the Complete Fix:
+First, update your routes/auth.ts (or create it):
+
+typescript
+import express from 'express';
+import { db } from '../db';
+import { users } from '@shared/schema';
+import { eq } from 'drizzle-orm';
+import crypto from 'crypto';
+
+const router = express.Router();
+
+// Improved login endpoint
+router.post('/login', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    // Check if user exists
+    const [user] = await db.select()
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1);
+
+    if (!user) {
+      return res.status(401).json({ message: 'User not found' });
+    }
+
+    // Create session
+    req.session.user = {
+      id: user.id,
+      email: user.email,
+      verified: user.emailVerified
+    };
+
+    // For Replit-specific cookie settings
+    res.cookie('sofia_session', req.sessionID, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      domain: '.replit.com',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 1 week
+    });
+
+    return res.json({
+      id: user.id,
+      email: user.email,
+      credits: user.credits,
+      emailVerified: user.emailVerified
+    });
+
+  } catch (error) {
+    console.error('Login error:', error);
+    return res.status(500).json({ message: 'Login failed' });
+  }
+});
+
+// Add this endpoint for frontend session checking
+router.get('/check', (req, res) => {
+  if (req.session.user) {
+    return res.json({ loggedIn: true, user: req.session.user });
+  }
+  return res.json({ loggedIn: false });
+});
+
+export default router;
+Update your session configuration in routes.ts:
+
+typescript
+// Replace your session config with this:
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'default-secret-change-in-production',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: true, // Essential for Replit
+    httpOnly: true,
+    sameSite: 'none', // Required for cross-site Replit
+    domain: '.replit.com', // Allow all Replit subdomains
+    maxAge: 7 * 24 * 60 * 60 * 1000 // 1 week
+  },
+  // Add this for production:
+  proxy: true,
+  name: 'sofia_session' // Custom cookie name
+}));
+
+// Add this before routes
+app.set('trust proxy', 1);
+Update your useAuth.ts frontend hook:
+
+typescript
+// Add this to your existing hooks
+export function useLogin() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (email: string) => {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({ email })
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Login failed');
+      }
+      
+      return response.json();
+    },
+    onSuccess: (user) => {
+      queryClient.setQueryData(['/api/auth/me'], user);
+    }
+  });
+}
+
+// Add session check hook
+export function useCheckSession() {
+  return useQuery({
+    queryKey: ['/api/auth/check'],
+    queryFn: async () => {
+      const response = await fetch('/api/auth/check', {
+        credentials: 'include'
+      });
+      return response.json();
+    }
+  });
+}
+Replit-Specific Recommendations:
+Environment Variables:
+
+Set a proper SESSION_SECRET in Replit secrets
+
+Add these to your .env file:
+
+text
+SESSION_SECRET=your_secure_random_string_here
+NODE_ENV=production
+Required Packages:
+Make sure you have these installed:
+
+bash
+npm install express-session cookie-parser crypto
+Testing the Fix:
+
+Restart your Replit server
+
+Clear all cookies for replit.com
+
+Test the login flow while monitoring:
+
+Network requests in DevTools
+
+Cookies in Application tab
+
+Server logs in Replit console
+
+Additional Security Recommendations:
+Implement rate limiting for auth endpoints
+
+Add proper email verification flow
+
+Set up CSRF protection for sensitive operations
