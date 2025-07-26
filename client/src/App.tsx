@@ -7,6 +7,9 @@ import Chat from "@/pages/chat";
 import Landing from "@/pages/landing";
 import NotFound from "@/pages/not-found";
 import AdminPanel from "@/pages/AdminPanel";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import TermsOfService from "@/pages/TermsOfService";
+import CookiePolicy from "@/pages/CookiePolicy";
 import { useAuth } from "@/hooks/useAuth";
 
 function AuthWrapper({ children }: { children: React.ReactNode }) {
@@ -43,6 +46,9 @@ function Router() {
       <Route path="/admin">
         <AdminPanel />
       </Route>
+      <Route path="/privacy" component={PrivacyPolicy} />
+      <Route path="/terms" component={TermsOfService} />
+      <Route path="/cookies" component={CookiePolicy} />
       <Route component={NotFound} />
     </Switch>
   );

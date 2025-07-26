@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import AuthDialog from "@/components/auth/AuthDialog";
 import { Bot, Sparkles, Globe, MessageSquare } from "lucide-react";
+import { Link } from "wouter";
 
 export default function Landing() {
   const [authOpen, setAuthOpen] = useState(false);
@@ -143,6 +144,40 @@ export default function Landing() {
           </Card>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="border-t bg-background/80 backdrop-blur-sm py-8 mt-16">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Bot className="h-6 w-6 text-primary" />
+              <span className="font-semibold">Sofeia AI</span>
+            </div>
+            <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
+              <Link href="/privacy" className="hover:text-primary transition-colors">
+                Privacy Policy
+              </Link>
+              <Link href="/terms" className="hover:text-primary transition-colors">
+                Terms of Service
+              </Link>
+              <Link href="/cookies" className="hover:text-primary transition-colors">
+                Cookie Policy
+              </Link>
+              <a 
+                href="https://wa.me/31628073996" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-primary transition-colors"
+              >
+                Support
+              </a>
+            </div>
+          </div>
+          <div className="text-center mt-4 text-sm text-muted-foreground">
+            © 2025 Sofeia AI. All rights reserved.
+          </div>
+        </div>
+      </footer>
 
       <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
     </div>
