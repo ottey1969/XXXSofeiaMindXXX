@@ -11,6 +11,9 @@ export function getSession() {
     tableName: "sessions",
   });
   
+  // Detect Replit production environment
+  const isReplitProduction = !!process.env.REPLIT_DB_URL;
+  
   return session({
     secret: process.env.SESSION_SECRET || 'sofeia-ai-secret-key-development',
     store: sessionStore,
@@ -18,8 +21,13 @@ export function getSession() {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isReplitProduction, // Always true on Replit
       maxAge: sessionTtl,
+      // Replit-specific settings for production
+      ...(isReplitProduction ? {
+        sameSite: 'lax', // More permissive than 'none' for Replit
+        domain: undefined // Let browser handle domain automatically
+      } : {})
     },
   });
 }

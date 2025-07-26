@@ -58,10 +58,10 @@ const upload = multer({
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
-  // Trust proxy for correct IP addresses
+  // Trust proxy for correct IP addresses (essential for Replit)
   app.set('trust proxy', 1);
   
-  // Add session middleware
+  // Add session middleware with Replit production support
   app.use(getSession());
   
   // Serve uploaded files
@@ -74,6 +74,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Authentication routes
   app.use('/api/auth', authRoutes);
+  
+  // Debug endpoint for session verification (must be before static routing)
+  app.get('/api/debug/session', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.json({
+      sessionId: req.sessionID ? 'SET' : 'NOT_SET',
+      hasSession: !!(req.session as any)?.userId,
+      environment: {
+        isReplit: !!process.env.REPLIT_DB_URL,
+        domain: process.env.REPLIT_DOMAINS,
+        nodeEnv: process.env.NODE_ENV || 'undefined'
+      },
+      cookieConfig: {
+        secure: !!(req.session as any)?.cookie?.secure,
+        httpOnly: !!(req.session as any)?.cookie?.httpOnly,
+        sameSite: (req.session as any)?.cookie?.sameSite
+      }
+    });
+  });
   
   // Direct logout route for users who are stuck
   app.get('/api/logout', (req, res) => {
