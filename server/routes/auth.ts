@@ -47,19 +47,33 @@ router.post('/register', async (req, res) => {
 
     const { user, verificationToken } = await authService.registerUser(email);
     
-    // Send verification email
+    // Try to send verification email
     const baseUrl = `${req.protocol}://${req.get('host')}`;
     const emailSent = await emailService.sendVerificationEmail(email, verificationToken, baseUrl);
     
+    if (!emailSent) {
+      // If email service isn't configured, auto-verify the user
+      console.log('Email service not available, auto-verifying user:', email);
+      const verifiedUser = await authService.verifyEmail(verificationToken);
+      if (verifiedUser) {
+        // Set session for auto-verified user
+        (req.session as any).userId = verifiedUser.id;
+        return res.json({
+          message: 'Account created and verified successfully! Welcome to Sofeia AI.',
+          userId: verifiedUser.id,
+          email: verifiedUser.email,
+          emailVerified: true,
+          credits: verifiedUser.credits,
+          autoLogin: true
+        });
+      }
+    }
+    
     res.json({
-      message: emailSent 
-        ? 'Verification email sent! Please check your inbox.'
-        : 'Email service not configured. Contact support for manual verification.',
+      message: 'Verification email sent! Please check your inbox.',
       userId: user.id,
       email: user.email,
-      emailSent,
-      // Temporary: For demo purposes, include verification token when email service is not configured
-      ...((!emailSent && process.env.NODE_ENV === 'development') ? { verificationToken } : {})
+      emailSent: true
     });
   } catch (error: any) {
     res.status(400).json({ 

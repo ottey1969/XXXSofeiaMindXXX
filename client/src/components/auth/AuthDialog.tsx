@@ -29,11 +29,11 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
       const result = await registerMutation.mutateAsync(email);
       setUserId(result.userId);
       
-      // Check if user is already verified
-      if (result.autoLogin || result.message?.includes('already registered and verified')) {
+      // Check if user is already verified or auto-verified
+      if (result.autoLogin || result.message?.includes('already registered and verified') || result.message?.includes('created and verified successfully')) {
         toast({
-          title: "Welcome back!",
-          description: "Your account is already verified. You can start using Sofeia AI."
+          title: result.message?.includes('Welcome') ? "Welcome to Sofeia AI!" : "Welcome back!",
+          description: "You can start creating content immediately with your free credits."
         });
         onOpenChange(false);
         window.location.reload(); // Refresh to load authenticated state
