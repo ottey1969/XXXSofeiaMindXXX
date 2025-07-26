@@ -28,14 +28,34 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
     try {
       const result = await registerMutation.mutateAsync(email);
       setUserId(result.userId);
-      // Note: In production, verification token is sent via email
-      // For demo, we'll provide instructions to check the console
+      
+      // Check if user is already verified
+      if (result.message?.includes('already registered and verified')) {
+        toast({
+          title: "Welcome back!",
+          description: "Your account is already verified. You can start using Sofeia AI."
+        });
+        onOpenChange(false);
+        window.location.reload(); // Refresh to load authenticated state
+        return;
+      }
+      
       setStep("verify");
       toast({
         title: "Verification email sent",
         description: "Please check your email and enter the verification code."
       });
     } catch (error: any) {
+      if (error.message?.includes('already registered and verified')) {
+        toast({
+          title: "Welcome back!",
+          description: "Your account is already verified. Refreshing page..."
+        });
+        onOpenChange(false);
+        setTimeout(() => window.location.reload(), 1000);
+        return;
+      }
+      
       toast({
         title: "Registration failed",
         description: error.message || "Please try again",
