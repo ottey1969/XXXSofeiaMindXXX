@@ -20,6 +20,7 @@ import ConversationHistory from "@/components/chat/ConversationHistory";
 import FileUpload, { FileList } from "@/components/chat/FileUpload";
 import BroadcastMessages from "@/components/BroadcastMessages";
 import AnnouncementBanner from "@/components/AnnouncementBanner";
+import { CreditRenewalNotification, NextRenewalInfo } from "@/components/CreditRenewalNotification";
 
 export default function Chat() {
   const { id: conversationId } = useParams();
@@ -260,6 +261,11 @@ export default function Chat() {
         {/* Announcement Banner */}
         <div className="px-4 pt-4">
           <AnnouncementBanner />
+        </div>
+        
+        {/* Credit Renewal Notification */}
+        <div className="px-4 pt-2">
+          <CreditRenewalNotification />
         </div>
         
         {/* Broadcast Messages */}

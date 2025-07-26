@@ -197,3 +197,10 @@ The architecture emphasizes modularity, type safety, and developer experience wh
   - Fixed cookie domain configuration for Replit deployment
   - Authentication now properly maintains user sessions across requests
   - Note: Local testing shows 401 because secure cookies won't work over HTTP localhost
+- **Automated Credit Renewal System** (NEW): Implemented 3 credits every 2 days automatic renewal
+  - Added `lastCreditRenewal` field to users schema and pushed database changes
+  - Created `checkAndRenewCredits()` function that grants 3 credits every 48 hours
+  - Integrated renewal checks into login, registration, and protected endpoints
+  - Added credit renewal notifications and next renewal date tracking
+  - System automatically renews credits when users access the application after 2+ days
+  - Frontend displays renewal notifications and countdown to next credit renewal

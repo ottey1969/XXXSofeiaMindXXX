@@ -27,6 +27,7 @@ export const users = pgTable("users", {
   ipAddress: varchar("ip_address"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+  lastCreditRenewal: timestamp("last_credit_renewal").defaultNow(),
 });
 
 export const conversations = pgTable("conversations", {

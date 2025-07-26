@@ -18,6 +18,9 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'User not found. Please register first.' });
     }
 
+    // Check for credit renewal on login
+    const renewalResult = await authService.checkAndRenewCredits(user.id);
+
     // Set session to log user in and regenerate session ID for security
     req.session.regenerate((err) => {
       if (err) {
@@ -36,13 +39,19 @@ router.post('/login', async (req, res) => {
         
         console.log('Session saved successfully, ID:', req.sessionID);
         
+        const renewalMessage = renewalResult.renewed ? ' You received 3 new credits!' : '';
+        
         res.json({
-          message: `Welcome back! You have ${user.credits} credits remaining.`,
+          message: `Welcome back! You have ${renewalResult.newCredits} credits remaining.${renewalMessage}`,
           user: {
             id: user.id,
             email: user.email,
-            credits: user.credits,
+            credits: renewalResult.newCredits,
             emailVerified: user.emailVerified
+          },
+          creditRenewal: {
+            renewed: renewalResult.renewed,
+            message: renewalResult.renewed ? 'You received 3 new credits!' : null
           }
         });
       });
@@ -66,6 +75,9 @@ router.post('/register', async (req, res) => {
     const existingUser = await authService.getUserByEmail(email);
     if (existingUser) {
       if (existingUser.emailVerified) {
+        // Check for credit renewal
+        const renewalResult = await authService.checkAndRenewCredits(existingUser.id);
+        
         // User is already verified, log them in directly
         (req.session as any).userId = existingUser.id;
         
@@ -75,16 +87,25 @@ router.post('/register', async (req, res) => {
             return res.status(500).json({ message: 'Login failed - session error' });
           }
           
+          const renewalMessage = renewalResult.renewed ? ' You received 3 new credits!' : '';
+          
           res.json({
-            message: 'Email already registered and verified',
+            message: `Email already registered and verified.${renewalMessage}`,
             userId: existingUser.id,
             email: existingUser.email,
             emailVerified: true,
-            credits: existingUser.credits,
-            autoLogin: true
+            credits: renewalResult.newCredits,
+            autoLogin: true,
+            creditRenewal: {
+              renewed: renewalResult.renewed,
+              message: renewalResult.renewed ? 'You received 3 new credits!' : null
+            }
           });
         });
       }
+      
+      // Check for credit renewal
+      const renewalResult = await authService.checkAndRenewCredits(existingUser.id);
       
       // Set session to log existing user in immediately  
       (req.session as any).userId = existingUser.id;
@@ -95,12 +116,18 @@ router.post('/register', async (req, res) => {
           return res.status(500).json({ message: 'Registration failed - session error' });
         }
         
+        const renewalMessage = renewalResult.renewed ? ' You received 3 new credits!' : '';
+        
         res.json({
-          message: `Welcome back! You have ${existingUser.credits} credits remaining.`,
+          message: `Welcome back! You have ${renewalResult.newCredits} credits remaining.${renewalMessage}`,
           userId: existingUser.id,
           email: existingUser.email,
-          credits: existingUser.credits,
-          autoLogin: true
+          credits: renewalResult.newCredits,
+          autoLogin: true,
+          creditRenewal: {
+            renewed: renewalResult.renewed,
+            message: renewalResult.renewed ? 'You received 3 new credits!' : null
+          }
         });
       });
     }
@@ -172,7 +199,7 @@ router.post('/verify', async (req, res) => {
   }
 });
 
-// Get current user
+// Get current user with credit renewal check
 router.get('/me', async (req, res) => {
   const userId = (req.session as any)?.userId;
   
@@ -186,11 +213,20 @@ router.get('/me', async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
+    // Check for credit renewal
+    const renewalResult = await authService.checkAndRenewCredits(user.id);
+    const nextRenewal = await authService.getNextRenewalDate(user.id);
+
     res.json({
       id: user.id,
       email: user.email,
-      credits: user.credits,
-      emailVerified: user.emailVerified
+      credits: renewalResult.newCredits,
+      emailVerified: user.emailVerified,
+      creditRenewal: {
+        renewed: renewalResult.renewed,
+        nextRenewalDate: nextRenewal,
+        message: renewalResult.renewed ? 'You received 3 new credits!' : null
+      }
     });
   } catch (error) {
     console.error('Get user error:', error);

@@ -138,6 +138,50 @@ export class AuthService {
     return user;
   }
 
+  // Check and renew credits for eligible users (3 credits every 2 days)
+  async checkAndRenewCredits(userId: string): Promise<{ renewed: boolean; newCredits: number }> {
+    const user = await this.getUserById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const now = new Date();
+    const lastRenewal = user.lastCreditRenewal ? new Date(user.lastCreditRenewal) : new Date(user.createdAt!);
+    const twoDaysAgo = new Date(now.getTime() - (2 * 24 * 60 * 60 * 1000)); // 2 days in milliseconds
+
+    // Check if 2 days have passed since last renewal
+    if (lastRenewal < twoDaysAgo) {
+      const [updatedUser] = await db
+        .update(users)
+        .set({
+          credits: sql`credits + 3`,
+          lastCreditRenewal: now,
+          updatedAt: now
+        })
+        .where(eq(users.id, userId))
+        .returning();
+
+      return {
+        renewed: true,
+        newCredits: updatedUser.credits
+      };
+    }
+
+    return {
+      renewed: false,
+      newCredits: user.credits
+    };
+  }
+
+  // Get next renewal date for a user
+  async getNextRenewalDate(userId: string): Promise<Date | null> {
+    const user = await this.getUserById(userId);
+    if (!user) return null;
+
+    const lastRenewal = user.lastCreditRenewal ? new Date(user.lastCreditRenewal) : new Date(user.createdAt!);
+    return new Date(lastRenewal.getTime() + (2 * 24 * 60 * 60 * 1000)); // Add 2 days
+  }
+
   async deleteAllUsers(): Promise<{ deletedCount: number }> {
     const allUsers = await db.select().from(users);
     const count = allUsers.length;

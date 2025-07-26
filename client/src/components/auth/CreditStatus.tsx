@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { ExternalLink } from "lucide-react";
+import { NextRenewalInfo } from "@/components/CreditRenewalNotification";
 
 export default function CreditStatus() {
   const { user } = useAuth();
@@ -24,6 +25,7 @@ export default function CreditStatus() {
           {user.credits} credit{user.credits !== 1 ? 's' : ''} remaining
         </p>
         <p className="text-xs text-muted-foreground">{user.email}</p>
+        <NextRenewalInfo />
       </div>
       {user.credits <= 1 && (
         <div className="flex gap-2">

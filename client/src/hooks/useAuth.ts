@@ -6,6 +6,11 @@ export interface User {
   email: string;
   credits: number;
   emailVerified: boolean;
+  creditRenewal?: {
+    renewed: boolean;
+    nextRenewalDate: string | null;
+    message: string | null;
+  };
 }
 
 export function useAuth() {

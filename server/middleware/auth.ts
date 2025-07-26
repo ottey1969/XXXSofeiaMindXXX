@@ -29,10 +29,13 @@ export const requireAuth = async (req: AuthenticatedRequest, res: Response, next
       });
     }
 
+    // Check for credit renewal on each protected request
+    const renewalResult = await authService.checkAndRenewCredits(user.id);
+    
     req.user = {
       id: user.id,
       email: user.email,
-      credits: user.credits,
+      credits: renewalResult.newCredits,
       emailVerified: user.emailVerified
     };
 
