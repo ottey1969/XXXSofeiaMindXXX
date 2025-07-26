@@ -45,6 +45,11 @@ function Router() {
           <Chat />
         </AuthWrapper>
       </Route>
+      <Route path="/sofeiaai">
+        <AuthWrapper>
+          <Chat />
+        </AuthWrapper>
+      </Route>
       <Route path="/admin">
         <AdminPanel />
       </Route>
