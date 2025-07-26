@@ -57,7 +57,7 @@ class EmailService {
 
     try {
       const info = await this.transporter.sendMail({
-        from: process.env.EMAIL_FROM || 'noreply@sofeia.ai',
+        from: process.env.EMAIL_FROM || 'NoReply@ContentScale.site',
         to: options.to,
         subject: options.subject,
         html: options.html,
