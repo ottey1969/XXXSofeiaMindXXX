@@ -608,6 +608,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete('/api/admin/messages/:messageId', async (req, res) => {
+    const adminKey = req.headers['x-admin-key'] || req.body.adminKey;
+    
+    if (adminKey !== ADMIN_KEY) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    try {
+      const { messageId } = req.params;
+      await storage.deleteAdminMessage(messageId);
+      res.json({ message: 'Message deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      res.status(500).json({ message: 'Failed to delete message' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

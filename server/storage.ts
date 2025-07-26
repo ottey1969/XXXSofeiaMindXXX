@@ -280,6 +280,10 @@ export class MemStorage implements IStorage {
   async getUserByEmail(email: string): Promise<any> {
     return Array.from(this.users.values()).find(user => user.email === email);
   }
+
+  async deleteAdminMessage(messageId: string): Promise<boolean> {
+    return this.adminMessages.delete(messageId);
+  }
 }
 
 export const storage = new MemStorage();

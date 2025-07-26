@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Shield, Plus, Search, Euro, MessageSquare, Ban, Check, X, Users, Activity, Volume2, VolumeX } from "lucide-react";
+import { Shield, Plus, Search, Euro, MessageSquare, Ban, Check, X, Users, Activity, Volume2, VolumeX, Trash2 } from "lucide-react";
 
 const ADMIN_KEY = "0f5db72a966a8d5f7ebae96c6a1e2cc574c2bf926c62dc4526bd43df1c0f42eb";
 
@@ -201,6 +201,21 @@ export default function AdminPanel() {
       },
     });
 
+    const deleteMessageMutation = useMutation({
+      mutationFn: async (messageId: string) => {
+        await apiRequest("DELETE", `/api/admin/messages/${messageId}`, {
+          adminKey: ADMIN_KEY,
+        });
+      },
+      onSuccess: () => {
+        refetch();
+        toast({
+          title: "Message deleted",
+          description: "The message has been permanently deleted.",
+        });
+      },
+    });
+
     return (
       <Card>
         <CardHeader>
@@ -286,16 +301,28 @@ export default function AdminPanel() {
                         {new Date(message.createdAt).toLocaleString()}
                       </span>
                     </div>
-                    {!message.isRead && (
+                    <div className="flex items-center gap-2">
+                      {!message.isRead && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => markAsReadMutation.mutate(message.id)}
+                          disabled={markAsReadMutation.isPending}
+                        >
+                          Mark as Read
+                        </Button>
+                      )}
                       <Button
-                        variant="outline"
+                        variant="destructive"
                         size="sm"
-                        onClick={() => markAsReadMutation.mutate(message.id)}
-                        disabled={markAsReadMutation.isPending}
+                        onClick={() => deleteMessageMutation.mutate(message.id)}
+                        disabled={deleteMessageMutation.isPending}
+                        className="flex items-center gap-1"
                       >
-                        Mark as Read
+                        <Trash2 className="w-3 h-3" />
+                        Delete
                       </Button>
-                    )}
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <h4 className="font-medium">{message.subject}</h4>
