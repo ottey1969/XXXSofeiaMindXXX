@@ -1,0 +1,34 @@
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
+import { ExternalLink } from "lucide-react";
+
+export default function CreditStatus() {
+  const { user } = useAuth();
+
+  if (!user) return null;
+
+  const handleContactSupport = () => {
+    window.open('https://wa.me/31628073996?text=Hi%2C%20I%20need%20more%20credits%20for%20Sofeia%20AI', '_blank');
+  };
+
+  return (
+    <div className="flex items-center gap-2 px-3 py-2 bg-muted/50 rounded-lg">
+      <div className="flex-1">
+        <p className="text-sm font-medium">
+          {user.credits} credit{user.credits !== 1 ? 's' : ''} remaining
+        </p>
+        <p className="text-xs text-muted-foreground">{user.email}</p>
+      </div>
+      {user.credits <= 0 && (
+        <Button 
+          size="sm" 
+          onClick={handleContactSupport}
+          className="gap-1"
+        >
+          <ExternalLink className="h-3 w-3" />
+          Get Credits
+        </Button>
+      )}
+    </div>
+  );
+}

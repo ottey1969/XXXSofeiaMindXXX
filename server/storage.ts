@@ -34,6 +34,7 @@ export class MemStorage implements IStorage {
     const conversation: Conversation = { 
       id,
       title: insertConversation.title || null,
+      userId: insertConversation.userId || null,
       createdAt: now,
       updatedAt: now
     };

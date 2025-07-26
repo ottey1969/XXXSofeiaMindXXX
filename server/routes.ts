@@ -8,13 +8,24 @@ import { perplexityService } from "./services/perplexity-service";
 import { anthropicService } from "./services/anthropic-service";
 import { craftFramework } from "./services/craft-framework";
 import { keywordResearchService } from "./services/keyword-research";
+import { getSession } from "./middleware/session";
+import { requireAuth, requireCredits, type AuthenticatedRequest } from "./middleware/auth";
+import { authService } from "./auth";
+import authRoutes from "./routes/auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
-  // Get conversations
-  app.get("/api/conversations", async (req, res) => {
+  // Add session middleware
+  app.use(getSession());
+  
+  // Authentication routes
+  app.use('/api/auth', authRoutes);
+  
+  // Get conversations (protected)
+  app.get("/api/conversations", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
       const conversations = await storage.listConversations();
+      // Filter by user ID in a real implementation
       res.json(conversations);
     } catch (error) {
       console.error("Error fetching conversations:", error);
@@ -22,10 +33,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create new conversation
-  app.post("/api/conversations", async (req, res) => {
+  // Create new conversation (protected)
+  app.post("/api/conversations", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
-      const validatedData = insertConversationSchema.parse(req.body);
+      const validatedData = insertConversationSchema.parse({
+        ...req.body,
+        userId: req.user!.id
+      });
       const conversation = await storage.createConversation(validatedData);
       res.json(conversation);
     } catch (error) {
@@ -34,8 +48,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get messages for a conversation
-  app.get("/api/conversations/:id/messages", async (req, res) => {
+  // Get messages for a conversation (protected)
+  app.get("/api/conversations/:id/messages", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
       const { id } = req.params;
       const messages = await storage.getMessagesByConversation(id);
@@ -46,14 +60,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Send message and get AI response
-  app.post("/api/conversations/:id/messages", async (req, res) => {
+  // Send message and get AI response (protected, requires credits)
+  app.post("/api/conversations/:id/messages", requireAuth, requireCredits, async (req: AuthenticatedRequest, res) => {
     try {
       const { id: conversationId } = req.params;
       const { content } = req.body;
 
       if (!content || typeof content !== 'string') {
         return res.status(400).json({ message: "Message content is required" });
+      }
+
+      // Use a credit before processing
+      const creditResult = await authService.useCredit(req.user!.id);
+      if (!creditResult.success) {
+        return res.status(402).json({ 
+          message: 'No credits remaining',
+          action: 'buy_credits',
+          whatsappUrl: 'https://wa.me/31628073996?text=Hi%2C%20I%20need%20more%20credits%20for%20Sofeia%20AI'
+        });
       }
 
       // Store user message

@@ -3,15 +3,21 @@ import { useParams } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { apiRequest } from "@/lib/queryClient";
+import { Button } from "@/components/ui/button";
 import { Message, Conversation } from "@shared/schema";
 import MessageBubble from "@/components/chat/message-bubble";
 import TypingIndicator from "@/components/chat/typing-indicator";
 import InputArea from "@/components/chat/input-area";
 import ProviderStatus from "@/components/chat/provider-status";
+import CreditStatus from "@/components/auth/CreditStatus";
+import { useAuth } from "@/hooks/useAuth";
 import { Brain, Sparkles } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Chat() {
   const { id: conversationId } = useParams();
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [isTyping, setIsTyping] = useState(false);
   const [currentProvider, setCurrentProvider] = useState("Groq Ready");
@@ -62,9 +68,32 @@ export default function Chat() {
         setCurrentProvider("Ready");
       }, 2000);
     },
-    onError: () => {
+    onError: (error: any) => {
       setIsTyping(false);
       setCurrentProvider("Error - Retrying");
+      
+      // Handle specific error cases
+      if (error.message?.includes('No credits remaining')) {
+        toast({
+          title: "No Credits Remaining",
+          description: "Contact us on WhatsApp for more credits",
+          variant: "destructive",
+          action: (
+            <Button 
+              size="sm" 
+              onClick={() => window.open('https://wa.me/31628073996?text=Hi%2C%20I%20need%20more%20credits%20for%20Sofeia%20AI', '_blank')}
+            >
+              Contact Support
+            </Button>
+          )
+        });
+      } else if (error.message?.includes('Authentication required')) {
+        toast({
+          title: "Authentication Required",
+          description: "Please refresh the page and sign in again",
+          variant: "destructive"
+        });
+      }
     }
   });
 
@@ -125,7 +154,10 @@ export default function Chat() {
           </div>
         </div>
         
-        <ProviderStatus currentProvider={currentProvider} />
+        <div className="flex items-center gap-4">
+          <CreditStatus />
+          <ProviderStatus currentProvider={currentProvider} />
+        </div>
       </header>
 
       {/* Chat Container */}
