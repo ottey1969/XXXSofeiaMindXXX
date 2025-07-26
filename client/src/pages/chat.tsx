@@ -15,6 +15,7 @@ import { Brain, Sparkles, MessageSquare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import NotificationPopup from "@/components/NotificationPopup";
 import ContactAdminDialog from "@/components/ContactAdminDialog";
+import AudioControls from "@/components/audio/AudioControls";
 
 export default function Chat() {
   const { id: conversationId } = useParams();
@@ -170,6 +171,7 @@ export default function Chat() {
         <div className="flex items-center gap-4">
           <CreditStatus />
           <ProviderStatus currentProvider={currentProvider} />
+          <AudioControls onVoiceInput={handleSendMessage} />
           <Button 
             variant="outline" 
             size="sm"
