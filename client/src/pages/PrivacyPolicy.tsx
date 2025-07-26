@@ -1,8 +1,18 @@
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "wouter";
 import { ArrowLeft, Shield, Eye, Database, Lock } from "lucide-react";
 
 export default function PrivacyPolicy() {
+  // Set page title and meta description for SEO
+  React.useEffect(() => {
+    document.title = "Privacy Policy - Sofeia AI Content Generator | Data Protection & GDPR Compliance";
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', 'Sofeia AI Privacy Policy: Learn how we protect your data when using our AI content generator. GDPR compliant with transparency on AI provider data sharing (Groq, Perplexity, Anthropic).');
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 py-8">
       <div className="max-w-4xl mx-auto px-4">

@@ -9,6 +9,27 @@ This is a full-stack chat application built as "Sofeia AI" - an advanced autonom
 Preferred communication style: Simple, everyday language.
 Output format: Properly formatted HTML with real headings (h1, h2, h3), bullets (ul, li), and tables. All AI responses should be ready for direct copy-paste as functional HTML code.
 
+## SEO Strategy & Competitive Positioning
+
+Target Keywords (High Volume, Low Competition):
+- Primary: "AI SEO content generator" (3,600/month, low competition)
+- Secondary: "free AI content generator" (9,900/month, medium competition) 
+- Long-tail: "AI content generator with SEO optimization" (340/month, very low competition)
+
+Competitive Targets: ContentScale (BrandWell) and Brandwell.com
+- Position as superior alternative with multi-AI routing
+- Emphasize free credits vs expensive monthly subscriptions ($249+)
+- Highlight ready-to-use HTML output advantage
+- Focus on C.R.A.F.T framework + RankMath SEO integration
+
+SEO Implementation (Updated Jan 26, 2025):
+- Comprehensive schema markup (SoftwareApplication, Organization, FAQ, WebSite)
+- Optimized meta titles targeting primary keywords
+- Enhanced meta descriptions with competitive positioning
+- Open Graph and Twitter Card optimization
+- Dynamic page titles for legal pages
+- Structured data for AI Overview optimization
+
 ## Support Channels
 - WhatsApp: +31 6 2807 3996 (for direct credit purchases and urgent support)
 - Facebook Group: https://www.facebook.com/groups/1079321647257618 (ContentScale Facebook Group for community questions and discussions)

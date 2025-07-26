@@ -1,8 +1,18 @@
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "wouter";
 import { ArrowLeft, FileText, Users, CreditCard, AlertTriangle } from "lucide-react";
 
 export default function TermsOfService() {
+  // Set page title and meta description for SEO
+  React.useEffect(() => {
+    document.title = "Terms of Service - Sofeia AI Content Generator | Legal Terms & Credit System";
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', 'Sofeia AI Terms of Service: Legal framework for using our AI content generator. Clear credit system rules, acceptable use policy, and terms for multi-AI provider platform.');
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 py-8">
       <div className="max-w-4xl mx-auto px-4">

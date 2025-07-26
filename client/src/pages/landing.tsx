@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import AuthDialog from "@/components/auth/AuthDialog";
@@ -7,6 +7,28 @@ import { Link } from "wouter";
 
 export default function Landing() {
   const [authOpen, setAuthOpen] = useState(false);
+
+  // Set dynamic meta tags for enhanced SEO
+  useEffect(() => {
+    // Add hreflang for international SEO
+    const hrefLang = document.createElement('link');
+    hrefLang.setAttribute('rel', 'alternate');
+    hrefLang.setAttribute('hreflang', 'en');
+    hrefLang.setAttribute('href', 'https://sofeia-ai.replit.app/');
+    document.head.appendChild(hrefLang);
+
+    // Add preconnect for performance
+    const preconnect = document.createElement('link');
+    preconnect.setAttribute('rel', 'preconnect');
+    preconnect.setAttribute('href', 'https://api.groq.com');
+    document.head.appendChild(preconnect);
+
+    // Clean up
+    return () => {
+      document.head.removeChild(hrefLang);
+      document.head.removeChild(preconnect);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/50">
@@ -21,54 +43,94 @@ export default function Landing() {
               </h1>
             </div>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              The world's most advanced autonomous content agent. Get SEO-optimized HTML content 
-              ready for direct copy-paste, powered by multiple AI providers.
+              Free AI SEO content generator with C.R.A.F.T optimization framework. Create high-ranking articles, blogs & copy using advanced multi-AI routing. Outperforms ContentScale & BrandWell with superior HTML output.
             </p>
             <Button 
               size="lg" 
               onClick={() => setAuthOpen(true)}
               className="text-lg px-8 py-6"
+              aria-label="Start using AI content generator with 3 free credits"
             >
-              Start with 3 Free Credits
+              Get Free AI Content Generator - 3 Credits
             </Button>
           </div>
 
           {/* Features Grid */}
           <div className="grid md:grid-cols-3 gap-6 mb-16">
-            <Card>
+            <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <Sparkles className="h-8 w-8 text-primary mb-2" />
-                <CardTitle>C.R.A.F.T Framework</CardTitle>
+                <CardTitle>C.R.A.F.T SEO Framework</CardTitle>
                 <CardDescription>
-                  Enhanced content optimization with RankMath SEO principles for 100/100 scoring
+                  Advanced content optimization with RankMath SEO principles. Achieve 100/100 SEO scores with keyword density, E-A-T optimization, and schema markup integration.
                 </CardDescription>
               </CardHeader>
             </Card>
             
-            <Card>
+            <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <Globe className="h-8 w-8 text-primary mb-2" />
-                <CardTitle>Multi-AI Routing</CardTitle>
+                <CardTitle>Multi-AI Provider Routing</CardTitle>
                 <CardDescription>
-                  Intelligent routing between Groq, Perplexity, and Anthropic based on query complexity
+                  Intelligent AI routing: Groq for fast responses, Perplexity for research queries, Anthropic Claude for complex content. Better than single-provider solutions.
                 </CardDescription>
               </CardHeader>
             </Card>
             
-            <Card>
+            <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <MessageSquare className="h-8 w-8 text-primary mb-2" />
-                <CardTitle>Real HTML Output</CardTitle>
+                <CardTitle>Ready-to-Use HTML Output</CardTitle>
                 <CardDescription>
-                  Get properly formatted HTML with h1, h2, h3 headings, lists, and tables for direct use
+                  Copy-paste ready HTML with proper h1, h2, h3 structure, tables, lists, and semantic markup. No editing required - publish immediately.
                 </CardDescription>
               </CardHeader>
             </Card>
           </div>
 
+          {/* Competitive Advantages */}
+          <div className="mb-16">
+            <h2 className="text-3xl font-bold mb-8">Why Choose Sofeia AI Over ContentScale & BrandWell?</h2>
+            <div className="grid md:grid-cols-2 gap-6">
+              <Card className="border-green-200 bg-green-50 dark:bg-green-900/20">
+                <CardHeader>
+                  <CardTitle className="text-green-800 dark:text-green-200">✓ Sofeia AI Advantages</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2 text-sm">
+                    <li>• Multi-AI provider routing (Groq + Perplexity + Claude)</li>
+                    <li>• Free 3 credits to start (no payment required)</li>
+                    <li>• Ready-to-use HTML output with proper markup</li>
+                    <li>• Advanced C.R.A.F.T SEO framework</li>
+                    <li>• RankMath SEO integration built-in</li>
+                    <li>• Real-time AI query optimization</li>
+                    <li>• Schema markup automatically included</li>
+                  </ul>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-red-200 bg-red-50 dark:bg-red-900/20">
+                <CardHeader>
+                  <CardTitle className="text-red-800 dark:text-red-200">✗ ContentScale/BrandWell Limitations</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2 text-sm">
+                    <li>• Single AI provider (limited capability)</li>
+                    <li>• Expensive pricing ($249+/month)</li>
+                    <li>• Basic content optimization</li>
+                    <li>• Limited HTML formatting options</li>
+                    <li>• No free trial or credits</li>
+                    <li>• Generic SEO approach</li>
+                    <li>• Complex enterprise-focused interface</li>
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
           {/* How it Works */}
           <div className="mb-16">
-            <h2 className="text-3xl font-bold mb-8">How It Works</h2>
+            <h2 className="text-3xl font-bold mb-8">How Sofeia AI Works</h2>
             <div className="grid md:grid-cols-4 gap-4 text-center">
               <div className="space-y-2">
                 <div className="bg-primary/10 rounded-full w-12 h-12 flex items-center justify-center mx-auto">

@@ -1,8 +1,18 @@
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "wouter";
 import { ArrowLeft, Cookie, Settings, Globe, BarChart } from "lucide-react";
 
 export default function CookiePolicy() {
+  // Set page title and meta description for SEO
+  React.useEffect(() => {
+    document.title = "Cookie Policy - Sofeia AI Content Generator | Data Usage & Privacy Settings";
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', 'Sofeia AI Cookie Policy: Understand how we use cookies to enhance your AI content generation experience. Manage preferences for optimal privacy and functionality.');
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 py-8">
       <div className="max-w-4xl mx-auto px-4">
