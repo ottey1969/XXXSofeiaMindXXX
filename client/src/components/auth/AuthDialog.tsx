@@ -28,7 +28,8 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
     try {
       const result = await registerMutation.mutateAsync(email);
       setUserId(result.userId);
-      setVerificationToken(result.verificationToken); // Auto-fill for demo
+      // Note: In production, verification token is sent via email
+      // For demo, we'll provide instructions to check the console
       setStep("verify");
       toast({
         title: "Verification email sent",
@@ -141,36 +142,53 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
         )}
 
         {step === "verify" && (
-          <form onSubmit={handleVerificationSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="token">Verification Code</Label>
-              <Input
-                id="token"
-                value={verificationToken}
-                onChange={(e) => setVerificationToken(e.target.value)}
-                placeholder="Enter verification code"
-                required
-              />
+          <div className="space-y-4">
+            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+              <h4 className="font-semibold mb-2 text-blue-800 dark:text-blue-200">⚠️ Demo Mode</h4>
+              <p className="text-sm text-blue-700 dark:text-blue-300">
+                In production, you would receive a verification email. For this demo, please contact us via:
+              </p>
+              <div className="mt-3 space-y-2">
+                <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                  📱 WhatsApp: +31 6 2807 3996
+                </p>
+                <p className="text-sm text-blue-700 dark:text-blue-300">
+                  We'll verify your account manually and provide access.
+                </p>
+              </div>
             </div>
-            <Button 
-              type="submit" 
-              className="w-full"
-              disabled={verifyMutation.isPending}
-            >
-              {verifyMutation.isPending ? "Verifying..." : "Verify Email"}
-            </Button>
-            <p className="text-sm text-muted-foreground text-center">
-              Sent to: {email}
-            </p>
-            <Button 
-              type="button" 
-              variant="ghost" 
-              className="w-full"
-              onClick={() => setStep("email")}
-            >
-              Use Different Email
-            </Button>
-          </form>
+            
+            <form onSubmit={handleVerificationSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="token">Verification Code (Demo)</Label>
+                <Input
+                  id="token"
+                  value={verificationToken}
+                  onChange={(e) => setVerificationToken(e.target.value)}
+                  placeholder="Contact support for verification"
+                  required
+                />
+              </div>
+              <Button 
+                type="submit" 
+                className="w-full"
+                disabled={verifyMutation.isPending}
+              >
+                {verifyMutation.isPending ? "Verifying..." : "Verify Email"}
+              </Button>
+              <p className="text-sm text-muted-foreground text-center">
+                Email: {email}
+              </p>
+              <Button 
+                type="button" 
+                variant="ghost" 
+                className="w-full"
+                onClick={() => setStep("email")}
+              >
+                Use Different Email
+              </Button>
+            </form>
+          </div>
         )}
       </DialogContent>
     </Dialog>

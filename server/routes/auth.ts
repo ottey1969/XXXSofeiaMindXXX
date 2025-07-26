@@ -19,7 +19,7 @@ router.post('/register', async (req, res) => {
       return res.json({
         message: 'New verification email sent to existing account',
         userId: existingUser.id,
-        verificationToken, // Remove this in production
+        // verificationToken removed for security
         email: existingUser.email
       });
     }
@@ -31,7 +31,7 @@ router.post('/register', async (req, res) => {
     res.json({
       message: 'Verification email sent',
       userId: user.id,
-      verificationToken, // Remove this in production
+      // verificationToken removed for security
       email: user.email
     });
   } catch (error: any) {

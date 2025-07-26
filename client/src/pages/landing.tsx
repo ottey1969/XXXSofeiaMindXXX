@@ -227,6 +227,9 @@ export default function Landing() {
               <Link href="/cookies" className="hover:text-primary transition-colors">
                 Cookie Policy
               </Link>
+              <Link href="/gdpr" className="hover:text-primary transition-colors">
+                GDPR Rights
+              </Link>
               <a 
                 href="https://wa.me/31628073996" 
                 target="_blank" 

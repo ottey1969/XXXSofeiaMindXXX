@@ -10,6 +10,7 @@ import AdminPanel from "@/pages/AdminPanel";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import TermsOfService from "@/pages/TermsOfService";
 import CookiePolicy from "@/pages/CookiePolicy";
+import GDPRCompliance from "@/pages/GDPRCompliance";
 import { useAuth } from "@/hooks/useAuth";
 
 function AuthWrapper({ children }: { children: React.ReactNode }) {
@@ -49,6 +50,7 @@ function Router() {
       <Route path="/privacy" component={PrivacyPolicy} />
       <Route path="/terms" component={TermsOfService} />
       <Route path="/cookies" component={CookiePolicy} />
+      <Route path="/gdpr" component={GDPRCompliance} />
       <Route component={NotFound} />
     </Switch>
   );

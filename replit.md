@@ -36,6 +36,14 @@ SEO Implementation (Updated Jan 26, 2025):
 - WhatsApp: +31 6 2807 3996 (for direct credit purchases and urgent support)
 - Facebook Group: https://www.facebook.com/groups/1079321647257618 (ContentScale Facebook Group for community questions and discussions)
 
+## Security & GDPR Compliance (Updated Jan 26, 2025)
+- **Email Verification**: Secure token-based authentication (tokens not exposed in production)
+- **Data Protection**: Full GDPR compliance with user rights (access, deletion, portability)
+- **AI Provider Data**: Transparent data sharing with Groq, Perplexity, Anthropic
+- **Session Security**: Encrypted session storage with proper expiration
+- **User Rights**: Complete GDPR rights page at /gdpr with clear contact channels
+- **Demo Mode**: Current system shows verification process, production will use proper email sending
+
 ## Admin System
 - Admin Key: 0f5db72a966a8d5f7ebae96c6a1e2cc574c2bf926c62dc4526bd43df1c0f42eb
 - Admin can add credits to users via POST /api/admin/add-credits
