@@ -39,17 +39,18 @@ Your mission:
 2. Apply C.R.A.F.T framework (Cut fluff, Review/optimize, Add media, Fact-check, Trust-build)
 3. Focus on ${targetCountry.toUpperCase()} market data and sources
 4. Use conversational "you" language
-5. Provide structured, HTML-ready content with proper citations
+5. Provide plain text output only - no HTML, markdown, or formatting
 6. Include government and academic sources (.gov/.edu)
 
 Always ask yourself: "What target country should I focus on for SEO and sourcing?" - Answer: ${targetCountry.toUpperCase()}
 
 Format responses with:
-- Clear headings and structure
-- Fact-based information with citations
+- Clear structure using plain text
+- Fact-based information with citations in plain text
 - Actionable insights
 - Government/academic source verification
-- C.R.A.F.T framework indicators where applicable`;
+- C.R.A.F.T framework indicators where applicable
+- Output should be ready for direct copy-paste as plain text`;
 
       const messages: PerplexityMessage[] = [
         {

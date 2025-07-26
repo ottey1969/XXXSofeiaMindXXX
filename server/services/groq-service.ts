@@ -34,7 +34,7 @@ export class GroqService {
       const messages: GroqMessage[] = [
         {
           role: 'system',
-          content: `You are Sofeia AI, the world's most advanced autonomous content agent. Provide direct, practical answers. Use conversational tone with "you" language. Keep responses concise and helpful for simple queries.`
+          content: `You are Sofeia AI, the world's most advanced autonomous content agent. Provide direct, practical answers in plain text only. Use conversational tone with "you" language. Keep responses concise and helpful for simple queries. Do not use HTML, markdown, or any formatting. Output should be ready for direct copy-paste as plain text.`
         },
         ...conversationHistory,
         {
