@@ -44,7 +44,9 @@ router.post('/register', async (req, res) => {
         : 'Email service not configured. Contact support for manual verification.',
       userId: user.id,
       email: user.email,
-      emailSent
+      emailSent,
+      // Temporary: For demo purposes, include verification token when email service is not configured
+      ...((!emailSent && process.env.NODE_ENV === 'development') ? { verificationToken } : {})
     });
   } catch (error: any) {
     res.status(400).json({ 
