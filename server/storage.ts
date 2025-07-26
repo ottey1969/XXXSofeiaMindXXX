@@ -155,6 +155,34 @@ export class MemStorage implements IStorage {
     );
   }
 
+  // File upload management
+  private uploads = new Map<string, any>();
+
+  async createUpload(uploadData: any): Promise<any> {
+    const id = `upload_${Date.now()}`;
+    const upload = {
+      id,
+      ...uploadData,
+      uploadedAt: new Date()
+    };
+    this.uploads.set(id, upload);
+    return upload;
+  }
+
+  async getUpload(id: string): Promise<any | undefined> {
+    return this.uploads.get(id);
+  }
+
+  async getUserUploads(userId: string): Promise<any[]> {
+    return Array.from(this.uploads.values())
+      .filter(upload => upload.userId === userId)
+      .sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime());
+  }
+
+  async deleteUpload(id: string): Promise<boolean> {
+    return this.uploads.delete(id);
+  }
+
   async getMessage(id: string): Promise<Message | undefined> {
     return this.messages.get(id);
   }

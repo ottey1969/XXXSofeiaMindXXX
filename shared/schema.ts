@@ -153,6 +153,22 @@ export type InsertUserActivityLog = typeof userActivityLog.$inferInsert;
 export type BlockedUser = typeof blockedUsers.$inferSelect;
 export type InsertBlockedUser = typeof blockedUsers.$inferInsert;
 
+// File uploads table
+export const uploads = pgTable("uploads", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  filename: varchar("filename").notNull(),
+  originalName: varchar("original_name").notNull(),
+  mimeType: varchar("mime_type").notNull(),
+  size: integer("size").notNull(),
+  fileType: varchar("file_type", { enum: ["image", "document", "audio", "video"] }).notNull(),
+  filePath: varchar("file_path").notNull(),
+  uploadedAt: timestamp("uploaded_at").defaultNow(),
+});
+
+export type Upload = typeof uploads.$inferSelect;
+export type InsertUpload = typeof uploads.$inferInsert;
+
 // AI Provider Types
 export interface AIResponse {
   content: string;

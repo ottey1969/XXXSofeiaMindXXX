@@ -1,5 +1,8 @@
-import type { Express } from "express";
+import express, { type Express } from "express";
 import { createServer, type Server } from "http";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
 import { storage } from "./storage";
 import { insertMessageSchema, insertConversationSchema } from "@shared/schema";
 import { aiRouter } from "./services/ai-router";
@@ -17,10 +20,52 @@ import { notifications } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import { db } from "./db";
 
+// Ensure uploads directory exists
+const uploadsDir = path.join(process.cwd(), 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Configure multer for file uploads
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, uploadsDir);
+    },
+    filename: (req, file, cb) => {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
+  }),
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    // Allow images, documents, and audio files
+    const allowedTypes = /jpeg|jpg|png|gif|webp|pdf|doc|docx|txt|mp3|wav|ogg|m4a/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Only images, documents, and audio files are allowed'));
+    }
+  }
+});
+
 export async function registerRoutes(app: Express): Promise<Server> {
   
   // Add session middleware
   app.use(getSession());
+  
+  // Serve uploaded files
+  app.use('/uploads', (req, res, next) => {
+    // Add basic security headers
+    res.setHeader('Cache-Control', 'public, max-age=31536000');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    next();
+  }, express.static(uploadsDir));
   
   // Authentication routes
   app.use('/api/auth', authRoutes);
@@ -432,6 +477,99 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching activity log:", error);
       res.status(500).json({ message: "Failed to fetch activity log" });
+    }
+  });
+
+  // File upload endpoint
+  app.post("/api/upload", requireAuth, upload.single('file'), async (req: AuthenticatedRequest, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      // Determine file type
+      let fileType: string;
+      if (req.file.mimetype.startsWith('image/')) {
+        fileType = 'image';
+      } else if (req.file.mimetype.startsWith('audio/')) {
+        fileType = 'audio';
+      } else if (req.file.mimetype === 'application/pdf' || 
+                 req.file.mimetype.includes('document') || 
+                 req.file.mimetype === 'text/plain') {
+        fileType = 'document';
+      } else {
+        fileType = 'document'; // Default fallback
+      }
+
+      // Save upload info to storage
+      const uploadRecord = await storage.createUpload({
+        userId: req.user!.id,
+        filename: req.file.filename,
+        originalName: req.file.originalname,
+        mimeType: req.file.mimetype,
+        size: req.file.size,
+        fileType,
+        filePath: `/uploads/${req.file.filename}`
+      });
+
+      res.json({
+        id: uploadRecord.id,
+        filename: uploadRecord.filename,
+        originalName: uploadRecord.originalName,
+        fileType: uploadRecord.fileType,
+        size: uploadRecord.size,
+        url: uploadRecord.filePath
+      });
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      
+      // Clean up file if upload record failed
+      if (req.file) {
+        try {
+          fs.unlinkSync(req.file.path);
+        } catch (cleanupError) {
+          console.error("Error cleaning up file:", cleanupError);
+        }
+      }
+      
+      res.status(500).json({ message: "Failed to upload file" });
+    }
+  });
+
+  // Get user's uploaded files
+  app.get("/api/uploads", requireAuth, async (req: AuthenticatedRequest, res) => {
+    try {
+      const uploads = await storage.getUserUploads(req.user!.id);
+      res.json(uploads);
+    } catch (error) {
+      console.error("Error fetching uploads:", error);
+      res.status(500).json({ message: "Failed to fetch uploads" });
+    }
+  });
+
+  // Delete uploaded file
+  app.delete("/api/uploads/:id", requireAuth, async (req: AuthenticatedRequest, res) => {
+    try {
+      const { id } = req.params;
+      const upload = await storage.getUpload(id);
+      
+      if (!upload || upload.userId !== req.user!.id) {
+        return res.status(404).json({ message: "File not found" });
+      }
+
+      // Delete physical file
+      const filePath = path.join(uploadsDir, upload.filename);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+
+      // Delete from storage
+      await storage.deleteUpload(id);
+      
+      res.json({ message: "File deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting file:", error);
+      res.status(500).json({ message: "Failed to delete file" });
     }
   });
 

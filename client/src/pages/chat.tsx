@@ -11,12 +11,13 @@ import InputArea from "@/components/chat/input-area";
 import ProviderStatus from "@/components/chat/provider-status";
 import CreditStatus from "@/components/auth/CreditStatus";
 import { useAuth, useLogout } from "@/hooks/useAuth";
-import { Brain, Sparkles, MessageSquare } from "lucide-react";
+import { Brain, Sparkles, MessageSquare, Paperclip } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import NotificationPopup from "@/components/NotificationPopup";
 import ContactAdminDialog from "@/components/ContactAdminDialog";
 import AudioControls from "@/components/audio/AudioControls";
 import ConversationHistory from "@/components/chat/ConversationHistory";
+import FileUpload, { FileList } from "@/components/chat/FileUpload";
 
 export default function Chat() {
   const { id: conversationId } = useParams();
@@ -32,6 +33,8 @@ export default function Chat() {
   const [isTyping, setIsTyping] = useState(false);
   const [currentProvider, setCurrentProvider] = useState("Groq Ready");
   const [showContactAdmin, setShowContactAdmin] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
+  const [showFileUpload, setShowFileUpload] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Create new conversation if no ID provided
@@ -148,7 +151,16 @@ export default function Chat() {
         setCurrentProvider("Groq Responding");
       }
       
-      sendMessageMutation.mutate(content);
+      // Include uploaded file context if available
+      let messageContent = content;
+      if (uploadedFiles.length > 0) {
+        const fileContext = uploadedFiles.map(file => 
+          `[File: ${file.originalName} (${file.fileType}) - ${file.url}]`
+        ).join('\n');
+        messageContent = `${content}\n\nUploaded files:\n${fileContext}`;
+      }
+      
+      sendMessageMutation.mutate(messageContent);
     }
   };
 
@@ -191,6 +203,14 @@ export default function Chat() {
           >
             <Sparkles className="w-4 h-4 mr-1" />
             {createConversationMutation.isPending ? "Creating..." : "New Chat"}
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => setShowFileUpload(!showFileUpload)}
+          >
+            <Paperclip className="w-4 h-4 mr-1" />
+            Files
           </Button>
           <Button 
             variant="outline" 
@@ -245,6 +265,29 @@ export default function Chat() {
           />
         </div>
 
+        {/* File Upload Panel */}
+        {showFileUpload && (
+          <div className="border-b bg-white px-4 py-4 space-y-4">
+            <FileUpload
+              onFileUploaded={(file) => {
+                setUploadedFiles(prev => [...prev, file]);
+                toast({
+                  title: "File uploaded",
+                  description: `${file.originalName} is ready to analyze`,
+                });
+              }}
+            />
+            {uploadedFiles.length > 0 && (
+              <FileList
+                files={uploadedFiles}
+                onFileRemove={(fileId) => {
+                  setUploadedFiles(prev => prev.filter(f => f.id !== fileId));
+                }}
+              />
+            )}
+          </div>
+        )}
+
         {/* Messages Area */}
         <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6 custom-scrollbar">
           {/* Welcome Message - only show if no messages */}
@@ -264,8 +307,12 @@ export default function Chat() {
                       <li>✅ Content optimization with C.R.A.F.T methodology</li>
                       <li>✅ SEO research and E-E-A-T optimization</li>
                       <li>✅ Grant writing and structured proposals</li>
+                      <li>✅ File analysis (images, documents, audio)</li>
                     </ul>
                     <p className="text-sofeia-slate-600 text-sm">Just ask me anything - I'll automatically route to the best AI provider for your needs!</p>
+                    {showFileUpload && (
+                      <p className="text-sofeia-blue text-sm mt-2">📎 Upload files above to analyze images, documents, or audio!</p>
+                    )}
                   </div>
                 </div>
                 <div className="flex items-center space-x-2 mt-2 text-xs text-sofeia-slate-500">
