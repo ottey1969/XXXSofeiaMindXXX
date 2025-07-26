@@ -111,6 +111,13 @@ export class AuthService {
 
     return user;
   }
+
+  async deleteAllUsers(): Promise<{ deletedCount: number }> {
+    const allUsers = await db.select().from(users);
+    const count = allUsers.length;
+    await db.delete(users);
+    return { deletedCount: count };
+  }
 }
 
 export const authService = new AuthService();

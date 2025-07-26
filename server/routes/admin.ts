@@ -135,4 +135,19 @@ router.get('/users', requireAdmin, async (req, res) => {
   }
 });
 
+// Delete all users (admin only)
+router.delete('/reset-users', requireAdmin, async (req, res) => {
+  try {
+    const result = await authService.deleteAllUsers();
+    console.log(`Admin deleted ${result.deletedCount} users`);
+    res.json({ 
+      message: `Successfully deleted ${result.deletedCount} users`,
+      deletedCount: result.deletedCount
+    });
+  } catch (error: any) {
+    console.error('Error deleting users:', error);
+    res.status(500).json({ message: 'Failed to delete users' });
+  }
+});
+
 export default router;
