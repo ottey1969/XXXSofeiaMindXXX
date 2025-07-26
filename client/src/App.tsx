@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Chat from "@/pages/chat";
 import Landing from "@/pages/landing";
 import NotFound from "@/pages/not-found";
+import AdminPanel from "@/pages/AdminPanel";
 import { useAuth } from "@/hooks/useAuth";
 
 function AuthWrapper({ children }: { children: React.ReactNode }) {
@@ -38,6 +39,9 @@ function Router() {
         <AuthWrapper>
           <Chat />
         </AuthWrapper>
+      </Route>
+      <Route path="/admin">
+        <AdminPanel />
       </Route>
       <Route component={NotFound} />
     </Switch>
