@@ -18,6 +18,8 @@ import ContactAdminDialog from "@/components/ContactAdminDialog";
 import AudioControls from "@/components/audio/AudioControls";
 import ConversationHistory from "@/components/chat/ConversationHistory";
 import FileUpload, { FileList } from "@/components/chat/FileUpload";
+import BroadcastMessages from "@/components/BroadcastMessages";
+import AnnouncementBanner from "@/components/AnnouncementBanner";
 
 export default function Chat() {
   const { id: conversationId } = useParams();
@@ -255,6 +257,16 @@ export default function Chat() {
 
       {/* Chat Container */}
       <main className="flex-1 flex flex-col max-w-4xl mx-auto w-full">
+        {/* Announcement Banner */}
+        <div className="px-4 pt-4">
+          <AnnouncementBanner />
+        </div>
+        
+        {/* Broadcast Messages */}
+        <div className="px-4 pt-2">
+          <BroadcastMessages />
+        </div>
+        
         {/* Conversation History */}
         <div className="px-4 pt-4">
           <ConversationHistory 

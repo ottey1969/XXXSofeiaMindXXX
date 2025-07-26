@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Shield, Plus, Search, Euro, MessageSquare, Ban, Check, X, Users, Activity, Volume2, VolumeX, Trash2 } from "lucide-react";
+import { Shield, Plus, Search, Euro, MessageSquare, Ban, Check, X, Users, Activity, Volume2, VolumeX, Trash2, Megaphone, Bell, Radio } from "lucide-react";
 
 const ADMIN_KEY = "0f5db72a966a8d5f7ebae96c6a1e2cc574c2bf926c62dc4526bd43df1c0f42eb";
 
@@ -45,7 +45,7 @@ export default function AdminPanel() {
   const [notificationMessage, setNotificationMessage] = useState("");
   const [notificationType, setNotificationType] = useState<"info" | "warning" | "success" | "error">("info");
   const [expiresInHours, setExpiresInHours] = useState<string>("24");
-  const [activeTab, setActiveTab] = useState<"addCredits" | "searchUser" | "sendNotification" | "adminMessages" | "security">("addCredits");
+  const [activeTab, setActiveTab] = useState<"addCredits" | "searchUser" | "sendNotification" | "adminMessages" | "security" | "messaging">("addCredits");
   
   // Security tab fields
   const [ipAddress, setIpAddress] = useState("");
@@ -58,6 +58,18 @@ export default function AdminPanel() {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [continuousSound, setContinuousSound] = useState(false);
   const [previousMessageCount, setPreviousMessageCount] = useState(0);
+  
+  // Messaging system fields
+  const [broadcastTitle, setBroadcastTitle] = useState("");
+  const [broadcastMessage, setBroadcastMessage] = useState("");
+  const [broadcastType, setBroadcastType] = useState<"info" | "warning" | "success" | "error" | "announcement">("info");
+  const [broadcastExpires, setBroadcastExpires] = useState<string>("24");
+  
+  const [announcementTitle, setAnnouncementTitle] = useState("");
+  const [announcementMessage, setAnnouncementMessage] = useState("");
+  const [announcementType, setAnnouncementType] = useState<"info" | "warning" | "success" | "error" | "banner">("banner");
+  const [announcementPriority, setAnnouncementPriority] = useState<"low" | "medium" | "high" | "urgent">("medium");
+  const [announcementExpires, setAnnouncementExpires] = useState<string>("168"); // 7 days default
   
   const { toast } = useToast();
 
@@ -479,6 +491,83 @@ export default function AdminPanel() {
     }
   };
 
+  // Broadcast mutation
+  const handleSendBroadcast = async () => {
+    if (!broadcastTitle.trim() || !broadcastMessage.trim()) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in both title and message fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await apiRequest("POST", "/api/admin/broadcast", {
+        title: broadcastTitle.trim(),
+        message: broadcastMessage.trim(),
+        type: broadcastType,
+        expiresInHours: broadcastExpires ? parseInt(broadcastExpires) : null,
+      });
+
+      toast({
+        title: "Broadcast Sent",
+        description: "Message sent to all users including future registrations",
+      });
+      
+      setBroadcastTitle("");
+      setBroadcastMessage("");
+      setBroadcastType("info");
+      setBroadcastExpires("24");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to send broadcast",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Announcement mutation
+  const handleCreateAnnouncement = async () => {
+    if (!announcementTitle.trim() || !announcementMessage.trim()) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in both title and message fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await apiRequest("POST", "/api/admin/announcement", {
+        title: announcementTitle.trim(),
+        message: announcementMessage.trim(),
+        type: announcementType,
+        priority: announcementPriority,
+        showToNewUsers: true,
+        expiresInHours: announcementExpires ? parseInt(announcementExpires) : null,
+      });
+
+      toast({
+        title: "Announcement Created",
+        description: "Persistent announcement created successfully",
+      });
+      
+      setAnnouncementTitle("");
+      setAnnouncementMessage("");
+      setAnnouncementType("banner");
+      setAnnouncementPriority("medium");
+      setAnnouncementExpires("168");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create announcement",
+        variant: "destructive",
+      });
+    }
+  };
+
   const addCreditsMutation = useMutation({
     mutationFn: async ({ email, credits }: { email: string; credits: number }) => {
       const response = await fetch(`/api/admin/add-credits`, {
@@ -711,6 +800,10 @@ export default function AdminPanel() {
         <Button onClick={() => setActiveTab("security")} variant={activeTab === "security" ? "default" : "outline"}>
           <Shield className="w-4 h-4 mr-2" />
           Security
+        </Button>
+        <Button onClick={() => setActiveTab("messaging")} variant={activeTab === "messaging" ? "default" : "outline"}>
+          <Radio className="w-4 h-4 mr-2" />
+          Messaging System
         </Button>
       </div>
 
@@ -1187,6 +1280,157 @@ export default function AdminPanel() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Messaging System Tab */}
+        {activeTab === "messaging" && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Send Broadcast */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Radio className="w-5 h-5" />
+                Send Broadcast
+              </CardTitle>
+              <CardDescription>
+                Send message to all users (current + future)
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="broadcastTitle">Title</Label>
+                <Input
+                  id="broadcastTitle"
+                  placeholder="Broadcast title..."
+                  value={broadcastTitle}
+                  onChange={(e) => setBroadcastTitle(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="broadcastMessage">Message</Label>
+                <Textarea
+                  id="broadcastMessage"
+                  placeholder="Your broadcast message here..."
+                  value={broadcastMessage}
+                  onChange={(e) => setBroadcastMessage(e.target.value)}
+                  rows={3}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="broadcastType">Type</Label>
+                  <Select value={broadcastType} onValueChange={(value: "info" | "warning" | "success" | "error" | "announcement") => setBroadcastType(value)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="info">Info</SelectItem>
+                      <SelectItem value="success">Success</SelectItem>
+                      <SelectItem value="warning">Warning</SelectItem>
+                      <SelectItem value="error">Error</SelectItem>
+                      <SelectItem value="announcement">Announcement</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="broadcastExpires">Expires (Hours)</Label>
+                  <Input
+                    id="broadcastExpires"
+                    type="number"
+                    min="1"
+                    max="720"
+                    value={broadcastExpires}
+                    onChange={(e) => setBroadcastExpires(e.target.value)}
+                  />
+                </div>
+              </div>
+              <Button onClick={handleSendBroadcast} className="w-full">
+                <Megaphone className="w-4 h-4 mr-2" />
+                Send Broadcast
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Create Announcement */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Bell className="w-5 h-5" />
+                Create Announcement
+              </CardTitle>
+              <CardDescription>
+                Create persistent announcement (always visible)
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="announcementTitle">Title</Label>
+                <Input
+                  id="announcementTitle"
+                  placeholder="Announcement title..."
+                  value={announcementTitle}
+                  onChange={(e) => setAnnouncementTitle(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="announcementMessage">Message</Label>
+                <Textarea
+                  id="announcementMessage"
+                  placeholder="Your announcement message here..."
+                  value={announcementMessage}
+                  onChange={(e) => setAnnouncementMessage(e.target.value)}
+                  rows={3}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="announcementType">Type</Label>
+                  <Select value={announcementType} onValueChange={(value: "info" | "warning" | "success" | "error" | "banner") => setAnnouncementType(value)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="banner">Banner</SelectItem>
+                      <SelectItem value="info">Info</SelectItem>
+                      <SelectItem value="success">Success</SelectItem>
+                      <SelectItem value="warning">Warning</SelectItem>
+                      <SelectItem value="error">Error</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="announcementPriority">Priority</Label>
+                  <Select value={announcementPriority} onValueChange={(value: "low" | "medium" | "high" | "urgent") => setAnnouncementPriority(value)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="low">Low</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="high">High</SelectItem>
+                      <SelectItem value="urgent">Urgent</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="announcementExpires">Expires (Hours)</Label>
+                <Input
+                  id="announcementExpires"
+                  type="number"
+                  min="1"
+                  max="8760"
+                  value={announcementExpires}
+                  onChange={(e) => setAnnouncementExpires(e.target.value)}
+                />
+              </div>
+              <Button onClick={handleCreateAnnouncement} className="w-full">
+                <Bell className="w-4 h-4 mr-2" />
+                Create Announcement
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+        )}
       </div>
     </div>
   );

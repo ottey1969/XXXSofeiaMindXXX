@@ -2,8 +2,8 @@ import { Router } from 'express';
 import { authService } from '../auth';
 import { z } from 'zod';
 import { db } from '../db';
-import { notifications, insertNotificationSchema } from '@shared/schema';
-import { eq } from 'drizzle-orm';
+import { notifications, insertNotificationSchema, broadcasts, announcements, insertBroadcastSchema, insertAnnouncementSchema, users } from '@shared/schema';
+import { eq, sql } from 'drizzle-orm';
 
 const router = Router();
 
@@ -147,6 +147,157 @@ router.delete('/reset-users', requireAdmin, async (req, res) => {
   } catch (error: any) {
     console.error('Error deleting users:', error);
     res.status(500).json({ message: 'Failed to delete users' });
+  }
+});
+
+// Create broadcast message to all users
+router.post('/broadcast', requireAdmin, async (req, res) => {
+  try {
+    const { title, message, type = 'info', expiresInHours } = req.body;
+
+    if (!title || !message) {
+      return res.status(400).json({ message: 'Title and message are required' });
+    }
+
+    let expiresAt = null;
+    if (expiresInHours && expiresInHours > 0) {
+      expiresAt = new Date(Date.now() + (expiresInHours * 60 * 60 * 1000));
+    }
+
+    const [broadcast] = await db
+      .insert(broadcasts)
+      .values({
+        title,
+        message,
+        type,
+        expiresAt
+      })
+      .returning();
+
+    res.json({
+      message: 'Broadcast sent to all users',
+      broadcast: {
+        id: broadcast.id,
+        title: broadcast.title,
+        type: broadcast.type,
+        createdAt: broadcast.createdAt
+      }
+    });
+  } catch (error: any) {
+    res.status(400).json({ 
+      message: error.message || 'Failed to send broadcast' 
+    });
+  }
+});
+
+// Create persistent announcement
+router.post('/announcement', requireAdmin, async (req, res) => {
+  try {
+    const { title, message, type = 'banner', priority = 'medium', showToNewUsers = true, expiresInHours } = req.body;
+
+    if (!title || !message) {
+      return res.status(400).json({ message: 'Title and message are required' });
+    }
+
+    let expiresAt = null;
+    if (expiresInHours && expiresInHours > 0) {
+      expiresAt = new Date(Date.now() + (expiresInHours * 60 * 60 * 1000));
+    }
+
+    const [announcement] = await db
+      .insert(announcements)
+      .values({
+        title,
+        message,
+        type,
+        priority,
+        showToNewUsers,
+        expiresAt
+      })
+      .returning();
+
+    res.json({
+      message: 'Announcement created successfully',
+      announcement: {
+        id: announcement.id,
+        title: announcement.title,
+        type: announcement.type,
+        priority: announcement.priority,
+        createdAt: announcement.createdAt
+      }
+    });
+  } catch (error: any) {
+    res.status(400).json({ 
+      message: error.message || 'Failed to create announcement' 
+    });
+  }
+});
+
+// Get all broadcasts (admin view)
+router.get('/broadcasts', requireAdmin, async (req, res) => {
+  try {
+    const allBroadcasts = await db
+      .select()
+      .from(broadcasts)
+      .orderBy(broadcasts.createdAt);
+
+    res.json(allBroadcasts);
+  } catch (error: any) {
+    res.status(500).json({ 
+      message: error.message || 'Failed to fetch broadcasts' 
+    });
+  }
+});
+
+// Get all announcements (admin view)
+router.get('/announcements', requireAdmin, async (req, res) => {
+  try {
+    const allAnnouncements = await db
+      .select()
+      .from(announcements)
+      .orderBy(announcements.createdAt);
+
+    res.json(allAnnouncements);
+  } catch (error: any) {
+    res.status(500).json({ 
+      message: error.message || 'Failed to fetch announcements' 
+    });
+  }
+});
+
+// Deactivate broadcast
+router.patch('/broadcasts/:id/deactivate', requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    await db
+      .update(broadcasts)
+      .set({ isActive: false })
+      .where(eq(broadcasts.id, id));
+
+    res.json({ message: 'Broadcast deactivated successfully' });
+  } catch (error: any) {
+    res.status(500).json({ 
+      message: error.message || 'Failed to deactivate broadcast' 
+    });
+  }
+});
+
+// Deactivate announcement
+router.patch('/announcements/:id/deactivate', requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    await db
+      .update(announcements)
+      .set({ isActive: false })
+      .where(eq(announcements.id, id));
+
+    res.json({ message: 'Announcement deactivated successfully' });
+  } catch (error: any) {
+    res.status(500).json({ 
+      message: error.message || 'Failed to deactivate announcement' 
+    });
   }
 });
 

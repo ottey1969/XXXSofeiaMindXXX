@@ -110,6 +110,9 @@ router.post('/register', async (req, res) => {
     
     const user = await authService.registerUser(email, clientIP, marketingConsent);
     
+    // Send welcome notification to new user
+    await authService.sendWelcomeNotification(user.id);
+    
     // Set session to log user in immediately
     (req.session as any).userId = user.id;
     

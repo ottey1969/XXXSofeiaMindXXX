@@ -107,6 +107,54 @@ export const insertAdminMessageSchema = createInsertSchema(adminMessages).omit({
   repliedAt: true,
 });
 
+// Broadcast messages table - sent to all users
+export const broadcasts = pgTable("broadcasts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: varchar("title").notNull(),
+  message: text("message").notNull(),
+  type: varchar("type", { enum: ["info", "warning", "success", "error", "announcement"] }).default("info"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  expiresAt: timestamp("expires_at"),
+});
+
+// Broadcast read status - tracks which users have read each broadcast
+export const broadcastReads = pgTable("broadcast_reads", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  broadcastId: varchar("broadcast_id").references(() => broadcasts.id, { onDelete: "cascade" }).notNull(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  readAt: timestamp("read_at").defaultNow(),
+});
+
+// Persistent announcements table - always visible banners
+export const announcements = pgTable("announcements", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: varchar("title").notNull(),
+  message: text("message").notNull(),
+  type: varchar("type", { enum: ["info", "warning", "success", "error", "banner"] }).default("banner"),
+  priority: varchar("priority", { enum: ["low", "medium", "high", "urgent"] }).default("medium"),
+  isActive: boolean("is_active").default(true),
+  showToNewUsers: boolean("show_to_new_users").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  expiresAt: timestamp("expires_at"),
+});
+
+export const insertBroadcastSchema = createInsertSchema(broadcasts).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertAnnouncementSchema = createInsertSchema(announcements).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type Broadcast = typeof broadcasts.$inferSelect;
+export type BroadcastRead = typeof broadcastReads.$inferSelect;
+export type Announcement = typeof announcements.$inferSelect;
+export type InsertBroadcast = z.infer<typeof insertBroadcastSchema>;
+export type InsertAnnouncement = z.infer<typeof insertAnnouncementSchema>;
+
 export type InsertNotification = z.infer<typeof insertNotificationSchema>;
 export type InsertConversation = z.infer<typeof insertConversationSchema>;
 export type InsertMessage = z.infer<typeof insertMessageSchema>;

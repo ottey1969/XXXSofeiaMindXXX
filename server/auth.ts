@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import { db } from './db';
-import { users } from '@shared/schema';
+import { users, notifications } from '@shared/schema';
 import { eq, sql } from 'drizzle-orm';
 import type { User, InsertUser } from '@shared/schema';
 
@@ -143,6 +143,16 @@ export class AuthService {
     const count = allUsers.length;
     await db.delete(users);
     return { deletedCount: count };
+  }
+
+  async sendWelcomeNotification(userId: string): Promise<void> {
+    await db.insert(notifications).values({
+      userId,
+      title: "Welcome to Sofeia AI! 🎉",
+      message: "Welcome to Sofeia AI by ContentScale! You've been granted 3 free credits to start creating high-quality, SEO-optimized content. Our advanced AI uses multi-provider routing (Groq, Perplexity, Claude) and the C.R.A.F.T framework to deliver superior content that outperforms competitors like BrandWell and Content at Scale. Need more credits? Contact us on WhatsApp at +31 6 2807 3996 or join our Facebook community for support and tips!",
+      type: "success",
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+    });
   }
 }
 

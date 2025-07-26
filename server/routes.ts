@@ -17,8 +17,8 @@ import { requireAuth, requireCredits, type AuthenticatedRequest } from "./middle
 import { authService } from "./auth";
 import authRoutes from "./routes/auth";
 import adminRoutes from "./routes/admin";
-import { notifications } from "@shared/schema";
-import { eq } from "drizzle-orm";
+import { notifications, broadcasts, broadcastReads, announcements, insertBroadcastSchema, insertAnnouncementSchema } from "@shared/schema";
+import { eq, sql } from "drizzle-orm";
 import { db } from "./db";
 
 const ADMIN_KEY = "0f5db72a966a8d5f7ebae96c6a1e2cc574c2bf926c62dc4526bd43df1c0f42eb";
@@ -231,6 +231,81 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error marking notification as read:", error);
       res.status(500).json({ message: "Failed to mark notification as read" });
+    }
+  });
+
+  // Get broadcasts for user (shows unread and recent)
+  app.get('/api/broadcasts', requireAuth, async (req: AuthenticatedRequest, res) => {
+    try {
+      const userId = req.user!.id;
+      
+      // Get active broadcasts
+      const activeBroadcasts = await db
+        .select()
+        .from(broadcasts)
+        .where(sql`is_active = true AND (expires_at IS NULL OR expires_at > now())`)
+        .orderBy(broadcasts.createdAt);
+
+      // Get read status for this user
+      const readBroadcasts = await db
+        .select()
+        .from(broadcastReads)
+        .where(eq(broadcastReads.userId, userId));
+
+      const readIds = new Set(readBroadcasts.map(br => br.broadcastId));
+
+      // Mark broadcasts as read/unread
+      const broadcastsWithStatus = activeBroadcasts.map(broadcast => ({
+        ...broadcast,
+        isRead: readIds.has(broadcast.id)
+      }));
+
+      res.json(broadcastsWithStatus);
+    } catch (error) {
+      console.error("Error fetching broadcasts:", error);
+      res.status(500).json({ message: "Failed to fetch broadcasts" });
+    }
+  });
+
+  // Mark broadcast as read
+  app.post('/api/broadcasts/:id/read', requireAuth, async (req: AuthenticatedRequest, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user!.id;
+
+      // Check if already marked as read
+      const [existing] = await db
+        .select()
+        .from(broadcastReads)
+        .where(sql`broadcast_id = ${id} AND user_id = ${userId}`);
+
+      if (!existing) {
+        await db.insert(broadcastReads).values({
+          broadcastId: id,
+          userId
+        });
+      }
+
+      res.json({ message: 'Broadcast marked as read' });
+    } catch (error) {
+      console.error("Error marking broadcast as read:", error);
+      res.status(500).json({ message: "Failed to mark broadcast as read" });
+    }
+  });
+
+  // Get active announcements
+  app.get('/api/announcements', async (req, res) => {
+    try {
+      const activeAnnouncements = await db
+        .select()
+        .from(announcements)
+        .where(sql`is_active = true AND (expires_at IS NULL OR expires_at > now())`)
+        .orderBy(announcements.priority, announcements.createdAt);
+
+      res.json(activeAnnouncements);
+    } catch (error) {
+      console.error("Error fetching announcements:", error);
+      res.status(500).json({ message: "Failed to fetch announcements" });
     }
   });
   
