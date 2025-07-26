@@ -29,10 +29,10 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
       const result = await registerMutation.mutateAsync(email);
       setUserId(result.userId);
       
-      // Check if user is already verified or has autoLogin
-      if (result.autoLogin || result.message?.includes('already registered and verified') || result.message?.includes('created and verified successfully')) {
+      // Check if user is already verified and logged in
+      if (result.autoLogin) {
         toast({
-          title: result.message?.includes('Welcome') ? "Welcome to Sofeia AI!" : "Welcome back!",
+          title: "Welcome back!",
           description: "You can start creating content immediately with your free credits."
         });
         onOpenChange(false);
@@ -41,18 +41,20 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
       }
       
       // User needs email verification
-      setIsVerifying(true);
-      if (result.emailSent) {
-        toast({
-          title: "Verification email sent",
-          description: "Please check your email and enter the 6-digit code."
-        });
-      } else {
-        toast({
-          title: "Registration Complete",
-          description: `Contact WhatsApp ${result.supportContact} with your email for verification, or wait for the verification email.`,
-          duration: 8000
-        });
+      if (result.requiresVerification) {
+        setIsVerifying(true);
+        if (result.emailSent) {
+          toast({
+            title: "Verification email sent",
+            description: "Please check your email and enter the 6-digit code."
+          });
+        } else {
+          toast({
+            title: "Registration Complete",
+            description: `Contact WhatsApp ${result.supportContact} with your email for verification, or wait for the verification email.`,
+            duration: 8000
+          });
+        }
       }
     } catch (error: any) {
       if (error.message?.includes('already registered and verified')) {
