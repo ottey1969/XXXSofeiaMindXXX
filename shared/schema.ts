@@ -89,11 +89,31 @@ export const insertNotificationSchema = createInsertSchema(notifications).omit({
 });
 
 export type Notification = typeof notifications.$inferSelect;
+export const adminMessages = pgTable("admin_messages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  userEmail: varchar("user_email").notNull(),
+  subject: text("subject").notNull(),
+  message: text("message").notNull(),
+  status: varchar("status", { enum: ["unread", "read", "replied"] }).default("unread").notNull(),
+  adminReply: text("admin_reply"),
+  createdAt: timestamp("created_at").defaultNow(),
+  repliedAt: timestamp("replied_at"),
+});
+
+export const insertAdminMessageSchema = createInsertSchema(adminMessages).omit({
+  id: true,
+  createdAt: true,
+  repliedAt: true,
+});
+
 export type InsertNotification = z.infer<typeof insertNotificationSchema>;
 export type InsertConversation = z.infer<typeof insertConversationSchema>;
 export type InsertMessage = z.infer<typeof insertMessageSchema>;
 export type Conversation = typeof conversations.$inferSelect;
 export type Message = typeof messages.$inferSelect;
+export type AdminMessage = typeof adminMessages.$inferSelect;
+export type InsertAdminMessage = z.infer<typeof insertAdminMessageSchema>;
 
 // AI Provider Types
 export interface AIResponse {

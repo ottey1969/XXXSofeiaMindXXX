@@ -11,9 +11,10 @@ import InputArea from "@/components/chat/input-area";
 import ProviderStatus from "@/components/chat/provider-status";
 import CreditStatus from "@/components/auth/CreditStatus";
 import { useAuth, useLogout } from "@/hooks/useAuth";
-import { Brain, Sparkles } from "lucide-react";
+import { Brain, Sparkles, MessageSquare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import NotificationPopup from "@/components/NotificationPopup";
+import ContactAdminDialog from "@/components/ContactAdminDialog";
 
 export default function Chat() {
   const { id: conversationId } = useParams();
@@ -23,6 +24,7 @@ export default function Chat() {
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [isTyping, setIsTyping] = useState(false);
   const [currentProvider, setCurrentProvider] = useState("Groq Ready");
+  const [showContactAdmin, setShowContactAdmin] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Create new conversation if no ID provided
@@ -171,6 +173,14 @@ export default function Chat() {
           <Button 
             variant="outline" 
             size="sm"
+            onClick={() => setShowContactAdmin(true)}
+          >
+            <MessageSquare className="w-4 h-4 mr-1" />
+            Contact Admin
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm"
             onClick={() => {
               logoutMutation.mutate();
             }}
@@ -260,6 +270,10 @@ export default function Chat() {
       
       {/* Notification Popup */}
       <NotificationPopup />
+      <ContactAdminDialog 
+        open={showContactAdmin} 
+        onOpenChange={setShowContactAdmin} 
+      />
     </div>
   );
 }

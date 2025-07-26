@@ -45,7 +45,7 @@ export default function AdminPanel() {
   const [notificationMessage, setNotificationMessage] = useState("");
   const [notificationType, setNotificationType] = useState<"info" | "warning" | "success" | "error">("info");
   const [expiresInHours, setExpiresInHours] = useState<string>("24");
-  const [activeTab, setActiveTab] = useState<"addCredits" | "searchUser" | "sendNotification">("addCredits");
+  const [activeTab, setActiveTab] = useState<"addCredits" | "searchUser" | "sendNotification" | "adminMessages">("addCredits");
   const { toast } = useToast();
 
   const handleAdminLogin = () => {
@@ -289,6 +289,10 @@ export default function AdminPanel() {
           <MessageSquare className="w-4 h-4 mr-2" />
           Send Notification
         </Button>
+        <Button onClick={() => setActiveTab("adminMessages")} variant={activeTab === "adminMessages" ? "default" : "outline"}>
+          <MessageSquare className="w-4 h-4 mr-2" />
+          User Messages
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 gap-6">
@@ -476,6 +480,28 @@ export default function AdminPanel() {
               >
                 {sendNotificationMutation.isPending ? "Sending..." : "Send Notification"}
               </Button>
+            </CardContent>
+          </Card>
+          )}
+
+          {/* Admin Messages Section */}
+          {activeTab === "adminMessages" && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MessageSquare className="w-5 h-5" />
+                User Messages
+              </CardTitle>
+              <CardDescription>
+                Messages from users that need your attention
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center text-gray-500 py-8">
+                <MessageSquare className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                <p>Feature coming soon!</p>
+                <p className="text-sm">Users can now send messages via the chat interface.</p>
+              </div>
             </CardContent>
           </Card>
           )}

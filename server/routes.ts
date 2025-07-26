@@ -28,6 +28,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin routes
   app.use('/api/admin', adminRoutes);
 
+  // Contact admin endpoint (for users to send messages to admin)
+  app.post('/api/admin/contact', requireAuth, async (req: AuthenticatedRequest, res) => {
+    try {
+      const { subject, message } = req.body;
+      
+      if (!subject || !message) {
+        return res.status(400).json({ message: 'Subject and message are required' });
+      }
+
+      const userId = req.user!.id;
+      const userEmail = req.user!.email;
+
+      // Store the admin message in database (using direct db access for now)
+      const { adminMessages } = await import("@shared/schema");
+      await db.insert(adminMessages).values({
+        userId,
+        userEmail,
+        subject: subject.trim(),
+        message: message.trim(),
+        status: 'unread'
+      });
+
+      res.json({ message: 'Message sent successfully' });
+    } catch (error) {
+      console.error("Error sending admin message:", error);
+      res.status(500).json({ message: "Failed to send message" });
+    }
+  });
+
   // Get user notifications (protected)
   app.get('/api/notifications', requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
