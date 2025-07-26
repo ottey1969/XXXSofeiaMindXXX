@@ -53,6 +53,14 @@ function Router() {
       <Route path="/cookies" component={CookiePolicy} />
       <Route path="/gdpr" component={GDPRCompliance} />
       <Route path="/verify" component={EmailVerify} />
+      <Route path="/logout">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold mb-4">Logging out...</h1>
+            <p>You will be redirected to the home page.</p>
+          </div>
+        </div>
+      </Route>
       <Route component={NotFound} />
     </Switch>
   );

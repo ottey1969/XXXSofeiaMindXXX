@@ -25,6 +25,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Authentication routes
   app.use('/api/auth', authRoutes);
   
+  // Direct logout route for users who are stuck
+  app.get('/api/logout', (req, res) => {
+    req.session?.destroy((err) => {
+      if (err) {
+        console.error('Logout error:', err);
+      }
+      res.clearCookie('connect.sid');
+      res.redirect('/');
+    });
+  });
+  
   // Admin routes
   app.use('/api/admin', adminRoutes);
 
