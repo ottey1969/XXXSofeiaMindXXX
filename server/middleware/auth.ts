@@ -22,10 +22,10 @@ export const requireAuth = async (req: AuthenticatedRequest, res: Response, next
 
   try {
     const user = await authService.getUserById(userId);
-    if (!user || !user.emailVerified) {
+    if (!user) {
       return res.status(401).json({ 
-        message: 'Email verification required',
-        action: 'verify'
+        message: 'User not found',
+        action: 'login'
       });
     }
 
