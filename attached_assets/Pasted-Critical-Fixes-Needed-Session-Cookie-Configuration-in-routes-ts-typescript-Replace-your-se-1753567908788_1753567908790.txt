@@ -1,0 +1,131 @@
+Critical Fixes Needed
+Session Cookie Configuration (in routes.ts)
+
+typescript
+// Replace your session middleware with this:
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'dev-secret',
+  resave: false,
+  saveUninitialized: false,
+  proxy: true, // Required for Replit
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    httpOnly: true,
+    domain: process.env.NODE_ENV === 'production' ? 'replit.com' : undefined,
+    maxAge: 7 * 24 * 60 * 60 * 1000 // 1 week
+  },
+  store: yourExistingPostgresStore // Keep your current store
+}));
+
+// Add this above session middleware:
+app.set('trust proxy', 1);
+CORS Configuration Update (in routes.ts)
+
+typescript
+// Replace with these headers:
+app.use(cors({
+  origin: [
+    'https://SofeiaMind.serviondemand.repl.co',
+    'https://sofieamind.serviondemand.repl.co'
+  ],
+  credentials: true,
+  exposedHeaders: ['set-cookie']
+}));
+Auth Endpoint Verification (Add to routes.ts)
+
+typescript
+// Add this test endpoint
+app.get('/api/auth/config-check', (req, res) => {
+  res.json({
+    sessionConfigured: !!req.session,
+    cookieConfig: req.session.cookie,
+    secureConnection: req.secure,
+    host: req.headers.host,
+    environment: process.env.NODE_ENV
+  });
+});
+Frontend Updates Needed (useAuth.ts)
+Enhanced useAuth Hook
+
+typescript
+export function useAuth() {
+  const { data: user, isLoading, error } = useQuery<User>({
+    queryKey: ["auth/me"],
+    queryFn: async () => {
+      const res = await fetch('/api/auth/me', {
+        credentials: 'include', // Crucial for cookies
+        headers: {
+          'Cache-Control': 'no-cache'
+        }
+      });
+      if (res.status === 401) return null;
+      if (!res.ok) throw new Error('Auth failed');
+      return res.json();
+    },
+    retry: false,
+    staleTime: 5 * 60 * 1000 // 5 minutes
+  });
+
+  return {
+    user,
+    isLoading,
+    isAuthenticated: !!user,
+    isVerified: user?.emailVerified,
+    error
+  };
+}
+Verification Protocol
+Test the Config Check:
+
+bash
+curl -v https://SofeiaMind.serviondemand.repl.co/api/auth/config-check
+Check for:
+
+HTTP/2 200 response
+
+Correct secure and sameSite values
+
+Proper domain setting
+
+Browser Debug Steps:
+
+javascript
+// In browser console:
+fetch('/api/auth/config-check', {credentials: 'include'})
+  .then(r => r.json())
+  .then(console.log)
+Verify:
+
+sessionConfigured: true
+
+secureConnection: true
+
+Cookie Inspection:
+In Chrome DevTools → Application → Cookies:
+
+Should see your session cookie
+
+Domain should match .replit.com in production
+
+Common Replit-Specific Issues
+If cookies still not persisting:
+
+typescript
+// Add to your login route handler:
+res.cookie('connect.sid', req.sessionID, {
+  domain: '.replit.com',
+  secure: true,
+  sameSite: 'none',
+  httpOnly: true,
+  path: '/'
+});
+If getting 403 errors:
+
+typescript
+// Add this middleware before routes:
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Credentials', 'true');
+  next();
+});
+Would
