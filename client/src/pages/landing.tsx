@@ -109,17 +109,30 @@ export default function Landing() {
               <p className="text-muted-foreground">
                 Start with 3 free credits. Each question uses 1 credit.
               </p>
-              <p className="text-sm text-muted-foreground">
-                Need more credits? Contact us on{" "}
-                <a 
-                  href="https://wa.me/31628073996?text=Hi%2C%20I%20need%20more%20credits%20for%20Sofeia%20AI" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-primary hover:underline"
-                >
-                  WhatsApp: +31 6 2807 3996
-                </a>
-              </p>
+              <div className="text-sm text-muted-foreground space-y-2">
+                <p>
+                  Need more credits? Contact us on{" "}
+                  <a 
+                    href="https://wa.me/31628073996?text=Hi%2C%20I%20need%20more%20credits%20for%20Sofeia%20AI" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline"
+                  >
+                    WhatsApp: +31 6 2807 3996
+                  </a>
+                </p>
+                <p>
+                  Join our community:{" "}
+                  <a 
+                    href="https://www.facebook.com/groups/1079321647257618" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline"
+                  >
+                    ContentScale Facebook Group
+                  </a>
+                </p>
+              </div>
               <Button 
                 onClick={() => setAuthOpen(true)}
                 className="w-full"

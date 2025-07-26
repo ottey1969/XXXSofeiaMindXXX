@@ -76,15 +76,24 @@ export default function Chat() {
       if (error.message?.includes('No credits remaining')) {
         toast({
           title: "No Credits Remaining",
-          description: "Contact us on WhatsApp for more credits",
+          description: "Contact us on WhatsApp or join our Facebook community",
           variant: "destructive",
           action: (
-            <Button 
-              size="sm" 
-              onClick={() => window.open('https://wa.me/31628073996?text=Hi%2C%20I%20need%20more%20credits%20for%20Sofeia%20AI', '_blank')}
-            >
-              Contact Support
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                size="sm" 
+                onClick={() => window.open('https://wa.me/31628073996?text=Hi%2C%20I%20need%20more%20credits%20for%20Sofeia%20AI', '_blank')}
+              >
+                WhatsApp
+              </Button>
+              <Button 
+                size="sm" 
+                variant="outline"
+                onClick={() => window.open('https://www.facebook.com/groups/1079321647257618', '_blank')}
+              >
+                Community
+              </Button>
+            </div>
           )
         });
       } else if (error.message?.includes('Authentication required')) {

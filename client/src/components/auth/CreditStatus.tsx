@@ -8,7 +8,13 @@ export default function CreditStatus() {
   if (!user) return null;
 
   const handleContactSupport = () => {
+    // Open WhatsApp for direct credit purchase
     window.open('https://wa.me/31628073996?text=Hi%2C%20I%20need%20more%20credits%20for%20Sofeia%20AI', '_blank');
+  };
+
+  const handleJoinCommunity = () => {
+    // Open Facebook group for community support
+    window.open('https://www.facebook.com/groups/1079321647257618', '_blank');
   };
 
   return (
@@ -19,15 +25,27 @@ export default function CreditStatus() {
         </p>
         <p className="text-xs text-muted-foreground">{user.email}</p>
       </div>
-      {user.credits <= 0 && (
-        <Button 
-          size="sm" 
-          onClick={handleContactSupport}
-          className="gap-1"
-        >
-          <ExternalLink className="h-3 w-3" />
-          Get Credits
-        </Button>
+      {user.credits <= 1 && (
+        <div className="flex gap-2">
+          <Button 
+            size="sm" 
+            onClick={handleContactSupport}
+            className="gap-1"
+            variant={user.credits === 0 ? "default" : "outline"}
+          >
+            <ExternalLink className="h-3 w-3" />
+            {user.credits === 0 ? "Get Credits" : "Buy More"}
+          </Button>
+          <Button 
+            size="sm" 
+            onClick={handleJoinCommunity}
+            variant="outline"
+            className="gap-1"
+          >
+            <ExternalLink className="h-3 w-3" />
+            Community
+          </Button>
+        </div>
       )}
     </div>
   );

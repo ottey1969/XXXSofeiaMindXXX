@@ -9,6 +9,10 @@ This is a full-stack chat application built as "Sofeia AI" - an advanced autonom
 Preferred communication style: Simple, everyday language.
 Output format: Properly formatted HTML with real headings (h1, h2, h3), bullets (ul, li), and tables. All AI responses should be ready for direct copy-paste as functional HTML code.
 
+## Support Channels
+- WhatsApp: +31 6 2807 3996 (for direct credit purchases and urgent support)
+- Facebook Group: https://www.facebook.com/groups/1079321647257618 (ContentScale Facebook Group for community questions and discussions)
+
 ## System Architecture
 
 ### Frontend Architecture
