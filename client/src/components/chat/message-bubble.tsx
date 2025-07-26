@@ -1,6 +1,7 @@
 import { Message } from "@shared/schema";
 import { User, Brain, Search, Zap, Shield } from "lucide-react";
 import MessageContent from "@/components/ui/message-content";
+import SpeakButton from "@/components/audio/SpeakButton";
 
 interface MessageBubbleProps {
   message: Message;
@@ -163,19 +164,22 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
               </div>
             )}
           </div>
-          <div className="flex items-center space-x-2 mt-2 text-xs text-sofeia-slate-500">
-            <span>{getProviderName(message.provider)}</span>
-            <span>•</span>
-            <span>{formatTime(message.createdAt)}</span>
-            <span>•</span>
-            <span className="flex items-center space-x-1">
-              {getProviderIcon(message.provider)}
-              <span>
-                {message.provider === 'perplexity' ? 'Research Complete' : 
-                 message.provider === 'anthropic' ? 'Analysis Complete' : 
-                 'Response Complete'}
+          <div className="flex items-center justify-between mt-2">
+            <div className="flex items-center space-x-2 text-xs text-sofeia-slate-500">
+              <span>{getProviderName(message.provider)}</span>
+              <span>•</span>
+              <span>{formatTime(message.createdAt)}</span>
+              <span>•</span>
+              <span className="flex items-center space-x-1">
+                {getProviderIcon(message.provider)}
+                <span>
+                  {message.provider === 'perplexity' ? 'Research Complete' : 
+                   message.provider === 'anthropic' ? 'Analysis Complete' : 
+                   'Response Complete'}
+                </span>
               </span>
-            </span>
+            </div>
+            <SpeakButton text={message.content} size="sm" />
           </div>
         </div>
       </div>
