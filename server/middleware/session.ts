@@ -13,21 +13,25 @@ export function getSession() {
   
   // Detect Replit production environment
   const isReplitProduction = !!process.env.REPLIT_DB_URL;
+  const isNodeProduction = process.env.NODE_ENV === 'production';
   
   return session({
     secret: process.env.SESSION_SECRET || 'sofeia-ai-secret-key-development',
     store: sessionStore,
     resave: false,
     saveUninitialized: false,
+    proxy: true, // Trust reverse proxy (essential for Replit)
     cookie: {
       httpOnly: true,
-      secure: isReplitProduction, // Always true on Replit
+      secure: isReplitProduction || isNodeProduction,
       maxAge: sessionTtl,
-      // Replit-specific settings for production
+      // Replit-specific production settings
       ...(isReplitProduction ? {
-        sameSite: 'lax', // More permissive than 'none' for Replit
-        domain: undefined // Let browser handle domain automatically
-      } : {})
+        sameSite: 'none', // Required for cross-origin on Replit
+        domain: '.replit.dev' // Correct Replit domain
+      } : {
+        sameSite: 'lax' // Development setting
+      })
     },
   });
 }

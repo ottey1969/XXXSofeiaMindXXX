@@ -1,5 +1,6 @@
 import express, { type Express } from "express";
 import { createServer, type Server } from "http";
+import cors from "cors";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -61,6 +62,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Trust proxy for correct IP addresses (essential for Replit)
   app.set('trust proxy', 1);
   
+  // CORS configuration for Replit production
+  const isReplitProduction = !!process.env.REPLIT_DB_URL;
+  app.use(cors({
+    origin: isReplitProduction ? [
+      `https://${process.env.REPLIT_DOMAINS}`,
+      `https://${process.env.REPLIT_DOMAINS?.split('.')[0]}.replit.dev`,
+      'https://sofeia-ai.replit.app'
+    ] : true,
+    credentials: true,
+    exposedHeaders: ['set-cookie'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
+  }));
+  
   // Add session middleware with Replit production support
   app.use(getSession());
   
@@ -75,6 +90,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Authentication routes
   app.use('/api/auth', authRoutes);
   
+  // Auth health check endpoint
+  app.get('/api/auth/health', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.json({
+      session: !!req.session,
+      cookies: req.headers.cookie ? 'present' : 'missing',
+      secure: req.secure,
+      host: req.get('host'),
+      sessionId: req.sessionID ? 'SET' : 'NOT_SET',
+      hasUser: !!(req.session as any)?.userId,
+      environment: {
+        isReplit: !!process.env.REPLIT_DB_URL,
+        domain: process.env.REPLIT_DOMAINS,
+        nodeEnv: process.env.NODE_ENV || 'development'
+      }
+    });
+  });
+
   // Debug endpoint for session verification (must be before static routing)
   app.get('/api/debug/session', (req, res) => {
     res.setHeader('Content-Type', 'application/json');
@@ -89,7 +122,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       cookieConfig: {
         secure: !!(req.session as any)?.cookie?.secure,
         httpOnly: !!(req.session as any)?.cookie?.httpOnly,
-        sameSite: (req.session as any)?.cookie?.sameSite
+        sameSite: (req.session as any)?.cookie?.sameSite,
+        domain: (req.session as any)?.cookie?.domain
       }
     });
   });
