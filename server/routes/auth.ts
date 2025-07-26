@@ -15,7 +15,20 @@ router.post('/register', async (req, res) => {
     // Check if user already exists
     const existingUser = await authService.getUserByEmail(email);
     if (existingUser) {
-      // Generate new verification token for existing user
+      if (existingUser.emailVerified) {
+        // User is already verified, log them in directly
+        (req.session as any).userId = existingUser.id;
+        return res.json({
+          message: 'Email already registered and verified',
+          userId: existingUser.id,
+          email: existingUser.email,
+          emailVerified: true,
+          credits: existingUser.credits,
+          autoLogin: true
+        });
+      }
+      
+      // Generate new verification token for unverified user
       const { verificationToken } = await authService.generateVerificationToken(existingUser.id);
       
       // Send verification email

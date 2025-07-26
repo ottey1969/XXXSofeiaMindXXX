@@ -30,7 +30,7 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
       setUserId(result.userId);
       
       // Check if user is already verified
-      if (result.message?.includes('already registered and verified')) {
+      if (result.autoLogin || result.message?.includes('already registered and verified')) {
         toast({
           title: "Welcome back!",
           description: "Your account is already verified. You can start using Sofeia AI."
