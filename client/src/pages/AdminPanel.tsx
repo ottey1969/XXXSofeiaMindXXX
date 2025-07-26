@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Shield, Plus, Search, Euro, MessageSquare, Ban, Check, X, Users, Activity } from "lucide-react";
+import { Shield, Plus, Search, Euro, MessageSquare, Ban, Check, X, Users, Activity, Volume2, VolumeX } from "lucide-react";
 
 const ADMIN_KEY = "0f5db72a966a8d5f7ebae96c6a1e2cc574c2bf926c62dc4526bd43df1c0f42eb";
 
@@ -54,14 +54,132 @@ export default function AdminPanel() {
   const [blockReason, setBlockReason] = useState("");
   const [logoutUserEmail, setLogoutUserEmail] = useState("");
   
+  // Sound notification state
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [continuousSound, setContinuousSound] = useState(false);
+  const [previousMessageCount, setPreviousMessageCount] = useState(0);
+  
   const { toast } = useToast();
+
+  // Audio refs for sound notifications
+  const notificationAudioRef = useRef<HTMLAudioElement | null>(null);
+  const continuousAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Initialize audio elements
+  useEffect(() => {
+    // Create notification sound (higher frequency beep)
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    
+    // Create notification beep programmatically
+    const createBeep = (frequency: number, duration: number) => {
+      const sampleRate = audioContext.sampleRate;
+      const frames = sampleRate * duration;
+      const buffer = audioContext.createBuffer(1, frames, sampleRate);
+      const data = buffer.getChannelData(0);
+      
+      for (let i = 0; i < frames; i++) {
+        data[i] = Math.sin(2 * Math.PI * frequency * (i / sampleRate)) * 0.3;
+      }
+      
+      const arrayBuffer = new ArrayBuffer(44 + data.length * 2);
+      const view = new DataView(arrayBuffer);
+      
+      // WAV header
+      const writeString = (offset: number, string: string) => {
+        for (let i = 0; i < string.length; i++) {
+          view.setUint8(offset + i, string.charCodeAt(i));
+        }
+      };
+      
+      writeString(0, 'RIFF');
+      view.setUint32(4, 36 + data.length * 2, true);
+      writeString(8, 'WAVE');
+      writeString(12, 'fmt ');
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true);
+      view.setUint16(22, 1, true);
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, sampleRate * 2, true);
+      view.setUint16(32, 2, true);
+      view.setUint16(34, 16, true);
+      writeString(36, 'data');
+      view.setUint32(40, data.length * 2, true);
+      
+      for (let i = 0; i < data.length; i++) {
+        view.setInt16(44 + i * 2, data[i] * 0x7FFF, true);
+      }
+      
+      const blob = new Blob([arrayBuffer], { type: 'audio/wav' });
+      return URL.createObjectURL(blob);
+    };
+    
+    // Notification sound: 800Hz beep for 0.3 seconds
+    const notificationUrl = createBeep(800, 0.3);
+    notificationAudioRef.current = new Audio(notificationUrl);
+    
+    // Continuous sound: 600Hz beep for 0.5 seconds with 1 second interval
+    const continuousUrl = createBeep(600, 0.5);
+    continuousAudioRef.current = new Audio(continuousUrl);
+    continuousAudioRef.current.loop = true;
+    continuousAudioRef.current.volume = 0.4;
+  }, []);
+
+  // Sound functions
+  const playNotificationSound = () => {
+    if (notificationAudioRef.current && soundEnabled) {
+      notificationAudioRef.current.currentTime = 0;
+      notificationAudioRef.current.play().catch(e => console.log('Audio play failed:', e));
+    }
+  };
+
+  const startContinuousSound = () => {
+    if (continuousAudioRef.current && soundEnabled && continuousSound) {
+      continuousAudioRef.current.play().catch(e => console.log('Audio play failed:', e));
+    }
+  };
+
+  const stopContinuousSound = () => {
+    if (continuousAudioRef.current) {
+      continuousAudioRef.current.pause();
+      continuousAudioRef.current.currentTime = 0;
+    }
+  };
 
   // User Messages Component
   const UserMessages = () => {
     const { data: userMessages = [], refetch } = useQuery({
       queryKey: ["/api/admin/messages"],
-      refetchInterval: 30000, // Refresh every 30 seconds
+      refetchInterval: 5000, // Refresh every 5 seconds for real-time notifications
     });
+
+    // Sound notification logic
+    useEffect(() => {
+      if (!Array.isArray(userMessages) || !soundEnabled) return;
+      
+      const unreadCount = userMessages.filter((msg: any) => !msg.isRead).length;
+      const totalCount = userMessages.length;
+      
+      // Check for new messages
+      if (totalCount > previousMessageCount && previousMessageCount > 0) {
+        // Play notification sound for new message
+        playNotificationSound();
+        
+        toast({
+          title: "New User Message",
+          description: `You have ${unreadCount} unread message${unreadCount !== 1 ? 's' : ''}`,
+          variant: "default",
+        });
+      }
+      
+      // Handle continuous sound for unread messages
+      if (unreadCount > 0 && soundEnabled && continuousSound) {
+        startContinuousSound();
+      } else {
+        stopContinuousSound();
+      }
+      
+      setPreviousMessageCount(totalCount);
+    }, [userMessages, soundEnabled, continuousSound, previousMessageCount]);
 
     const markAsReadMutation = useMutation({
       mutationFn: async (messageId: string) => {
@@ -77,17 +195,59 @@ export default function AdminPanel() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MessageSquare className="w-5 h-5" />
-            User Messages
-            {Array.isArray(userMessages) && userMessages.filter((msg: any) => !msg.isRead).length > 0 && (
-              <Badge variant="destructive">
-                {userMessages.filter((msg: any) => !msg.isRead).length} new
-              </Badge>
-            )}
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <MessageSquare className="w-5 h-5" />
+              User Messages
+              {Array.isArray(userMessages) && userMessages.filter((msg: any) => !msg.isRead).length > 0 && (
+                <Badge variant="destructive">
+                  {userMessages.filter((msg: any) => !msg.isRead).length} new
+                </Badge>
+              )}
+            </div>
+            
+            {/* Sound Controls */}
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSoundEnabled(!soundEnabled)}
+                className="flex items-center gap-1"
+              >
+                {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+                {soundEnabled ? "Sound On" : "Sound Off"}
+              </Button>
+              
+              <Button
+                variant={continuousSound ? "default" : "outline"}
+                size="sm"
+                onClick={() => {
+                  setContinuousSound(!continuousSound);
+                  if (continuousSound) {
+                    // Stop sound when disabling
+                    stopContinuousSound();
+                  }
+                }}
+                disabled={!soundEnabled}
+                className="flex items-center gap-1"
+              >
+                📢 Alert Mode
+              </Button>
+              
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => playNotificationSound()}
+                disabled={!soundEnabled}
+                className="flex items-center gap-1"
+              >
+                🔊 Test
+              </Button>
+            </div>
           </CardTitle>
           <CardDescription>
-            Messages from users that need your attention
+            Messages from users that need your attention • Sound alerts {soundEnabled ? 'enabled' : 'disabled'}
+            {soundEnabled && continuousSound && " • Continuous alert active"}
           </CardDescription>
         </CardHeader>
         <CardContent>
