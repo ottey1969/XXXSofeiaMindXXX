@@ -47,13 +47,19 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
           description: "Please check your email and enter the verification code."
         });
       } else {
+        // Store registration data for temporary access
+        localStorage.setItem('pendingRegistration', JSON.stringify({
+          userId: result.userId,
+          email: result.email
+        }));
+        
         toast({
           title: "Registration Complete!",
-          description: "You can now access Sofeia AI. Contact WhatsApp for verification to unlock full features.",
-          duration: 6000
+          description: "Redirecting to chat... Contact WhatsApp for verification to unlock full features.",
+          duration: 3000
         });
         onOpenChange(false);
-        window.location.reload(); // Refresh to load registered state
+        window.location.reload();
       }
     } catch (error: any) {
       if (error.message?.includes('already registered and verified')) {

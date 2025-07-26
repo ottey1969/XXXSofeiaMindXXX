@@ -35,13 +35,18 @@ router.post('/register', async (req, res) => {
       const baseUrl = `${req.protocol}://${req.get('host')}`;
       const emailSent = await emailService.sendVerificationEmail(email, verificationToken, baseUrl);
       
+      // Set session for existing unverified user
+      (req.session as any).userId = existingUser.id;
+      
       return res.json({
         message: emailSent 
           ? 'New verification email sent to existing account'
-          : 'Email service not configured. Contact support for manual verification.',
+          : 'Registration complete. For verification, please contact WhatsApp: +31 6 2807 3996 with your email.',
         userId: existingUser.id,
         email: existingUser.email,
-        emailSent
+        emailSent,
+        supportContact: '+31 6 2807 3996',
+        autoLogin: true
       });
     }
 
@@ -51,8 +56,11 @@ router.post('/register', async (req, res) => {
     const baseUrl = `${req.protocol}://${req.get('host')}`;
     const emailSent = await emailService.sendVerificationEmail(email, verificationToken, baseUrl);
     
-    // GDPR Compliance: Never auto-verify without proper consent
-    // Always require email verification for GDPR compliance
+    // GDPR Compliance: Set session for registered user (unverified)
+    // User can access app but with limited features until verified
+    console.log('Setting session for user:', user.id);
+    (req.session as any).userId = user.id;
+    console.log('Session after setting:', (req.session as any).userId);
     
     res.json({
       message: emailSent 
@@ -61,7 +69,8 @@ router.post('/register', async (req, res) => {
       userId: user.id,
       email: user.email,
       emailSent,
-      supportContact: '+31 6 2807 3996'
+      supportContact: '+31 6 2807 3996',
+      autoLogin: true
     });
   } catch (error: any) {
     res.status(400).json({ 
