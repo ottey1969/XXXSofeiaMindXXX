@@ -23,7 +23,7 @@ export const users = pgTable("users", {
   profileImageUrl: varchar("profile_image_url"),
   credits: integer("credits").default(3).notNull(),
   emailVerified: boolean("email_verified").default(false).notNull(),
-
+  ipAddress: varchar("ip_address"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

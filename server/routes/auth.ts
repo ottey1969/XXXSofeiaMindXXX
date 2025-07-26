@@ -32,14 +32,18 @@ router.post('/register', async (req, res) => {
       (req.session as any).userId = existingUser.id;
       
       return res.json({
-        message: 'Welcome back! You can continue creating content.',
+        message: `Welcome back! You have ${existingUser.credits} credits remaining.`,
         userId: existingUser.id,
         email: existingUser.email,
+        credits: existingUser.credits,
         autoLogin: true
       });
     }
 
-    const user = await authService.registerUser(email);
+    // Get client IP address
+    const clientIP = req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for'] as string;
+    
+    const user = await authService.registerUser(email, clientIP);
     
     // Set session to log user in immediately
     (req.session as any).userId = user.id;
