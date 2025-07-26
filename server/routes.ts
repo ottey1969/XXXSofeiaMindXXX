@@ -98,14 +98,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user!.id;
       const userEmail = req.user!.email;
 
-      // Store the admin message in database (using direct db access for now)
-      const { adminMessages } = await import("@shared/schema");
-      await db.insert(adminMessages).values({
-        userId,
+      // Store the admin message 
+      await storage.createAdminMessage({
         userEmail,
+        userId,
         subject: subject.trim(),
         message: message.trim(),
-        status: 'unread'
+        userCredits: req.user!.credits || 0,
       });
 
       res.json({ message: 'Message sent successfully' });

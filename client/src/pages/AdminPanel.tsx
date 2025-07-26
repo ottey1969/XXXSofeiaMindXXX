@@ -150,6 +150,8 @@ export default function AdminPanel() {
     const { data: userMessages = [], refetch } = useQuery({
       queryKey: ["/api/admin/messages"],
       refetchInterval: 5000, // Refresh every 5 seconds for real-time notifications
+      queryFn: () => apiRequest("GET", `/api/admin/messages?adminKey=${ADMIN_KEY}`),
+      enabled: isAuthenticated, // Only fetch when admin is authenticated
     });
 
     // Sound notification logic
@@ -189,6 +191,10 @@ export default function AdminPanel() {
       },
       onSuccess: () => {
         refetch();
+        toast({
+          title: "Message marked as read",
+          description: "The message has been successfully marked as read.",
+        });
       },
     });
 
