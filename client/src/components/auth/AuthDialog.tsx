@@ -13,6 +13,7 @@ interface AuthDialogProps {
 
 export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
   const [email, setEmail] = useState("");
+  const [marketingConsent, setMarketingConsent] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [userId, setUserId] = useState("");
   const [isReturningUser, setIsReturningUser] = useState(false);
@@ -24,7 +25,7 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
     e.preventDefault();
     
     try {
-      const result = await registerMutation.mutateAsync(email);
+      const result = await registerMutation.mutateAsync({ email, marketingConsent });
       setUserId(result.userId);
       
       // Check if user is already verified and logged in
@@ -106,6 +107,8 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
                   type="checkbox"
                   id="marketingConsent"
                   name="marketingConsent"
+                  checked={marketingConsent}
+                  onChange={(e) => setMarketingConsent(e.target.checked)}
                   className="mt-1 accent-blue-600"
                 />
                 <Label htmlFor="marketingConsent" className="text-xs leading-4 cursor-pointer text-gray-600">

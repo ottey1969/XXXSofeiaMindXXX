@@ -6,7 +6,7 @@ import type { User, InsertUser } from '@shared/schema';
 
 export class AuthService {
   
-  async registerUser(email: string, ipAddress?: string): Promise<User> {
+  async registerUser(email: string, ipAddress?: string, marketingConsent: boolean = false): Promise<User> {
     // Normalize email to prevent variations (gmail dots, plus addressing)
     const normalizedEmail = this.normalizeEmail(email);
     
@@ -36,6 +36,7 @@ export class AuthService {
         email: normalizedEmail,
         credits: 3,
         emailVerified: false,
+        marketingConsent,
         ipAddress: ipAddress || null,
       })
       .returning();

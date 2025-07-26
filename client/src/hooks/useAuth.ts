@@ -42,10 +42,18 @@ export function useAuth() {
 }
 
 export function useRegister() {
+  const queryClient = useQueryClient();
+  
   return useMutation({
-    mutationFn: async (email: string) => {
-      const response = await apiRequest('POST', '/api/auth/register', { email });
-      return response.json();
+    mutationFn: async (data: { email: string; marketingConsent: boolean }) => {
+      const response = await apiRequest('/api/auth/register', {
+        method: 'POST',
+        body: data
+      });
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
     }
   });
 }

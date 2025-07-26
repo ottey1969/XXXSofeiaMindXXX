@@ -8,8 +8,9 @@ const router = Router();
 // Register/login with email
 router.post('/register', async (req, res) => {
   try {
-    const { email } = z.object({
-      email: z.string().email('Invalid email address')
+    const { email, marketingConsent } = z.object({
+      email: z.string().email('Invalid email address'),
+      marketingConsent: z.boolean().default(false)
     }).parse(req.body);
 
     // Check if user already exists
@@ -43,7 +44,7 @@ router.post('/register', async (req, res) => {
     // Get client IP address
     const clientIP = req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for'] as string;
     
-    const user = await authService.registerUser(email, clientIP);
+    const user = await authService.registerUser(email, clientIP, marketingConsent);
     
     // Set session to log user in immediately
     (req.session as any).userId = user.id;
