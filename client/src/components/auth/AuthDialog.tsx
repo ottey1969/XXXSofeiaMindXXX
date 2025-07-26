@@ -23,25 +23,17 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
   const registerMutation = useRegister();
   const loginMutation = useLogin();
 
-  // Load email from localStorage or user data and make it permanent
+  // Smart remember: pre-fill email from current user session when dialog opens
   useEffect(() => {
-    // First try to get from localStorage (browser permanent storage)
-    const savedEmail = localStorage.getItem('sofeia_user_email');
-    if (savedEmail) {
-      setEmail(savedEmail);
-    } else if (user?.email) {
-      // If not in localStorage but user is logged in, save it permanently
-      setEmail(user.email);
-      localStorage.setItem('sofeia_user_email', user.email);
+    if (open) {
+      if (user?.email) {
+        setEmail(user.email);
+        console.log('Pre-filled email:', user.email); // Debug log
+      } else {
+        setEmail("");
+      }
     }
-  }, [user?.email]);
-
-  // Save email to localStorage whenever user registers/logs in
-  useEffect(() => {
-    if (user?.email) {
-      localStorage.setItem('sofeia_user_email', user.email);
-    }
-  }, [user?.email]);
+  }, [open, user?.email]);
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
