@@ -69,19 +69,18 @@ Format responses with:
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'llama-3.1-sonar-small-128k-online',
+          model: 'sonar',
           messages,
           max_tokens: 2048,
           temperature: 0.2,
           top_p: 0.9,
-          search_recency_filter: 'month',
-          return_images: false,
-          return_related_questions: false,
           stream: false
         })
       });
 
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Perplexity API error details:', errorText);
         throw new Error(`Perplexity API error: ${response.status} ${response.statusText}`);
       }
 
@@ -104,7 +103,7 @@ Format responses with:
         citations,
         metadata: {
           usage: data.usage,
-          model: 'llama-3.1-sonar-small-128k-online',
+          model: 'sonar',
           searchMode: true,
           targetCountry
         }

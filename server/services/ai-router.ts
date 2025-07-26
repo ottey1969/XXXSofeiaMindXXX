@@ -76,7 +76,10 @@ export class AIRouter {
     return provider !== 'anthropic' && (
       error.code === 'RATE_LIMIT_EXCEEDED' ||
       error.code === 'SERVICE_UNAVAILABLE' ||
-      error.status >= 500
+      error.status >= 500 ||
+      error.message?.includes('400') || // Bad Request often indicates API issues
+      error.message?.includes('401') || // Unauthorized
+      error.message?.includes('403')    // Forbidden
     );
   }
 }
