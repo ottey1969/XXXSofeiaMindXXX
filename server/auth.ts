@@ -6,45 +6,35 @@ import type { User, InsertUser } from '@shared/schema';
 
 export class AuthService {
   
-  async registerUser(email: string): Promise<{ user: User; verificationToken: string }> {
+  async registerUser(email: string): Promise<User> {
     const existingUser = await this.getUserByEmail(email);
     if (existingUser) {
       if (existingUser.emailVerified) {
         throw new Error('Email already registered and verified');
       }
-      // Resend verification for unverified user
-      const verificationToken = crypto.randomBytes(32).toString('hex');
-      const [updatedUser] = await db
-        .update(users)
-        .set({ verificationToken })
-        .where(eq(users.id, existingUser.id))
-        .returning();
-      
-      return { user: updatedUser, verificationToken };
+      // Return existing unverified user
+      return existingUser;
     }
 
-    const verificationToken = crypto.randomBytes(32).toString('hex');
     const [user] = await db
       .insert(users)
       .values({
         email,
         credits: 3,
         emailVerified: false,
-        verificationToken,
       })
       .returning();
 
-    return { user, verificationToken };
+    return user;
   }
 
-  async verifyEmail(token: string): Promise<User | null> {
+  async verifyUserByEmail(email: string): Promise<User | null> {
     const [user] = await db
       .update(users)
       .set({ 
-        emailVerified: true, 
-        verificationToken: null 
+        emailVerified: true
       })
-      .where(eq(users.verificationToken, token))
+      .where(eq(users.email, email))
       .returning();
 
     return user || null;
@@ -68,24 +58,7 @@ export class AuthService {
     return user || null;
   }
 
-  async generateVerificationToken(userId: string): Promise<{ verificationToken: string }> {
-    const verificationToken = crypto.randomBytes(32).toString('hex');
-    await db
-      .update(users)
-      .set({ verificationToken })
-      .where(eq(users.id, userId));
-    
-    return { verificationToken };
-  }
 
-  async getUserByVerificationToken(token: string): Promise<User | null> {
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(eq(users.verificationToken, token));
-    
-    return user || null;
-  }
 
   async useCredit(userId: string): Promise<{ success: boolean; remainingCredits: number }> {
     const user = await this.getUserById(userId);

@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useRegister, useVerifyEmail } from "@/hooks/useAuth";
+import { useRegister } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
 interface AuthDialogProps {
@@ -13,14 +13,12 @@ interface AuthDialogProps {
 
 export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
   const [email, setEmail] = useState("");
-  const [verificationToken, setVerificationToken] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
   const [userId, setUserId] = useState("");
   const [isReturningUser, setIsReturningUser] = useState(false);
 
   const { toast } = useToast();
   const registerMutation = useRegister();
-  const verifyMutation = useVerifyEmail();
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,22 +38,13 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
         return;
       }
       
-      // User needs email verification
-      if (result.requiresVerification) {
-        setIsVerifying(true);
-        if (result.emailSent) {
-          toast({
-            title: "Verification email sent",
-            description: "Please check your email and enter the 6-digit code."
-          });
-        } else {
-          toast({
-            title: "Registration Complete",
-            description: `Contact WhatsApp ${result.supportContact} with your email for verification, or wait for the verification email.`,
-            duration: 8000
-          });
-        }
-      }
+      // Registration complete - show success dialog
+      setIsVerifying(true);
+      toast({
+        title: "Registration Complete!",
+        description: "You can start creating content with your 3 free credits.",
+        duration: 5000
+      });
     } catch (error: any) {
       toast({
         title: "Registration failed",
@@ -65,27 +54,7 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
     }
   };
 
-  const handleVerificationSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    try {
-      await verifyMutation.mutateAsync(verificationToken);
-      toast({
-        title: "Email verified!",
-        description: "Welcome to Sofeia AI. You have 3 free credits to start."
-      });
-      onOpenChange(false);
-      setIsVerifying(false);
-      setEmail("");
-      setVerificationToken("");
-    } catch (error: any) {
-      toast({
-        title: "Verification failed",
-        description: error.message || "Invalid verification code",
-        variant: "destructive"
-      });
-    }
-  };
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -199,60 +168,38 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
         {isVerifying && (
           <div className="space-y-4">
             <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-              <h4 className="font-semibold mb-2 text-green-800 dark:text-green-200">📧 Check Your Email</h4>
+              <h4 className="font-semibold mb-2 text-green-800 dark:text-green-200">🎉 Registration Complete!</h4>
               <p className="text-sm text-green-700 dark:text-green-300">
-                We've sent a verification link to your email address. Click the link in the email to verify your account.
+                You can start using Sofeia AI immediately with your 3 free credits.
               </p>
               <p className="text-sm text-green-600 dark:text-green-400 mt-2">
-                Don't see the email? Check your spam folder or contact support.
+                For full access to all features, contact WhatsApp for account verification.
               </p>
             </div>
             
-            <form onSubmit={handleVerificationSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="token">Or Enter Verification Code</Label>
-                <Input
-                  id="token"
-                  value={verificationToken}
-                  onChange={(e) => setVerificationToken(e.target.value)}
-                  placeholder="Enter code from email"
-                  required
-                />
-              </div>
+            <div className="text-center space-y-4">
               <Button 
-                type="submit" 
+                onClick={() => {
+                  onOpenChange(false);
+                  window.location.reload();
+                }}
                 className="w-full"
-                disabled={verifyMutation.isPending}
               >
-                {verifyMutation.isPending ? "Verifying..." : "Verify Email"}
+                Start Creating Content
               </Button>
-              <p className="text-sm text-muted-foreground text-center">
-                Sent to: {email}
-              </p>
               
-              <div className="text-center space-y-2">
-                <Button 
-                  type="button" 
-                  variant="ghost" 
-                  className="w-full"
-                  onClick={() => setIsVerifying(false)}
+              <p className="text-xs text-muted-foreground">
+                Need help? Contact{" "}
+                <a 
+                  href="https://wa.me/31628073996" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
                 >
-                  Use Different Email
-                </Button>
-                
-                <p className="text-xs text-muted-foreground">
-                  Need help? Contact{" "}
-                  <a 
-                    href="https://wa.me/31628073996" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline"
-                  >
-                    WhatsApp: +31 6 2807 3996
-                  </a>
-                </p>
-              </div>
-            </form>
+                  WhatsApp: +31 6 2807 3996
+                </a>
+              </p>
+            </div>
           </div>
         )}
       </DialogContent>

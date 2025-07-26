@@ -28,40 +28,27 @@ router.post('/register', async (req, res) => {
         });
       }
       
-      // Generate new verification token for unverified user
-      const { verificationToken } = await authService.generateVerificationToken(existingUser.id);
-      
-      // Send verification email
-      const baseUrl = `${req.protocol}://${req.get('host')}`;
-      const emailSent = await emailService.sendVerificationEmail(email, verificationToken, baseUrl);
+      // Set session to log existing user in immediately  
+      (req.session as any).userId = existingUser.id;
       
       return res.json({
-        message: emailSent 
-          ? 'New verification email sent to existing account'
-          : 'Registration complete. For verification, please contact WhatsApp: +31 6 2807 3996 with your email.',
+        message: 'Welcome back! You can continue creating content.',
         userId: existingUser.id,
         email: existingUser.email,
-        emailSent,
-        supportContact: '+31 6 2807 3996',
-        requiresVerification: true
+        autoLogin: true
       });
     }
 
-    const { user, verificationToken } = await authService.registerUser(email);
+    const user = await authService.registerUser(email);
     
-    // Try to send verification email
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
-    const emailSent = await emailService.sendVerificationEmail(email, verificationToken, baseUrl);
+    // Set session to log user in immediately
+    (req.session as any).userId = user.id;
     
     res.json({
-      message: emailSent 
-        ? 'Verification email sent! Please check your inbox and enter the code.' 
-        : 'Registration complete. For verification, please contact WhatsApp: +31 6 2807 3996 with your email.',
+      message: 'Registration complete! You can start creating content with your 3 free credits.',
       userId: user.id,
       email: user.email,
-      emailSent,
-      supportContact: '+31 6 2807 3996',
-      requiresVerification: true
+      autoLogin: true
     });
   } catch (error: any) {
     res.status(400).json({ 
@@ -70,32 +57,26 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Verify email
+// Admin verification endpoint (for manual verification via WhatsApp)
 router.post('/verify', async (req, res) => {
   try {
-    const { token } = z.object({
-      token: z.string()
+    const { email, adminKey } = z.object({
+      email: z.string().email(),
+      adminKey: z.string()
     }).parse(req.body);
 
-    console.log('Verification attempt with token:', token?.substring(0, 8) + '...');
-
-    // Check if token exists in database
-    const tokenCheck = await authService.getUserByVerificationToken(token);
-    console.log('Token check result:', tokenCheck ? 'Found user' : 'No user found');
-
-    const user = await authService.verifyEmail(token);
-    if (!user) {
-      console.log('No user found for token, token may be invalid or expired');
-      return res.status(400).json({ message: 'Invalid or expired verification token' });
+    // Check admin key
+    if (adminKey !== '0f5db72a966a8d5f7ebae96c6a1e2cc574c2bf926c62dc4526bd43df1c0f42eb') {
+      return res.status(403).json({ message: 'Unauthorized admin access' });
     }
 
-    console.log('User verified successfully:', user.email);
-
-    // Set session
-    (req.session as any).userId = user.id;
+    const user = await authService.verifyUserByEmail(email);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
     
     res.json({
-      message: 'Email verified successfully',
+      message: 'User verified successfully',
       user: {
         id: user.id,
         email: user.email,
@@ -104,7 +85,7 @@ router.post('/verify', async (req, res) => {
       }
     });
   } catch (error: any) {
-    console.error('Verification error:', error);
+    console.error('Admin verification error:', error);
     res.status(400).json({ 
       message: error.message || 'Verification failed' 
     });
