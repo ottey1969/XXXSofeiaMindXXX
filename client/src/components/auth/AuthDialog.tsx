@@ -96,21 +96,14 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) => {
-                  // Only allow changes if no email is saved in localStorage
-                  const savedEmail = localStorage.getItem('sofeia_user_email');
-                  if (!savedEmail && !user?.email) {
-                    setEmail(e.target.value);
-                  }
-                }}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
                 required
-                readOnly={!!(localStorage.getItem('sofeia_user_email') || user?.email)}
-                className={(localStorage.getItem('sofeia_user_email') || user?.email) ? "bg-muted cursor-not-allowed" : ""}
+                className={user?.email ? "bg-muted/50" : ""}
               />
-              {(localStorage.getItem('sofeia_user_email') || user?.email) && (
+              {user?.email && (
                 <p className="text-xs text-muted-foreground">
-                  🔒 This email is permanently registered on this browser
+                  Currently logged in as this email address
                 </p>
               )}
             </div>
