@@ -7,7 +7,7 @@ This is a full-stack chat application built as "Sofeia AI" - an advanced autonom
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
-Output format: Plain text only - no HTML, markdown, or formatting. All AI responses should be ready for direct copy-paste as plain text.
+Output format: Properly formatted HTML with real headings (h1, h2, h3), bullets (ul, li), and tables. All AI responses should be ready for direct copy-paste as functional HTML code.
 
 ## System Architecture
 
