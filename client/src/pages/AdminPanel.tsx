@@ -7,9 +7,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Shield, Plus, Search, Euro } from "lucide-react";
+import { Shield, Plus, Search, Euro, MessageSquare } from "lucide-react";
 
 const ADMIN_KEY = "0f5db72a966a8d5f7ebae96c6a1e2cc574c2bf926c62dc4526bd43df1c0f42eb";
 
@@ -36,6 +37,13 @@ export default function AdminPanel() {
   const [creditsToAdd, setCreditsToAdd] = useState<string>("10");
   const [searchEmail, setSearchEmail] = useState("");
   const [searchedUser, setSearchedUser] = useState<User | null>(null);
+  
+  // Notification fields
+  const [notificationEmail, setNotificationEmail] = useState("");
+  const [notificationTitle, setNotificationTitle] = useState("");
+  const [notificationMessage, setNotificationMessage] = useState("");
+  const [notificationType, setNotificationType] = useState<"info" | "warning" | "success" | "error">("info");
+  const [expiresInHours, setExpiresInHours] = useState<string>("24");
   const { toast } = useToast();
 
   const handleAdminLogin = () => {
@@ -153,6 +161,79 @@ export default function AdminPanel() {
     searchUserMutation.mutate(searchEmail);
   };
 
+  const sendNotificationMutation = useMutation({
+    mutationFn: async ({ email, title, message, type, expiresInHours }: {
+      email: string;
+      title: string;
+      message: string;
+      type: "info" | "warning" | "success" | "error";
+      expiresInHours?: number;
+    }) => {
+      const response = await fetch(`/api/admin/send-notification`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-key": ADMIN_KEY,
+        },
+        body: JSON.stringify({ email, title, message, type, expiresInHours }),
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to send notification');
+      }
+      
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Notification Sent",
+        description: `Message sent to ${notificationEmail}`,
+      });
+      setNotificationEmail("");
+      setNotificationTitle("");
+      setNotificationMessage("");
+      setNotificationType("info");
+      setExpiresInHours("24");
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to send notification",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleSendNotification = () => {
+    if (!notificationEmail || !notificationTitle || !notificationMessage) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all notification fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const expires = parseInt(expiresInHours);
+    if (expires < 1 || expires > 168) {
+      toast({
+        title: "Invalid Expiry",
+        description: "Expiry must be between 1 and 168 hours",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    sendNotificationMutation.mutate({
+      email: notificationEmail,
+      title: notificationTitle,
+      message: notificationMessage,
+      type: notificationType,
+      expiresInHours: expires,
+    });
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center p-4">
@@ -193,7 +274,7 @@ export default function AdminPanel() {
           <p className="text-purple-200">Manage user credits and monitor system usage</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Add Credits Section */}
           <Card>
             <CardHeader>
@@ -295,6 +376,84 @@ export default function AdminPanel() {
                   </div>
                 </div>
               )}
+            </CardContent>
+          </Card>
+
+          {/* Send Notification Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MessageSquare className="w-5 h-5" />
+                Send Notification
+              </CardTitle>
+              <CardDescription>
+                Send popup message to any user
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="notificationEmail">User Email</Label>
+                <Input
+                  id="notificationEmail"
+                  type="email"
+                  placeholder="user@example.com"
+                  value={notificationEmail}
+                  onChange={(e) => setNotificationEmail(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="notificationTitle">Title</Label>
+                <Input
+                  id="notificationTitle"
+                  placeholder="Important Message"
+                  value={notificationTitle}
+                  onChange={(e) => setNotificationTitle(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="notificationMessage">Message</Label>
+                <Textarea
+                  id="notificationMessage"
+                  placeholder="Your message here..."
+                  value={notificationMessage}
+                  onChange={(e) => setNotificationMessage(e.target.value)}
+                  rows={3}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="notificationType">Type</Label>
+                  <Select value={notificationType} onValueChange={(value: "info" | "warning" | "success" | "error") => setNotificationType(value)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="info">Info</SelectItem>
+                      <SelectItem value="success">Success</SelectItem>
+                      <SelectItem value="warning">Warning</SelectItem>
+                      <SelectItem value="error">Error</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="expiresInHours">Expires (Hours)</Label>
+                  <Input
+                    id="expiresInHours"
+                    type="number"
+                    min="1"
+                    max="168"
+                    value={expiresInHours}
+                    onChange={(e) => setExpiresInHours(e.target.value)}
+                  />
+                </div>
+              </div>
+              <Button 
+                onClick={handleSendNotification} 
+                className="w-full"
+                disabled={sendNotificationMutation.isPending}
+              >
+                {sendNotificationMutation.isPending ? "Sending..." : "Send Notification"}
+              </Button>
             </CardContent>
           </Card>
         </div>

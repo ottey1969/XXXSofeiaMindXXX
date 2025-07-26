@@ -13,6 +13,9 @@ import { requireAuth, requireCredits, type AuthenticatedRequest } from "./middle
 import { authService } from "./auth";
 import authRoutes from "./routes/auth";
 import adminRoutes from "./routes/admin";
+import { notifications } from "@shared/schema";
+import { eq } from "drizzle-orm";
+import { db } from "./db";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -24,6 +27,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Admin routes
   app.use('/api/admin', adminRoutes);
+
+  // Get user notifications (protected)
+  app.get('/api/notifications', requireAuth, async (req: AuthenticatedRequest, res) => {
+    try {
+      const userId = req.user!.id;
+      const userNotifications = await db
+        .select()
+        .from(notifications)
+        .where(eq(notifications.userId, userId))
+        .orderBy(notifications.createdAt);
+
+      // Filter out expired notifications
+      const activeNotifications = userNotifications.filter((n: any) => 
+        !n.expiresAt || new Date(n.expiresAt) > new Date()
+      );
+
+      res.json(activeNotifications);
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+      res.status(500).json({ message: "Failed to fetch notifications" });
+    }
+  });
+
+  // Mark notification as read (protected)
+  app.patch('/api/notifications/:id/read', requireAuth, async (req: AuthenticatedRequest, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user!.id;
+
+      await db
+        .update(notifications)
+        .set({ isRead: true })
+        .where(eq(notifications.id, id));
+
+      res.json({ message: 'Notification marked as read' });
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+      res.status(500).json({ message: "Failed to mark notification as read" });
+    }
+  });
   
   // Get conversations (protected)
   app.get("/api/conversations", requireAuth, async (req: AuthenticatedRequest, res) => {

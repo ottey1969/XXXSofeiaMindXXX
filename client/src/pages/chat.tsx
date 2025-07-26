@@ -13,6 +13,7 @@ import CreditStatus from "@/components/auth/CreditStatus";
 import { useAuth } from "@/hooks/useAuth";
 import { Brain, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import NotificationPopup from "@/components/NotificationPopup";
 
 export default function Chat() {
   const { id: conversationId } = useParams();
@@ -225,6 +226,9 @@ export default function Chat() {
           isLoading={sendMessageMutation.isPending}
         />
       </main>
+      
+      {/* Notification Popup */}
+      <NotificationPopup />
     </div>
   );
 }

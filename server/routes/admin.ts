@@ -1,6 +1,9 @@
 import { Router } from 'express';
 import { authService } from '../auth';
 import { z } from 'zod';
+import { db } from '../db';
+import { notifications, insertNotificationSchema } from '@shared/schema';
+import { eq } from 'drizzle-orm';
 
 const router = Router();
 
@@ -68,6 +71,51 @@ router.get('/user/:email', requireAdmin, async (req, res) => {
   } catch (error: any) {
     res.status(500).json({ 
       message: error.message || 'Failed to get user' 
+    });
+  }
+});
+
+// Send notification to user
+router.post('/send-notification', requireAdmin, async (req, res) => {
+  try {
+    const { email, title, message, type, expiresInHours } = z.object({
+      email: z.string().email('Invalid email address'),
+      title: z.string().min(1, 'Title is required'),
+      message: z.string().min(1, 'Message is required'),
+      type: z.enum(['info', 'warning', 'success', 'error']).default('info'),
+      expiresInHours: z.number().min(1).max(168).optional(), // Max 1 week
+      adminKey: z.string().optional()
+    }).parse(req.body);
+
+    const user = await authService.getUserByEmail(email);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const expiresAt = expiresInHours 
+      ? new Date(Date.now() + expiresInHours * 60 * 60 * 1000)
+      : null;
+
+    const [notification] = await db.insert(notifications).values({
+      userId: user.id,
+      title,
+      message,
+      type,
+      expiresAt
+    }).returning();
+
+    res.json({
+      message: `Notification sent to ${email}`,
+      notification: {
+        id: notification.id,
+        title: notification.title,
+        type: notification.type,
+        createdAt: notification.createdAt
+      }
+    });
+  } catch (error: any) {
+    res.status(400).json({ 
+      message: error.message || 'Failed to send notification' 
     });
   }
 });
