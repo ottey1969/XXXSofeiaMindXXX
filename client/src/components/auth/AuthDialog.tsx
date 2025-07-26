@@ -14,8 +14,9 @@ interface AuthDialogProps {
 export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
   const [email, setEmail] = useState("");
   const [verificationToken, setVerificationToken] = useState("");
-  const [step, setStep] = useState<"email" | "verify">("email");
+  const [step, setStep] = useState<"email" | "verify" | "signin">("email");
   const [userId, setUserId] = useState("");
+  const [isReturningUser, setIsReturningUser] = useState(false);
 
   const { toast } = useToast();
   const registerMutation = useRegister();
@@ -69,11 +70,13 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {step === "email" ? "Welcome to Sofeia AI" : "Verify Your Email"}
+            {step === "email" ? "Welcome to Sofeia AI" : 
+             step === "signin" ? "Welcome Back!" : 
+             "Verify Your Email"}
           </DialogTitle>
         </DialogHeader>
 
-        {step === "email" ? (
+        {step === "email" && (
           <form onSubmit={handleEmailSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email Address</Label>
@@ -97,7 +100,47 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
               No password required. We'll send a verification link to your email.
             </p>
           </form>
-        ) : (
+        )}
+
+        {step === "signin" && (
+          <form onSubmit={handleEmailSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email Address</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your registered email"
+                required
+              />
+            </div>
+            <Button 
+              type="submit" 
+              className="w-full"
+              disabled={registerMutation.isPending}
+            >
+              {registerMutation.isPending ? "Sending Link..." : "Send New Verification Link"}
+            </Button>
+            <p className="text-sm text-muted-foreground text-center">
+              We'll send a new verification link to access your account.
+            </p>
+            <Button 
+              type="button" 
+              variant="outline" 
+              className="w-full"
+              onClick={() => {
+                setStep("email");
+                setIsReturningUser(false);
+                setEmail("");
+              }}
+            >
+              Use Different Email
+            </Button>
+          </form>
+        )}
+
+        {step === "verify" && (
           <form onSubmit={handleVerificationSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="token">Verification Code</Label>

@@ -11,6 +11,19 @@ router.post('/register', async (req, res) => {
       email: z.string().email('Invalid email address')
     }).parse(req.body);
 
+    // Check if user already exists
+    const existingUser = await authService.getUserByEmail(email);
+    if (existingUser) {
+      // Generate new verification token for existing user
+      const { verificationToken } = await authService.generateVerificationToken(existingUser.id);
+      return res.json({
+        message: 'New verification email sent to existing account',
+        userId: existingUser.id,
+        verificationToken, // Remove this in production
+        email: existingUser.email
+      });
+    }
+
     const { user, verificationToken } = await authService.registerUser(email);
     
     // In a real app, you'd send this via email
