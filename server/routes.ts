@@ -108,11 +108,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Get conversations (protected)
+  // Get conversations for user (protected)
   app.get("/api/conversations", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
-      const conversations = await storage.listConversations();
-      // Filter by user ID in a real implementation
+      const userId = req.user!.id;
+      const conversations = await storage.getUserConversations(userId);
       res.json(conversations);
     } catch (error) {
       console.error("Error fetching conversations:", error);

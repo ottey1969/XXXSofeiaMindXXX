@@ -57,6 +57,13 @@ export class MemStorage implements IStorage {
     );
   }
 
+  async getUserConversations(userId: string): Promise<Conversation[]> {
+    const userConversations = Array.from(this.conversations.values())
+      .filter(conversation => conversation.userId === userId)
+      .sort((a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime());
+    return userConversations;
+  }
+
   async getMessage(id: string): Promise<Message | undefined> {
     return this.messages.get(id);
   }

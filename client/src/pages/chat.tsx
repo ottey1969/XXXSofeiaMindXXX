@@ -16,12 +16,18 @@ import { useToast } from "@/hooks/use-toast";
 import NotificationPopup from "@/components/NotificationPopup";
 import ContactAdminDialog from "@/components/ContactAdminDialog";
 import AudioControls from "@/components/audio/AudioControls";
+import ConversationHistory from "@/components/chat/ConversationHistory";
 
 export default function Chat() {
   const { id: conversationId } = useParams();
   const { user, isVerified } = useAuth();
   const { toast } = useToast();
   const logoutMutation = useLogout();
+
+  // Create new conversation function
+  const createNewConversation = () => {
+    createConversationMutation.mutate();
+  };
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [isTyping, setIsTyping] = useState(false);
   const [currentProvider, setCurrentProvider] = useState("Groq Ready");
@@ -180,6 +186,15 @@ export default function Chat() {
           <Button 
             variant="outline" 
             size="sm"
+            onClick={createNewConversation}
+            disabled={createConversationMutation.isPending}
+          >
+            <Sparkles className="w-4 h-4 mr-1" />
+            {createConversationMutation.isPending ? "Creating..." : "New Chat"}
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm"
             onClick={() => setShowContactAdmin(true)}
           >
             <MessageSquare className="w-4 h-4 mr-1" />
@@ -220,6 +235,16 @@ export default function Chat() {
 
       {/* Chat Container */}
       <main className="flex-1 flex flex-col max-w-4xl mx-auto w-full">
+        {/* Conversation History */}
+        <div className="px-4 pt-4">
+          <ConversationHistory 
+            currentConversationId={currentConversationId || undefined}
+            onSelectConversation={(id) => {
+              window.location.href = `/chat/${id}`;
+            }}
+          />
+        </div>
+
         {/* Messages Area */}
         <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6 custom-scrollbar">
           {/* Welcome Message - only show if no messages */}
