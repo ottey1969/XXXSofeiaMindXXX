@@ -1,0 +1,126 @@
+Critical Issues in Your Auth System
+Session-Cookie Mismatch (Main Problem)
+
+typescript
+// In routes.ts - The cookie settings conflict with Replit's proxy
+app.use(session({
+  cookie: {
+    secure: false, // This won't work on Replit's HTTPS
+    sameSite: 'lax', // Too restrictive for cross-origin
+    httpOnly: true // Good, but needs companion settings
+  }
+}));
+Missing Replit-Specific Configuration
+
+typescript
+// Add this BEFORE your session middleware:
+app.set('trust proxy', 1); // Required for secure cookies on Replit
+Incomplete CORS Setup
+
+typescript
+// Your current CORS config likely needs:
+app.use(cors({
+  origin: [
+    'https://SofeiaMind.serviondemand.repl.co',
+    'https://sofieamind.serviondemand.repl.co'
+  ],
+  credentials: true, // Must include credentials
+  exposedHeaders: ['set-cookie'] // Needed for cookie access
+}));
+The Fix - Minimal Changes Required
+Update session configuration in routes.ts:
+
+typescript
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'fallback-secret',
+  resave: false,
+  saveUninitialized: false,
+  proxy: true, // Trust the reverse proxy
+  cookie: {
+    secure: process.env.NODE_ENV === 'production', // Auto-adjusts
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    httpOnly: true,
+    domain: process.env.NODE_ENV === 'production' ? '.replit.com' : undefined,
+    maxAge: 86400000
+  },
+  store: yourPostgresStore // Keep your existing store
+}));
+Add health check endpoint (for debugging):
+
+typescript
+app.get('/api/auth/health', (req, res) => {
+  res.json({
+    session: !!req.session,
+    cookies: req.headers.cookie,
+    secure: req.secure,
+    host: req.get('host')
+  });
+});
+Frontend verification in useAuth.ts:
+
+typescript
+// Modify your useQuery to include credentials
+useQuery({
+  queryKey: ["/api/auth/me"],
+  queryFn: async () => {
+    const response = await fetch('/api/auth/me', {
+      credentials: 'include' // This was likely missing
+    });
+    // ... rest of your existing code
+  }
+});
+Verification Steps
+Test the health endpoint:
+
+bash
+curl https://SofeiaMind.serviondemand.repl.co/api/auth/health -v
+Look for:
+
+HTTP/2 200
+
+Correct set-cookie headers
+
+Browser DevTools Check:
+
+Clear all cookies first
+
+Check "Preserve log" in Network tab
+
+Verify:
+
+First login request sends credentials
+
+Response has set-cookie header
+
+Subsequent requests include the cookie
+
+Session Store Verification:
+
+typescript
+// Add temporary debug route
+app.get('/api/auth/debug-session', async (req, res) => {
+  const sessions = await yourPostgresStore.getAllSessions();
+  res.json({
+    current: req.sessionID,
+    all: sessions
+  });
+});
+Common Pitfalls to Check
+Cookie Domain Issues:
+
+Replit requires .replit.com domain
+
+Must have SameSite=None and Secure in production
+
+Frontend Fetch Headers:
+
+typescript
+// Every auth request needs:
+fetch(url, {
+  credentials: 'include'
+});
+Mixed Content Warnings:
+
+Ensure all assets are loaded via HTTPS
+
+Check for "padlock" icon in browser address bar
