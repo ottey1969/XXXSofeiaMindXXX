@@ -167,6 +167,17 @@ export default function Chat() {
         <div className="flex items-center gap-4">
           <CreditStatus />
           <ProviderStatus currentProvider={currentProvider} />
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => {
+              // Clear auth and reload to landing page
+              document.cookie = 'connect.sid=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+              window.location.reload();
+            }}
+          >
+            Logout
+          </Button>
         </div>
       </header>
 
