@@ -36,17 +36,18 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
     }
   };
 
-  const formatTime = (date: Date | null) => {
+  const formatTime = (date: Date | string | null) => {
     if (!date) return 'now';
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
     const now = new Date();
-    const diff = now.getTime() - date.getTime();
+    const diff = now.getTime() - dateObj.getTime();
     const minutes = Math.floor(diff / 60000);
     
     if (minutes < 1) return 'just now';
     if (minutes < 60) return `${minutes} min ago`;
     const hours = Math.floor(minutes / 60);
     if (hours < 24) return `${hours}h ago`;
-    return date.toLocaleDateString();
+    return dateObj.toLocaleDateString();
   };
 
   if (isUser) {
@@ -84,7 +85,7 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
                 <span className="text-sm font-medium text-sofeia-amber">Research Mode Activated</span>
                 <span className="text-xs text-sofeia-slate-500">
                   • {getProviderName(message.provider)} • 
-                  {message.metadata && typeof message.metadata === 'object' && 'targetCountry' in message.metadata && ` Country: ${(message.metadata as any).targetCountry?.toUpperCase()}`}
+                  {message.metadata && typeof message.metadata === 'object' && 'targetCountry' in message.metadata && ` Country: ${String((message.metadata as any).targetCountry?.toUpperCase() || '')}`}
                 </span>
               </div>
             )}
