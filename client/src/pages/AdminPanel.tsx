@@ -65,84 +65,99 @@ export default function AdminPanel() {
   const notificationAudioRef = useRef<HTMLAudioElement | null>(null);
   const continuousAudioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Initialize audio elements
+  // Initialize audio elements using Web Audio API
   useEffect(() => {
-    // Create notification sound (higher frequency beep)
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    let audioContext: AudioContext | null = null;
     
-    // Create notification beep programmatically
-    const createBeep = (frequency: number, duration: number) => {
-      const sampleRate = audioContext.sampleRate;
-      const frames = sampleRate * duration;
-      const buffer = audioContext.createBuffer(1, frames, sampleRate);
-      const data = buffer.getChannelData(0);
-      
-      for (let i = 0; i < frames; i++) {
-        data[i] = Math.sin(2 * Math.PI * frequency * (i / sampleRate)) * 0.3;
+    const initializeAudio = () => {
+      try {
+        audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        console.log('Audio context initialized');
+      } catch (e) {
+        console.log('Audio context failed:', e);
       }
-      
-      const arrayBuffer = new ArrayBuffer(44 + data.length * 2);
-      const view = new DataView(arrayBuffer);
-      
-      // WAV header
-      const writeString = (offset: number, string: string) => {
-        for (let i = 0; i < string.length; i++) {
-          view.setUint8(offset + i, string.charCodeAt(i));
-        }
-      };
-      
-      writeString(0, 'RIFF');
-      view.setUint32(4, 36 + data.length * 2, true);
-      writeString(8, 'WAVE');
-      writeString(12, 'fmt ');
-      view.setUint32(16, 16, true);
-      view.setUint16(20, 1, true);
-      view.setUint16(22, 1, true);
-      view.setUint32(24, sampleRate, true);
-      view.setUint32(28, sampleRate * 2, true);
-      view.setUint16(32, 2, true);
-      view.setUint16(34, 16, true);
-      writeString(36, 'data');
-      view.setUint32(40, data.length * 2, true);
-      
-      for (let i = 0; i < data.length; i++) {
-        view.setInt16(44 + i * 2, data[i] * 0x7FFF, true);
-      }
-      
-      const blob = new Blob([arrayBuffer], { type: 'audio/wav' });
-      return URL.createObjectURL(blob);
     };
     
-    // Notification sound: 800Hz beep for 0.3 seconds
-    const notificationUrl = createBeep(800, 0.3);
-    notificationAudioRef.current = new Audio(notificationUrl);
+    // Initialize audio context on first user interaction
+    const handleUserInteraction = () => {
+      if (!audioContext) {
+        initializeAudio();
+      }
+      if (audioContext && audioContext.state === 'suspended') {
+        audioContext.resume();
+      }
+    };
     
-    // Continuous sound: 600Hz beep for 0.5 seconds with 1 second interval
-    const continuousUrl = createBeep(600, 0.5);
-    continuousAudioRef.current = new Audio(continuousUrl);
-    continuousAudioRef.current.loop = true;
-    continuousAudioRef.current.volume = 0.4;
+    // Add event listeners for user interaction
+    document.addEventListener('click', handleUserInteraction, { once: true });
+    document.addEventListener('keydown', handleUserInteraction, { once: true });
+    
+    // Initialize previous count
+    setPreviousMessageCount(0);
+    
+    return () => {
+      document.removeEventListener('click', handleUserInteraction);
+      document.removeEventListener('keydown', handleUserInteraction);
+    };
   }, []);
 
-  // Sound functions
+  // Sound functions using Web Audio API
   const playNotificationSound = () => {
-    if (notificationAudioRef.current && soundEnabled) {
-      notificationAudioRef.current.currentTime = 0;
-      notificationAudioRef.current.play().catch(e => console.log('Audio play failed:', e));
+    console.log('Attempting to play notification sound', { soundEnabled });
+    if (!soundEnabled) return;
+    
+    try {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+      oscillator.type = 'sine';
+      
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.3);
+      
+      console.log('Sound played successfully');
+    } catch (e) {
+      console.log('Audio play failed:', e);
     }
   };
 
   const startContinuousSound = () => {
-    if (continuousAudioRef.current && soundEnabled && continuousSound) {
-      continuousAudioRef.current.play().catch(e => console.log('Audio play failed:', e));
+    if (!soundEnabled || !continuousSound) return;
+    
+    try {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+      oscillator.type = 'sine';
+      
+      gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.5);
+      
+      // Store reference for stopping
+      continuousAudioRef.current = { stop: () => oscillator.stop() } as any;
+    } catch (e) {
+      console.log('Continuous audio failed:', e);
     }
   };
 
   const stopContinuousSound = () => {
-    if (continuousAudioRef.current) {
-      continuousAudioRef.current.pause();
-      continuousAudioRef.current.currentTime = 0;
-    }
+    // Continuous sound will naturally stop after 0.5 seconds
+    console.log('Continuous sound stopping');
   };
 
   // User Messages Component
@@ -164,8 +179,17 @@ export default function AdminPanel() {
       const unreadCount = userMessages.filter((msg: any) => !msg.isRead).length;
       const totalCount = userMessages.length;
       
+      console.log('Sound check:', {
+        totalCount,
+        previousMessageCount,
+        unreadCount,
+        soundEnabled,
+        continuousSound
+      });
+      
       // Check for new messages
-      if (totalCount > previousMessageCount && previousMessageCount > 0) {
+      if (totalCount > previousMessageCount && previousMessageCount >= 0) {
+        console.log('Playing notification sound for new message');
         // Play notification sound for new message
         playNotificationSound();
         
