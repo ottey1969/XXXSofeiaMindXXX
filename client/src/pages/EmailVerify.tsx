@@ -30,7 +30,9 @@ export default function EmailVerify() {
     })
     .then(response => {
       if (!response.ok) {
-        throw new Error('Verification failed');
+        return response.json().then(data => {
+          throw new Error(data.message || 'Verification failed');
+        });
       }
       return response.json();
     })

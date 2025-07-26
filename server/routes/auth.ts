@@ -60,10 +60,15 @@ router.post('/verify', async (req, res) => {
       token: z.string()
     }).parse(req.body);
 
+    console.log('Verification attempt with token:', token?.substring(0, 8) + '...');
+
     const user = await authService.verifyEmail(token);
     if (!user) {
-      return res.status(400).json({ message: 'Invalid verification token' });
+      console.log('No user found for token, token may be invalid or expired');
+      return res.status(400).json({ message: 'Invalid or expired verification token' });
     }
+
+    console.log('User verified successfully:', user.email);
 
     // Set session
     (req.session as any).userId = user.id;
@@ -78,6 +83,7 @@ router.post('/verify', async (req, res) => {
       }
     });
   } catch (error: any) {
+    console.error('Verification error:', error);
     res.status(400).json({ 
       message: error.message || 'Verification failed' 
     });
