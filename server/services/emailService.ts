@@ -15,9 +15,15 @@ class EmailService {
   }
 
   private initializeTransporter() {
+    console.log('Initializing email transporter...');
+    console.log('GMAIL_USER available:', !!process.env.GMAIL_USER);
+    console.log('GMAIL_APP_PASSWORD available:', !!process.env.GMAIL_APP_PASSWORD);
+    console.log('EMAIL_FROM available:', !!process.env.EMAIL_FROM);
+    
     // Try multiple email service configurations
     if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
       // Custom SMTP (most flexible)
+      console.log('Using custom SMTP configuration');
       this.transporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST,
         port: parseInt(process.env.SMTP_PORT || '587'),
@@ -29,6 +35,7 @@ class EmailService {
       });
     } else if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
       // Gmail with App Password (free option)
+      console.log('Using Gmail SMTP configuration');
       this.transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -38,6 +45,7 @@ class EmailService {
       });
     } else if (process.env.MAILGUN_API_KEY && process.env.MAILGUN_DOMAIN) {
       // Mailgun (alternative to SendGrid)
+      console.log('Using Mailgun SMTP configuration');
       this.transporter = nodemailer.createTransport({
         host: 'smtp.mailgun.org',
         port: 587,
@@ -46,6 +54,8 @@ class EmailService {
           pass: process.env.MAILGUN_API_KEY,
         },
       });
+    } else {
+      console.log('No email service configured - emails will not be sent');
     }
   }
 
