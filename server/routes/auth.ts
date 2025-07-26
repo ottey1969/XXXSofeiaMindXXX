@@ -64,6 +64,10 @@ router.post('/verify', async (req, res) => {
 
     console.log('Verification attempt with token:', token?.substring(0, 8) + '...');
 
+    // Check if token exists in database
+    const tokenCheck = await authService.getUserByVerificationToken(token);
+    console.log('Token check result:', tokenCheck ? 'Found user' : 'No user found');
+
     const user = await authService.verifyEmail(token);
     if (!user) {
       console.log('No user found for token, token may be invalid or expired');

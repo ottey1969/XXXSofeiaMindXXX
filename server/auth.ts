@@ -78,6 +78,15 @@ export class AuthService {
     return { verificationToken };
   }
 
+  async getUserByVerificationToken(token: string): Promise<User | null> {
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.verificationToken, token));
+    
+    return user || null;
+  }
+
   async useCredit(userId: string): Promise<{ success: boolean; remainingCredits: number }> {
     const user = await this.getUserById(userId);
     if (!user || user.credits <= 0) {
