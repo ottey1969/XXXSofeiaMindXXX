@@ -51,29 +51,17 @@ router.post('/register', async (req, res) => {
     const baseUrl = `${req.protocol}://${req.get('host')}`;
     const emailSent = await emailService.sendVerificationEmail(email, verificationToken, baseUrl);
     
-    if (!emailSent) {
-      // If email service isn't configured, auto-verify the user
-      console.log('Email service not available, auto-verifying user:', email);
-      const verifiedUser = await authService.verifyEmail(verificationToken);
-      if (verifiedUser) {
-        // Set session for auto-verified user
-        (req.session as any).userId = verifiedUser.id;
-        return res.json({
-          message: 'Account created and verified successfully! Welcome to Sofeia AI.',
-          userId: verifiedUser.id,
-          email: verifiedUser.email,
-          emailVerified: true,
-          credits: verifiedUser.credits,
-          autoLogin: true
-        });
-      }
-    }
+    // GDPR Compliance: Never auto-verify without proper consent
+    // Always require email verification for GDPR compliance
     
     res.json({
-      message: 'Verification email sent! Please check your inbox.',
+      message: emailSent 
+        ? 'Verification email sent! Please check your inbox.' 
+        : 'Registration complete. For verification, please contact WhatsApp: +31 6 2807 3996 with your email.',
       userId: user.id,
       email: user.email,
-      emailSent: true
+      emailSent,
+      supportContact: '+31 6 2807 3996'
     });
   } catch (error: any) {
     res.status(400).json({ 

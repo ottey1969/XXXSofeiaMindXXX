@@ -40,11 +40,20 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
         return;
       }
       
-      setStep("verify");
-      toast({
-        title: "Verification email sent",
-        description: "Please check your email and enter the verification code."
-      });
+      if (result.emailSent) {
+        setStep("verify");
+        toast({
+          title: "Verification email sent",
+          description: "Please check your email and enter the verification code."
+        });
+      } else {
+        toast({
+          title: "Registration Complete",
+          description: `Contact WhatsApp ${result.supportContact} with your email for quick verification.`,
+          duration: 8000
+        });
+        onOpenChange(false);
+      }
     } catch (error: any) {
       if (error.message?.includes('already registered and verified')) {
         toast({
@@ -110,6 +119,41 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
                 required
               />
             </div>
+            
+            {/* GDPR Compliance */}
+            <div className="space-y-3">
+              <div className="flex items-start space-x-2">
+                <input
+                  type="checkbox"
+                  id="gdprConsent"
+                  required
+                  className="mt-1"
+                />
+                <Label htmlFor="gdprConsent" className="text-xs leading-4">
+                  I agree to the{" "}
+                  <a href="/terms" target="_blank" className="text-blue-600 hover:underline">
+                    Terms of Service
+                  </a>{" "}
+                  and{" "}
+                  <a href="/privacy" target="_blank" className="text-blue-600 hover:underline">
+                    Privacy Policy
+                  </a>
+                  . I consent to processing my email for account creation and service delivery.
+                </Label>
+              </div>
+              
+              <div className="flex items-start space-x-2">
+                <input
+                  type="checkbox"
+                  id="marketingConsent"
+                  className="mt-1"
+                />
+                <Label htmlFor="marketingConsent" className="text-xs leading-4">
+                  I agree to receive marketing emails about Sofeia AI updates and ContentScale content tips (optional).
+                </Label>
+              </div>
+            </div>
+            
             <Button 
               type="submit" 
               className="w-full"

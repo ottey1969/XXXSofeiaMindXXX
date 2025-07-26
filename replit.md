@@ -37,12 +37,13 @@ SEO Implementation (Updated Jan 26, 2025):
 - Facebook Group: https://www.facebook.com/groups/1079321647257618 (ContentScale Facebook Group for community questions and discussions)
 
 ## Security & GDPR Compliance (Updated Jan 26, 2025)
-- **Email Verification**: Auto-verification system for seamless user experience - Gmail SMTP ready for production
-- **Data Protection**: Full GDPR compliance with user rights (access, deletion, portability)
+- **Email Verification**: Required for GDPR compliance - no auto-verification without consent
+- **Data Protection**: Full GDPR compliance with explicit consent checkboxes and user rights
+- **Consent Management**: Required consent for Terms/Privacy, optional for marketing emails
 - **AI Provider Data**: Transparent data sharing with Groq, Perplexity, Anthropic
 - **Session Security**: Encrypted session storage with proper expiration
 - **User Rights**: Complete GDPR rights page at /gdpr with clear contact channels
-- **User Experience**: Simplified one-click registration with immediate access to 3 free credits
+- **Legal Compliance**: Proper consent collection before any data processing
 
 ## Admin System
 - Admin Key: 0f5db72a966a8d5f7ebae96c6a1e2cc574c2bf926c62dc4526bd43df1c0f42eb
