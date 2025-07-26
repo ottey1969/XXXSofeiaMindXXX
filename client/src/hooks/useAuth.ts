@@ -35,7 +35,8 @@ export function useAuth() {
   return {
     user,
     isLoading,
-    isAuthenticated: !!user?.emailVerified,
+    isAuthenticated: !!user, // Allow access if user exists (registered)
+    isVerified: !!user?.emailVerified, // Track verification separately
     error
   };
 }

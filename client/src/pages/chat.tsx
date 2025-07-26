@@ -17,7 +17,7 @@ import NotificationPopup from "@/components/NotificationPopup";
 
 export default function Chat() {
   const { id: conversationId } = useParams();
-  const { user } = useAuth();
+  const { user, isVerified } = useAuth();
   const { toast } = useToast();
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [isTyping, setIsTyping] = useState(false);
@@ -169,6 +169,26 @@ export default function Chat() {
           <ProviderStatus currentProvider={currentProvider} />
         </div>
       </header>
+
+      {/* Verification Banner for Unverified Users */}
+      {!isVerified && (
+        <div className="bg-yellow-50 border-b border-yellow-200 px-4 py-3">
+          <div className="max-w-4xl mx-auto flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <div className="w-5 h-5 bg-yellow-400 rounded-full flex items-center justify-center">
+                <span className="text-white text-xs">!</span>
+              </div>
+              <p className="text-sm text-yellow-800">
+                <strong>Verification Pending:</strong> Contact WhatsApp{" "}
+                <a href="https://wa.me/31628073996" className="underline font-medium" target="_blank">
+                  +31 6 2807 3996
+                </a>{" "}
+                with your email to unlock full AI features.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Chat Container */}
       <main className="flex-1 flex flex-col max-w-4xl mx-auto w-full">

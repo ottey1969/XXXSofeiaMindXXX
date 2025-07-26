@@ -48,11 +48,12 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
         });
       } else {
         toast({
-          title: "Registration Complete",
-          description: `Contact WhatsApp ${result.supportContact} with your email for quick verification.`,
-          duration: 8000
+          title: "Registration Complete!",
+          description: "You can now access Sofeia AI. Contact WhatsApp for verification to unlock full features.",
+          duration: 6000
         });
         onOpenChange(false);
+        window.location.reload(); // Refresh to load registered state
       }
     } catch (error: any) {
       if (error.message?.includes('already registered and verified')) {
