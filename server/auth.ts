@@ -77,7 +77,7 @@ export class AuthService {
       .from(users)
       .where(sql`ip_address = ${ipAddress} AND created_at > ${oneDayAgo}`);
     
-    return result[0]?.count || 0;
+    return Number(result[0]?.count) || 0;
   }
 
   async verifyUserByEmail(email: string): Promise<User | null> {
