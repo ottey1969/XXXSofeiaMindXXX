@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Shield, Plus, Search, Euro, MessageSquare } from "lucide-react";
+import { Shield, Plus, Search, Euro, MessageSquare, Ban, Check, X, Users, Activity } from "lucide-react";
 
 const ADMIN_KEY = "0f5db72a966a8d5f7ebae96c6a1e2cc574c2bf926c62dc4526bd43df1c0f42eb";
 
@@ -55,6 +55,105 @@ export default function AdminPanel() {
   const [logoutUserEmail, setLogoutUserEmail] = useState("");
   
   const { toast } = useToast();
+
+  // Security action handlers
+  const handleIpAction = async (action: "block" | "allow") => {
+    if (!ipAddress.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter an IP address",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await apiRequest("POST", "/api/admin/ip-security", {
+        adminKey: ADMIN_KEY,
+        ipAddress: ipAddress.trim(),
+        ruleType: action,
+        reason: ipReason.trim() || undefined,
+      });
+
+      toast({
+        title: "Success",
+        description: `IP address ${action === "block" ? "blocked" : "allowed"} successfully`,
+      });
+
+      setIpAddress("");
+      setIpReason("");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: `Failed to ${action} IP address`,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleBlockUser = async () => {
+    if (!blockUserEmail.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a user email",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await apiRequest("POST", "/api/admin/block-user", {
+        adminKey: ADMIN_KEY,
+        userEmail: blockUserEmail.trim(),
+        reason: blockReason.trim() || undefined,
+      });
+
+      toast({
+        title: "Success",
+        description: "User blocked successfully",
+      });
+
+      setBlockUserEmail("");
+      setBlockReason("");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to block user",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleForceLogout = async () => {
+    if (!logoutUserEmail.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a user email",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await apiRequest("POST", "/api/admin/force-logout", {
+        adminKey: ADMIN_KEY,
+        userEmail: logoutUserEmail.trim(),
+      });
+
+      toast({
+        title: "Success",
+        description: "User logged out successfully",
+      });
+
+      setLogoutUserEmail("");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to logout user",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleAdminLogin = () => {
     if (adminKey === ADMIN_KEY) {
@@ -755,105 +854,6 @@ export default function AdminPanel() {
       </div>
     </div>
   );
-
-  // Security action handlers
-  const handleIpAction = async (action: "block" | "allow") => {
-    if (!ipAddress.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter an IP address",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      await apiRequest("POST", "/api/admin/ip-security", {
-        adminKey: ADMIN_KEY,
-        ipAddress: ipAddress.trim(),
-        ruleType: action,
-        reason: ipReason.trim() || undefined,
-      });
-
-      toast({
-        title: "Success",
-        description: `IP address ${action === "block" ? "blocked" : "allowed"} successfully`,
-      });
-
-      setIpAddress("");
-      setIpReason("");
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: `Failed to ${action} IP address`,
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleBlockUser = async () => {
-    if (!blockUserEmail.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter a user email",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      await apiRequest("POST", "/api/admin/block-user", {
-        adminKey: ADMIN_KEY,
-        userEmail: blockUserEmail.trim(),
-        reason: blockReason.trim() || undefined,
-      });
-
-      toast({
-        title: "Success",
-        description: "User blocked successfully",
-      });
-
-      setBlockUserEmail("");
-      setBlockReason("");
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to block user",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleForceLogout = async () => {
-    if (!logoutUserEmail.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter a user email",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      await apiRequest("POST", "/api/admin/force-logout", {
-        adminKey: ADMIN_KEY,
-        userEmail: logoutUserEmail.trim(),
-      });
-
-      toast({
-        title: "Success",
-        description: "User logged out successfully",
-      });
-
-      setLogoutUserEmail("");
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to logout user",
-        variant: "destructive",
-      });
-    }
-  };
 }
 
 // Security Activity Log Component
@@ -865,11 +865,11 @@ function SecurityActivityLog() {
 
   return (
     <div className="space-y-4">
-      {activityLog.length === 0 ? (
+      {Array.isArray(activityLog) && activityLog.length === 0 ? (
         <p className="text-muted-foreground">No recent activity</p>
       ) : (
         <div className="space-y-2">
-          {activityLog.slice(0, 10).map((log: any) => (
+          {Array.isArray(activityLog) && activityLog.slice(0, 10).map((log: any) => (
             <div key={log.id} className="flex items-center justify-between p-3 border rounded-lg">
               <div>
                 <div className="flex items-center gap-2">
