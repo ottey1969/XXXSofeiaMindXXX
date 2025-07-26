@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { authService } from '../auth';
+import { emailService } from '../services/emailService';
 import { z } from 'zod';
 
 const router = Router();
@@ -16,23 +17,34 @@ router.post('/register', async (req, res) => {
     if (existingUser) {
       // Generate new verification token for existing user
       const { verificationToken } = await authService.generateVerificationToken(existingUser.id);
+      
+      // Send verification email
+      const baseUrl = `${req.protocol}://${req.get('host')}`;
+      const emailSent = await emailService.sendVerificationEmail(email, verificationToken, baseUrl);
+      
       return res.json({
-        message: 'New verification email sent to existing account',
+        message: emailSent 
+          ? 'New verification email sent to existing account'
+          : 'Email service not configured. Contact support for manual verification.',
         userId: existingUser.id,
-        // verificationToken removed for security
-        email: existingUser.email
+        email: existingUser.email,
+        emailSent
       });
     }
 
     const { user, verificationToken } = await authService.registerUser(email);
     
-    // In a real app, you'd send this via email
-    // For demo purposes, we'll return it in the response
+    // Send verification email
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const emailSent = await emailService.sendVerificationEmail(email, verificationToken, baseUrl);
+    
     res.json({
-      message: 'Verification email sent',
+      message: emailSent 
+        ? 'Verification email sent! Please check your inbox.'
+        : 'Email service not configured. Contact support for manual verification.',
       userId: user.id,
-      // verificationToken removed for security
-      email: user.email
+      email: user.email,
+      emailSent
     });
   } catch (error: any) {
     res.status(400).json({ 

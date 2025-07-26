@@ -11,6 +11,7 @@ import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import TermsOfService from "@/pages/TermsOfService";
 import CookiePolicy from "@/pages/CookiePolicy";
 import GDPRCompliance from "@/pages/GDPRCompliance";
+import EmailVerify from "@/pages/EmailVerify";
 import { useAuth } from "@/hooks/useAuth";
 
 function AuthWrapper({ children }: { children: React.ReactNode }) {
@@ -51,6 +52,7 @@ function Router() {
       <Route path="/terms" component={TermsOfService} />
       <Route path="/cookies" component={CookiePolicy} />
       <Route path="/gdpr" component={GDPRCompliance} />
+      <Route path="/verify" component={EmailVerify} />
       <Route component={NotFound} />
     </Switch>
   );

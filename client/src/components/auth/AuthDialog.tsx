@@ -143,29 +143,24 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
 
         {step === "verify" && (
           <div className="space-y-4">
-            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-              <h4 className="font-semibold mb-2 text-blue-800 dark:text-blue-200">⚠️ Demo Mode</h4>
-              <p className="text-sm text-blue-700 dark:text-blue-300">
-                In production, you would receive a verification email. For this demo, please contact us via:
+            <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+              <h4 className="font-semibold mb-2 text-green-800 dark:text-green-200">📧 Check Your Email</h4>
+              <p className="text-sm text-green-700 dark:text-green-300">
+                We've sent a verification link to your email address. Click the link in the email to verify your account.
               </p>
-              <div className="mt-3 space-y-2">
-                <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                  📱 WhatsApp: +31 6 2807 3996
-                </p>
-                <p className="text-sm text-blue-700 dark:text-blue-300">
-                  We'll verify your account manually and provide access.
-                </p>
-              </div>
+              <p className="text-sm text-green-600 dark:text-green-400 mt-2">
+                Don't see the email? Check your spam folder or contact support.
+              </p>
             </div>
             
             <form onSubmit={handleVerificationSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="token">Verification Code (Demo)</Label>
+                <Label htmlFor="token">Or Enter Verification Code</Label>
                 <Input
                   id="token"
                   value={verificationToken}
                   onChange={(e) => setVerificationToken(e.target.value)}
-                  placeholder="Contact support for verification"
+                  placeholder="Enter code from email"
                   required
                 />
               </div>
@@ -177,16 +172,31 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
                 {verifyMutation.isPending ? "Verifying..." : "Verify Email"}
               </Button>
               <p className="text-sm text-muted-foreground text-center">
-                Email: {email}
+                Sent to: {email}
               </p>
-              <Button 
-                type="button" 
-                variant="ghost" 
-                className="w-full"
-                onClick={() => setStep("email")}
-              >
-                Use Different Email
-              </Button>
+              
+              <div className="text-center space-y-2">
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  className="w-full"
+                  onClick={() => setStep("email")}
+                >
+                  Use Different Email
+                </Button>
+                
+                <p className="text-xs text-muted-foreground">
+                  Need help? Contact{" "}
+                  <a 
+                    href="https://wa.me/31628073996" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline"
+                  >
+                    WhatsApp: +31 6 2807 3996
+                  </a>
+                </p>
+              </div>
             </form>
           </div>
         )}
