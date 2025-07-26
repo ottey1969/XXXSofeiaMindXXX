@@ -127,10 +127,10 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
                   type="checkbox"
                   id="gdprConsent"
                   required
-                  className="mt-1"
+                  className="mt-1 accent-blue-600"
                 />
-                <Label htmlFor="gdprConsent" className="text-xs leading-4">
-                  I agree to the{" "}
+                <Label htmlFor="gdprConsent" className="text-xs leading-4 cursor-pointer">
+                  <span className="text-red-500">*</span> I agree to the{" "}
                   <a href="/terms" target="_blank" className="text-blue-600 hover:underline">
                     Terms of Service
                   </a>{" "}
@@ -146,10 +146,11 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
                 <input
                   type="checkbox"
                   id="marketingConsent"
-                  className="mt-1"
+                  name="marketingConsent"
+                  className="mt-1 accent-blue-600"
                 />
-                <Label htmlFor="marketingConsent" className="text-xs leading-4">
-                  I agree to receive marketing emails about Sofeia AI updates and ContentScale content tips (optional).
+                <Label htmlFor="marketingConsent" className="text-xs leading-4 cursor-pointer text-gray-600">
+                  📧 I'd like to receive marketing emails about Sofeia AI updates and ContentScale content tips <em>(optional)</em>
                 </Label>
               </div>
             </div>
