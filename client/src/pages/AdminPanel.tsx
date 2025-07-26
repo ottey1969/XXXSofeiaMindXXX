@@ -23,11 +23,12 @@ interface User {
 }
 
 const creditPackages = [
-  { credits: 10, price: 2.30, description: "Basic starter pack" },
-  { credits: 50, price: 11.50, description: "Most popular choice" },
-  { credits: 150, price: 35, description: "Perfect for regular content creation", pricePerCredit: "€0.23" },
-  { credits: 1500, price: 300, description: "Great for businesses & agencies", pricePerCredit: "€0.20", popular: true },
-  { credits: 5000, price: 899, description: "Enterprise level content volume", pricePerCredit: "€0.18", bestValue: true }
+  { credits: 10, price: 2.30, description: "Basic starter pack", pricePerCredit: undefined, popular: false, bestValue: false, ultimate: false },
+  { credits: 50, price: 11.50, description: "Most popular choice", pricePerCredit: undefined, popular: false, bestValue: false, ultimate: false },
+  { credits: 150, price: 35, description: "Perfect for regular content creation", pricePerCredit: "€0.23", popular: false, bestValue: false, ultimate: false },
+  { credits: 1500, price: 300, description: "Great for businesses & agencies", pricePerCredit: "€0.20", popular: true, bestValue: false, ultimate: false },
+  { credits: 5000, price: 899, description: "Enterprise level content volume", pricePerCredit: "€0.18", popular: false, bestValue: true, ultimate: false },
+  { credits: 10000, price: 1527, description: "Ultimate enterprise package", pricePerCredit: "€0.15", popular: false, bestValue: false, ultimate: true }
 ];
 
 export default function AdminPanel() {
@@ -44,6 +45,7 @@ export default function AdminPanel() {
   const [notificationMessage, setNotificationMessage] = useState("");
   const [notificationType, setNotificationType] = useState<"info" | "warning" | "success" | "error">("info");
   const [expiresInHours, setExpiresInHours] = useState<string>("24");
+  const [activeTab, setActiveTab] = useState<"addCredits" | "searchUser" | "sendNotification">("addCredits");
   const { toast } = useToast();
 
   const handleAdminLogin = () => {
@@ -274,8 +276,24 @@ export default function AdminPanel() {
           <p className="text-purple-200">Manage user credits and monitor system usage</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="flex flex-wrap gap-4 mb-6">
+        <Button onClick={() => setActiveTab("addCredits")} variant={activeTab === "addCredits" ? "default" : "outline"}>
+          <Plus className="w-4 h-4 mr-2" />
+          Add Credits to User
+        </Button>
+        <Button onClick={() => setActiveTab("searchUser")} variant={activeTab === "searchUser" ? "default" : "outline"}>
+          <Search className="w-4 h-4 mr-2" />
+          Search User
+        </Button>
+        <Button onClick={() => setActiveTab("sendNotification")} variant={activeTab === "sendNotification" ? "default" : "outline"}>
+          <MessageSquare className="w-4 h-4 mr-2" />
+          Send Notification
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6">
           {/* Add Credits Section */}
+          {activeTab === "addCredits" && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -322,8 +340,10 @@ export default function AdminPanel() {
               </Button>
             </CardContent>
           </Card>
+          )}
 
           {/* Search User Section */}
+          {activeTab === "searchUser" && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -378,8 +398,10 @@ export default function AdminPanel() {
               )}
             </CardContent>
           </Card>
+          )}
 
           {/* Send Notification Section */}
+          {activeTab === "sendNotification" && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -456,6 +478,7 @@ export default function AdminPanel() {
               </Button>
             </CardContent>
           </Card>
+          )}
         </div>
 
         {/* Credit Packages Pricing */}
@@ -479,6 +502,8 @@ export default function AdminPanel() {
                       ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20' 
                       : pkg.bestValue 
                       ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                      : pkg.ultimate
+                      ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20'
                       : 'border-gray-200 dark:border-gray-700'
                   }`}
                 >
@@ -490,6 +515,11 @@ export default function AdminPanel() {
                   {pkg.bestValue && (
                     <Badge className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-green-500">
                       BEST VALUE
+                    </Badge>
+                  )}
+                  {pkg.ultimate && (
+                    <Badge className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-orange-500">
+                      ULTIMATE
                     </Badge>
                   )}
                   <div className="text-center">
