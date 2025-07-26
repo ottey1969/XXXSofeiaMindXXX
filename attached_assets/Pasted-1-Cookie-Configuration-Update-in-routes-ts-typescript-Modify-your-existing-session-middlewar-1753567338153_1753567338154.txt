@@ -1,0 +1,82 @@
+1. Cookie Configuration Update (in routes.ts)
+typescript
+// Modify your existing session middleware to be environment-aware
+app.use(session({
+  ...yourExistingConfig, // Keep all your current settings
+  cookie: {
+    ...yourExistingConfig.cookie, // Preserve your current cookie settings
+    // Replit-specific overrides only in production:
+    ...(process.env.NODE_ENV === 'production' ? {
+      domain: '.replit.com',
+      sameSite: 'none',
+      secure: true
+    } : {})
+  }
+}));
+
+// Add this near your other middleware
+app.set('trust proxy', 1); // Important for Replit production
+2. Environment Detection Helper
+typescript
+// Add this utility function somewhere in your config files
+const isReplitProduction = () => {
+  return process.env.NODE_ENV === 'production' && 
+         process.env.REPLIT_DB_URL !== undefined;
+};
+3. CORS Adjustment (if needed)
+typescript
+// Update your CORS config to be environment-aware
+app.use(cors({
+  origin: isReplitProduction() 
+    ? ['https://SofeiaMind.serviondemand.repl.co'] 
+    : true,
+  credentials: true
+}));
+Key Benefits:
+Zero Changes to Working Logic:
+
+Maintains your proven PostgreSQL session store
+
+Preserves all existing auth flows
+
+Replit-Production Ready:
+
+Correct cookie settings for *.replit.com domain
+
+Proper secure flags for HTTPS
+
+SameSite=None for embedded scenarios
+
+Development-Friendly:
+
+Local development keeps loose settings
+
+No need for .replit.com domain locally
+
+Recommended Steps:
+Add these changes to your existing files
+
+Set NODE_ENV=production in Replit secrets
+
+Keep all other session/auth logic exactly as is
+
+Verification:
+typescript
+// You can add this test route to verify settings
+app.get('/api/debug/session', (req, res) => {
+  res.json({
+    sessionId: req.sessionID,
+    cookieConfig: req.session.cookie,
+    environment: process.env.NODE_ENV,
+    isReplit: !!process.env.REPLIT_DB_URL
+  });
+});
+This gives you:
+
+Production-ready security on Replit
+
+Zero risk to existing functionality
+
+Minimal code changes
+
+Clear environment separation
