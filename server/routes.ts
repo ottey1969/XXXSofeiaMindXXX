@@ -58,6 +58,9 @@ const upload = multer({
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
+  // Trust proxy for correct IP addresses
+  app.set('trust proxy', 1);
+  
   // Add session middleware
   app.use(getSession());
   

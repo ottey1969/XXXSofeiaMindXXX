@@ -5,6 +5,38 @@ import { z } from 'zod';
 
 const router = Router();
 
+// Login with email (for existing users)
+router.post('/login', async (req, res) => {
+  try {
+    const { email } = z.object({
+      email: z.string().email('Invalid email address')
+    }).parse(req.body);
+
+    // Check if user exists
+    const user = await authService.getUserByEmail(email);
+    if (!user) {
+      return res.status(401).json({ message: 'User not found. Please register first.' });
+    }
+
+    // Set session to log user in
+    (req.session as any).userId = user.id;
+    
+    res.json({
+      message: `Welcome back! You have ${user.credits} credits remaining.`,
+      user: {
+        id: user.id,
+        email: user.email,
+        credits: user.credits,
+        emailVerified: user.emailVerified
+      }
+    });
+  } catch (error: any) {
+    res.status(400).json({ 
+      message: error.message || 'Login failed' 
+    });
+  }
+});
+
 // Register/login with email
 router.post('/register', async (req, res) => {
   try {

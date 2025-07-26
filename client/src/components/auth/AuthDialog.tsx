@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useRegister } from "@/hooks/useAuth";
+import { useRegister, useLogin } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
 interface AuthDialogProps {
@@ -20,6 +20,7 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
 
   const { toast } = useToast();
   const registerMutation = useRegister();
+  const loginMutation = useLogin();
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,11 +128,38 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
             <p className="text-sm text-muted-foreground text-center">
               No password required. We'll send a verification link to your email.
             </p>
+            <p className="text-sm text-center">
+              Already have an account?{" "}
+              <button 
+                type="button"
+                onClick={() => setIsReturningUser(true)}
+                className="text-primary hover:underline"
+              >
+                Login here
+              </button>
+            </p>
           </form>
         )}
 
-        {false && (
-          <form onSubmit={handleEmailSubmit} className="space-y-4">
+        {isReturningUser && !isVerifying && (
+          <form onSubmit={async (e) => {
+            e.preventDefault();
+            try {
+              await loginMutation.mutateAsync({ email });
+              toast({
+                title: "Login Successful!",
+                description: "Welcome back to Sofeia AI."
+              });
+              onOpenChange(false);
+              window.location.reload();
+            } catch (error: any) {
+              toast({
+                title: "Login failed",
+                description: error.message || "Please try registering instead",
+                variant: "destructive"
+              });
+            }
+          }} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email Address</Label>
               <Input
@@ -146,25 +174,23 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
             <Button 
               type="submit" 
               className="w-full"
-              disabled={registerMutation.isPending}
+              disabled={loginMutation.isPending}
             >
-              {registerMutation.isPending ? "Sending Link..." : "Send New Verification Link"}
+              {loginMutation.isPending ? "Logging In..." : "Login to Your Account"}
             </Button>
-            <p className="text-sm text-muted-foreground text-center">
-              We'll send a new verification link to access your account.
+            <p className="text-sm text-center">
+              Don't have an account?{" "}
+              <button 
+                type="button"
+                onClick={() => {
+                  setIsReturningUser(false);
+                  setEmail("");
+                }}
+                className="text-primary hover:underline"
+              >
+                Register here
+              </button>
             </p>
-            <Button 
-              type="button" 
-              variant="outline" 
-              className="w-full"
-              onClick={() => {
-                setIsVerifying(false);
-                setIsReturningUser(false);
-                setEmail("");
-              }}
-            >
-              Use Different Email
-            </Button>
           </form>
         )}
 
