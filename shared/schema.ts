@@ -5,7 +5,7 @@ import { z } from "zod";
 
 export const conversations = pgTable("conversations", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  title: text("title"),
+  title: text("title").default(null),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -15,11 +15,11 @@ export const messages = pgTable("messages", {
   conversationId: varchar("conversation_id").references(() => conversations.id),
   role: varchar("role", { enum: ["user", "assistant", "system"] }).notNull(),
   content: text("content").notNull(),
-  metadata: json("metadata"),
-  provider: varchar("provider", { enum: ["groq", "perplexity", "anthropic"] }),
-  processingSteps: json("processing_steps"), // C.R.A.F.T steps
-  citations: json("citations"),
-  keywordData: json("keyword_data"),
+  metadata: json("metadata").default(null),
+  provider: varchar("provider", { enum: ["groq", "perplexity", "anthropic"] }).default(null),
+  processingSteps: json("processing_steps").default(null), // C.R.A.F.T steps
+  citations: json("citations").default(null),
+  keywordData: json("keyword_data").default(null),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

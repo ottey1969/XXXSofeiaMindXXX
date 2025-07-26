@@ -84,17 +84,17 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
                 <span className="text-sm font-medium text-sofeia-amber">Research Mode Activated</span>
                 <span className="text-xs text-sofeia-slate-500">
                   • {getProviderName(message.provider)} • 
-                  {message.metadata?.targetCountry && ` Country: ${message.metadata.targetCountry.toUpperCase()}`}
+                  {message.metadata && typeof message.metadata === 'object' && 'targetCountry' in message.metadata && ` Country: ${(message.metadata as any).targetCountry?.toUpperCase()}`}
                 </span>
               </div>
             )}
 
             {/* C.R.A.F.T Framework Applied */}
-            {message.processingSteps && message.processingSteps.length > 0 && (
+            {Array.isArray(message.processingSteps) && message.processingSteps.length > 0 && (
               <div className="bg-sofeia-slate-50 rounded-lg p-4 mb-4">
                 <h4 className="font-medium text-sofeia-slate-800 mb-2">🎯 C.R.A.F.T Framework Applied:</h4>
                 <ul className="text-sm text-sofeia-slate-600 space-y-1">
-                  {message.processingSteps.map((step: any, index: number) => (
+                  {Array.isArray(message.processingSteps) && message.processingSteps.map((step: any, index: number) => (
                     <li key={index}>
                       <strong>{step.step.toUpperCase()}:</strong> {step.description}
                       {step.applied && <span className="text-sofeia-emerald ml-1">✓</span>}
@@ -105,10 +105,10 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
             )}
 
             {/* Keyword Research Table */}
-            {message.keywordData && message.keywordData.length > 0 && (
+            {Array.isArray(message.keywordData) && message.keywordData.length > 0 && (
               <div className="mb-4">
                 <h4 className="font-medium text-sofeia-slate-800 mb-2">
-                  📊 Keyword Research ({message.metadata?.targetCountry?.toUpperCase() || 'USA'} Market):
+                  📊 Keyword Research ({(message.metadata && typeof message.metadata === 'object' && 'targetCountry' in message.metadata ? (message.metadata as any).targetCountry?.toUpperCase() : 'USA')} Market):
                 </h4>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm border-collapse border border-gray-200">
@@ -121,7 +121,7 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
                       </tr>
                     </thead>
                     <tbody>
-                      {message.keywordData.slice(0, 5).map((keyword: any, index: number) => (
+                      {Array.isArray(message.keywordData) && message.keywordData.slice(0, 5).map((keyword: any, index: number) => (
                         <tr key={index}>
                           <td className="border border-gray-200 px-3 py-2">{keyword.keyword}</td>
                           <td className="border border-gray-200 px-3 py-2">{keyword.volume}</td>
@@ -147,11 +147,11 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
             <MessageContent content={message.content} />
 
             {/* Citations */}
-            {message.citations && message.citations.length > 0 && (
+            {Array.isArray(message.citations) && message.citations.length > 0 && (
               <div className="mt-4">
                 <h4 className="font-medium text-sofeia-slate-800 mb-2">📚 Sources:</h4>
                 <ul className="text-sm text-sofeia-slate-600 space-y-1">
-                  {message.citations.map((citation: any, index: number) => (
+                  {Array.isArray(message.citations) && message.citations.map((citation: any, index: number) => (
                     <li key={index}>
                       • <a href={citation.url} target="_blank" rel="noopener noreferrer" className="text-sofeia-blue hover:underline">
                         {citation.title} - {citation.source}

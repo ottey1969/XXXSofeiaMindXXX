@@ -73,6 +73,44 @@
     color: var(--sofeia-blue);
   }
   
+  .text-sofeia-blue {
+    color: var(--sofeia-blue);
+  }
+  
+  .bg-sofeia-blue {
+    background-color: var(--sofeia-blue);
+  }
+  
+  .from-sofeia-blue {
+    --tw-gradient-from: var(--sofeia-blue) var(--tw-gradient-from-position);
+    --tw-gradient-to: rgb(255 255 255 / 0) var(--tw-gradient-to-position);
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+  }
+  
+  .to-sofeia-emerald {
+    --tw-gradient-to: var(--sofeia-emerald) var(--tw-gradient-to-position);
+  }
+  
+  .bg-sofeia-emerald {
+    background-color: var(--sofeia-emerald);
+  }
+  
+  .bg-sofeia-slate-50 {
+    background-color: var(--sofeia-slate-50);
+  }
+  
+  .text-sofeia-slate-500 {
+    color: var(--sofeia-slate-500);
+  }
+  
+  .text-sofeia-slate-600 {
+    color: var(--sofeia-slate-600);
+  }
+  
+  .text-sofeia-slate-800 {
+    color: var(--sofeia-slate-800);
+  }
+  
   .bg-sofeia-blue {
     background-color: var(--sofeia-blue);
   }

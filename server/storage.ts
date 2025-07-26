@@ -32,8 +32,8 @@ export class MemStorage implements IStorage {
     const id = randomUUID();
     const now = new Date();
     const conversation: Conversation = { 
-      ...insertConversation, 
       id,
+      title: insertConversation.title || null,
       createdAt: now,
       updatedAt: now
     };
@@ -63,8 +63,15 @@ export class MemStorage implements IStorage {
   async createMessage(insertMessage: InsertMessage): Promise<Message> {
     const id = randomUUID();
     const message: Message = { 
-      ...insertMessage, 
       id,
+      conversationId: insertMessage.conversationId || null,
+      role: insertMessage.role,
+      content: insertMessage.content,
+      metadata: insertMessage.metadata || null,
+      provider: insertMessage.provider || null,
+      processingSteps: insertMessage.processingSteps || null,
+      citations: insertMessage.citations || null,
+      keywordData: insertMessage.keywordData || null,
       createdAt: new Date()
     };
     this.messages.set(id, message);

@@ -32,7 +32,7 @@ export default function Chat() {
   });
 
   // Get messages for current conversation
-  const { data: messages = [], isLoading: messagesLoading } = useQuery({
+  const { data: messages = [], isLoading: messagesLoading } = useQuery<Message[]>({
     queryKey: ["/api/conversations", currentConversationId, "messages"],
     enabled: !!currentConversationId,
   });
@@ -98,7 +98,7 @@ export default function Chat() {
     }
   };
 
-  if (messagesLoading && messages.length === 0) {
+  if (messagesLoading && (!Array.isArray(messages) || messages.length === 0)) {
     return (
       <div className="min-h-screen bg-sofeia-slate-50 flex items-center justify-center">
         <div className="text-center">
@@ -133,7 +133,7 @@ export default function Chat() {
         {/* Messages Area */}
         <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6 custom-scrollbar">
           {/* Welcome Message - only show if no messages */}
-          {messages.length === 0 && (
+          {Array.isArray(messages) && messages.length === 0 && (
             <div className="flex items-start space-x-3">
               <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-sofeia-blue to-sofeia-emerald rounded-full flex items-center justify-center">
                 <Sparkles className="text-white text-sm" />
@@ -168,7 +168,7 @@ export default function Chat() {
           )}
 
           {/* Messages */}
-          {messages.map((message: Message) => (
+          {Array.isArray(messages) && messages.map((message: Message) => (
             <MessageBubble key={message.id} message={message} />
           ))}
 

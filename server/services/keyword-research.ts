@@ -49,7 +49,7 @@ export class KeywordResearchService {
       keywords.push('content marketing', 'content strategy', 'content creation');
     }
     
-    return [...new Set(keywords)].slice(0, 10); // Remove duplicates and limit
+    return Array.from(new Set(keywords)).slice(0, 10); // Remove duplicates and limit
   }
 
   private async analyzeKeyword(keyword: string, targetCountry: string): Promise<KeywordData> {
