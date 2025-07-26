@@ -29,7 +29,7 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
       const result = await registerMutation.mutateAsync(email);
       setUserId(result.userId);
       
-      // Check if user is already verified or auto-verified
+      // Check if user is already verified or has autoLogin
       if (result.autoLogin || result.message?.includes('already registered and verified') || result.message?.includes('created and verified successfully')) {
         toast({
           title: result.message?.includes('Welcome') ? "Welcome to Sofeia AI!" : "Welcome back!",
@@ -47,19 +47,23 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
           description: "Please check your email and enter the verification code."
         });
       } else {
-        // Store registration data for temporary access
-        localStorage.setItem('pendingRegistration', JSON.stringify({
-          userId: result.userId,
-          email: result.email
-        }));
-        
-        toast({
-          title: "Registration Complete!",
-          description: "Redirecting to chat... Contact WhatsApp for verification to unlock full features.",
-          duration: 3000
-        });
-        onOpenChange(false);
-        window.location.reload();
+        // Registration successful, user should now have session
+        if (result.autoLogin) {
+          toast({
+            title: "Registration Complete!",
+            description: "Redirecting to chat... Contact WhatsApp for verification to unlock full features.",
+            duration: 3000
+          });
+          onOpenChange(false);
+          window.location.reload();
+        } else {
+          toast({
+            title: "Registration Complete",
+            description: `Contact WhatsApp ${result.supportContact} with your email for verification.`,
+            duration: 8000
+          });
+          onOpenChange(false);
+        }
       }
     } catch (error: any) {
       if (error.message?.includes('already registered and verified')) {

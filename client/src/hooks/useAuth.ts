@@ -19,17 +19,6 @@ export function useAuth() {
           credentials: 'include'
         });
         if (response.status === 401) {
-          // Check if user is in a registration flow
-          const registrationData = localStorage.getItem('pendingRegistration');
-          if (registrationData) {
-            const userData = JSON.parse(registrationData);
-            return {
-              id: userData.userId,
-              email: userData.email,
-              credits: 3,
-              emailVerified: false
-            };
-          }
           return null;
         }
         if (!response.ok) {
