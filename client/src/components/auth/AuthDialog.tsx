@@ -14,7 +14,7 @@ interface AuthDialogProps {
 export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
   const [email, setEmail] = useState("");
   const [verificationToken, setVerificationToken] = useState("");
-  const [step, setStep] = useState<"email" | "verify" | "signin">("email");
+  const [isVerifying, setIsVerifying] = useState(false);
   const [userId, setUserId] = useState("");
   const [isReturningUser, setIsReturningUser] = useState(false);
 
@@ -40,30 +40,19 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
         return;
       }
       
+      // User needs email verification
+      setIsVerifying(true);
       if (result.emailSent) {
-        setStep("verify");
         toast({
           title: "Verification email sent",
-          description: "Please check your email and enter the verification code."
+          description: "Please check your email and enter the 6-digit code."
         });
       } else {
-        // Registration successful, user should now have session
-        if (result.autoLogin) {
-          toast({
-            title: "Registration Complete!",
-            description: "Redirecting to chat... Contact WhatsApp for verification to unlock full features.",
-            duration: 3000
-          });
-          onOpenChange(false);
-          window.location.reload();
-        } else {
-          toast({
-            title: "Registration Complete",
-            description: `Contact WhatsApp ${result.supportContact} with your email for verification.`,
-            duration: 8000
-          });
-          onOpenChange(false);
-        }
+        toast({
+          title: "Registration Complete",
+          description: `Contact WhatsApp ${result.supportContact} with your email for verification, or wait for the verification email.`,
+          duration: 8000
+        });
       }
     } catch (error: any) {
       if (error.message?.includes('already registered and verified')) {
@@ -94,7 +83,7 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
         description: "Welcome to Sofeia AI. You have 3 free credits to start."
       });
       onOpenChange(false);
-      setStep("email");
+      setIsVerifying(false);
       setEmail("");
       setVerificationToken("");
     } catch (error: any) {
@@ -111,13 +100,11 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {step === "email" ? "Welcome to Sofeia AI" : 
-             step === "signin" ? "Welcome Back!" : 
-             "Verify Your Email"}
+            {!isVerifying ? "Welcome to Sofeia AI" : "Verify Your Email"}
           </DialogTitle>
         </DialogHeader>
 
-        {step === "email" && (
+        {!isVerifying && (
           <form onSubmit={handleEmailSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email Address</Label>
@@ -179,7 +166,7 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
           </form>
         )}
 
-        {step === "signin" && (
+        {false && (
           <form onSubmit={handleEmailSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email Address</Label>
@@ -217,7 +204,7 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
           </form>
         )}
 
-        {step === "verify" && (
+        {isVerifying && (
           <div className="space-y-4">
             <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
               <h4 className="font-semibold mb-2 text-green-800 dark:text-green-200">📧 Check Your Email</h4>
