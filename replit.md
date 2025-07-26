@@ -13,6 +13,12 @@ Output format: Properly formatted HTML with real headings (h1, h2, h3), bullets 
 - WhatsApp: +31 6 2807 3996 (for direct credit purchases and urgent support)
 - Facebook Group: https://www.facebook.com/groups/1079321647257618 (ContentScale Facebook Group for community questions and discussions)
 
+## Admin System
+- Admin Key: 0f5db72a966a8d5f7ebae96c6a1e2cc574c2bf926c62dc4526bd43df1c0f42eb
+- Admin can add credits to users via POST /api/admin/add-credits
+- Admin can view user info via GET /api/admin/user/:email
+- See admin-credits-example.md for detailed usage instructions
+
 ## System Architecture
 
 ### Frontend Architecture

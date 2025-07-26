@@ -4,8 +4,8 @@ import { z } from 'zod';
 
 const router = Router();
 
-// Simple admin authentication - in production, use proper admin auth
-const ADMIN_KEY = process.env.ADMIN_KEY || 'admin-sofeia-2024';
+// Admin authentication with secure key
+const ADMIN_KEY = process.env.ADMIN_KEY || '0f5db72a966a8d5f7ebae96c6a1e2cc574c2bf926c62dc4526bd43df1c0f42eb';
 
 const requireAdmin = (req: any, res: any, next: any) => {
   const adminKey = req.headers['x-admin-key'] || req.body.adminKey || req.query.adminKey;

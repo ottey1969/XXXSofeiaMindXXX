@@ -12,6 +12,7 @@ import { getSession } from "./middleware/session";
 import { requireAuth, requireCredits, type AuthenticatedRequest } from "./middleware/auth";
 import { authService } from "./auth";
 import authRoutes from "./routes/auth";
+import adminRoutes from "./routes/admin";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -20,6 +21,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Authentication routes
   app.use('/api/auth', authRoutes);
+  
+  // Admin routes
+  app.use('/api/admin', adminRoutes);
   
   // Get conversations (protected)
   app.get("/api/conversations", requireAuth, async (req: AuthenticatedRequest, res) => {
