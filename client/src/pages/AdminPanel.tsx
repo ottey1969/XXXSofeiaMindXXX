@@ -150,7 +150,10 @@ export default function AdminPanel() {
     const { data: userMessages = [], refetch } = useQuery({
       queryKey: ["/api/admin/messages"],
       refetchInterval: 5000, // Refresh every 5 seconds for real-time notifications
-      queryFn: () => apiRequest("GET", `/api/admin/messages?adminKey=${ADMIN_KEY}`),
+      queryFn: async () => {
+        const response = await apiRequest("GET", `/api/admin/messages?adminKey=${ADMIN_KEY}`);
+        return response.json();
+      },
       enabled: isAuthenticated, // Only fetch when admin is authenticated
     });
 
@@ -257,6 +260,9 @@ export default function AdminPanel() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="mb-4 text-xs text-gray-500">
+            Debug: {Array.isArray(userMessages) ? `${userMessages.length} messages` : `Type: ${typeof userMessages}`}
+          </div>
           {Array.isArray(userMessages) && userMessages.length === 0 ? (
             <div className="text-center text-gray-500 py-8">
               <MessageSquare className="w-12 h-12 mx-auto mb-4 text-gray-300" />
