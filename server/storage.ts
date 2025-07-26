@@ -64,6 +64,19 @@ export class MemStorage implements IStorage {
     return userConversations;
   }
 
+  async deleteConversation(id: string): Promise<boolean> {
+    const exists = this.conversations.has(id);
+    if (exists) {
+      this.conversations.delete(id);
+      // Also delete all messages in this conversation
+      const messagesToDelete = Array.from(this.messages.keys()).filter(
+        messageId => this.messages.get(messageId)?.conversationId === id
+      );
+      messagesToDelete.forEach(messageId => this.messages.delete(messageId));
+    }
+    return exists;
+  }
+
   async getMessage(id: string): Promise<Message | undefined> {
     return this.messages.get(id);
   }

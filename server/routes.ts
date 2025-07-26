@@ -135,6 +135,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete conversation (protected)
+  app.delete("/api/conversations/:id", requireAuth, async (req: AuthenticatedRequest, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user!.id;
+      
+      // Verify the conversation belongs to the user
+      const conversation = await storage.getConversation(id);
+      if (!conversation || conversation.userId !== userId) {
+        return res.status(404).json({ message: "Conversation not found" });
+      }
+      
+      const deleted = await storage.deleteConversation(id);
+      if (!deleted) {
+        return res.status(404).json({ message: "Conversation not found" });
+      }
+      
+      res.json({ message: "Conversation deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting conversation:", error);
+      res.status(500).json({ message: "Failed to delete conversation" });
+    }
+  });
+
   // Get messages for a conversation (protected)
   app.get("/api/conversations/:id/messages", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {

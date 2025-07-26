@@ -1,10 +1,18 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MessageSquare, Clock, Trash2 } from "lucide-react";
+import { MessageSquare, Clock, Trash2, MoreVertical } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface Conversation {
   id: string;
@@ -24,11 +32,39 @@ export default function ConversationHistory({
   onSelectConversation 
 }: ConversationHistoryProps) {
   const [showHistory, setShowHistory] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: conversations = [] } = useQuery<Conversation[]>({
     queryKey: ["/api/conversations"],
     enabled: showHistory,
   });
+
+  const deleteConversationMutation = useMutation({
+    mutationFn: async (conversationId: string) => {
+      const response = await apiRequest("DELETE", `/api/conversations/${conversationId}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
+      toast({
+        title: "Chat deleted",
+        description: "The conversation has been removed from your history.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Delete failed", 
+        description: "Could not delete the conversation. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleDeleteConversation = (conversationId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    deleteConversationMutation.mutate(conversationId);
+  };
 
   if (!showHistory) {
     return (
@@ -69,7 +105,7 @@ export default function ConversationHistory({
               {conversations.map((conversation) => (
                 <div
                   key={conversation.id}
-                  className={`p-3 rounded-lg border cursor-pointer transition-colors hover:bg-muted/50 ${
+                  className={`group p-3 rounded-lg border cursor-pointer transition-colors hover:bg-muted/50 ${
                     currentConversationId === conversation.id 
                       ? 'bg-primary/10 border-primary/20' 
                       : 'bg-background'
@@ -88,6 +124,27 @@ export default function ConversationHistory({
                         {formatDistanceToNow(new Date(conversation.updatedAt), { addSuffix: true })}
                       </p>
                     </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <MoreVertical className="w-3 h-3" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={(e) => handleDeleteConversation(conversation.id, e)}
+                          className="text-red-600 focus:text-red-600"
+                        >
+                          <Trash2 className="w-3 h-3 mr-2" />
+                          Delete Chat
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
               ))}
