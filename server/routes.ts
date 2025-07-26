@@ -108,6 +108,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Debug login test endpoint
+  app.post('/api/debug/test-login', (req, res) => {
+    // Force set session data
+    (req.session as any).userId = 'test-user-123';
+    (req.session as any).debug = true;
+    
+    req.session.save((err) => {
+      res.setHeader('Content-Type', 'application/json');
+      res.json({
+        sessionId: req.sessionID,
+        sessionSaved: !err,
+        error: err?.message,
+        cookieSettings: {
+          secure: (req.session as any).cookie?.secure,
+          httpOnly: (req.session as any).cookie?.httpOnly,
+          sameSite: (req.session as any).cookie?.sameSite,
+          domain: (req.session as any).cookie?.domain
+        },
+        isSecureConnection: req.secure,
+        protocol: req.protocol
+      });
+    });
+  });
+
   // Debug endpoint for session verification (must be before static routing)
   app.get('/api/debug/session', (req, res) => {
     res.setHeader('Content-Type', 'application/json');

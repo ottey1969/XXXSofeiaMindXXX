@@ -18,17 +18,34 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'User not found. Please register first.' });
     }
 
-    // Set session to log user in
-    (req.session as any).userId = user.id;
-    
-    res.json({
-      message: `Welcome back! You have ${user.credits} credits remaining.`,
-      user: {
-        id: user.id,
-        email: user.email,
-        credits: user.credits,
-        emailVerified: user.emailVerified
+    // Set session to log user in and regenerate session ID for security
+    req.session.regenerate((err) => {
+      if (err) {
+        console.error('Session regenerate error:', err);
+        return res.status(500).json({ message: 'Login failed - session error' });
       }
+      
+      (req.session as any).userId = user.id;
+      
+      // Save session before responding to ensure Set-Cookie header is sent
+      req.session.save((saveErr) => {
+        if (saveErr) {
+          console.error('Session save error:', saveErr);
+          return res.status(500).json({ message: 'Login failed - session save error' });
+        }
+        
+        console.log('Session saved successfully, ID:', req.sessionID);
+        
+        res.json({
+          message: `Welcome back! You have ${user.credits} credits remaining.`,
+          user: {
+            id: user.id,
+            email: user.email,
+            credits: user.credits,
+            emailVerified: user.emailVerified
+          }
+        });
+      });
     });
   } catch (error: any) {
     res.status(400).json({ 
@@ -51,25 +68,40 @@ router.post('/register', async (req, res) => {
       if (existingUser.emailVerified) {
         // User is already verified, log them in directly
         (req.session as any).userId = existingUser.id;
-        return res.json({
-          message: 'Email already registered and verified',
-          userId: existingUser.id,
-          email: existingUser.email,
-          emailVerified: true,
-          credits: existingUser.credits,
-          autoLogin: true
+        
+        return req.session.save((err) => {
+          if (err) {
+            console.error('Session save error:', err);
+            return res.status(500).json({ message: 'Login failed - session error' });
+          }
+          
+          res.json({
+            message: 'Email already registered and verified',
+            userId: existingUser.id,
+            email: existingUser.email,
+            emailVerified: true,
+            credits: existingUser.credits,
+            autoLogin: true
+          });
         });
       }
       
       // Set session to log existing user in immediately  
       (req.session as any).userId = existingUser.id;
       
-      return res.json({
-        message: `Welcome back! You have ${existingUser.credits} credits remaining.`,
-        userId: existingUser.id,
-        email: existingUser.email,
-        credits: existingUser.credits,
-        autoLogin: true
+      return req.session.save((err) => {
+        if (err) {
+          console.error('Session save error:', err);
+          return res.status(500).json({ message: 'Registration failed - session error' });
+        }
+        
+        res.json({
+          message: `Welcome back! You have ${existingUser.credits} credits remaining.`,
+          userId: existingUser.id,
+          email: existingUser.email,
+          credits: existingUser.credits,
+          autoLogin: true
+        });
       });
     }
 
@@ -81,11 +113,19 @@ router.post('/register', async (req, res) => {
     // Set session to log user in immediately
     (req.session as any).userId = user.id;
     
-    res.json({
-      message: 'Registration complete! You can start creating content with your 3 free credits.',
-      userId: user.id,
-      email: user.email,
-      autoLogin: true
+    // Save session before responding to ensure Set-Cookie header is sent
+    req.session.save((err) => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.status(500).json({ message: 'Registration failed - session error' });
+      }
+      
+      res.json({
+        message: 'Registration complete! You can start creating content with your 3 free credits.',
+        userId: user.id,
+        email: user.email,
+        autoLogin: true
+      });
     });
   } catch (error: any) {
     res.status(400).json({ 

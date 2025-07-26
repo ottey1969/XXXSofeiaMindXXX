@@ -19,7 +19,7 @@ export function getSession() {
     secret: process.env.SESSION_SECRET || 'sofeia-ai-secret-key-development',
     store: sessionStore,
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true, // Changed to true to ensure cookie is created
     proxy: true, // Trust reverse proxy (essential for Replit)
     cookie: {
       httpOnly: true,
@@ -28,7 +28,7 @@ export function getSession() {
       // Replit-specific production settings
       ...(isReplitProduction ? {
         sameSite: 'none', // Required for cross-origin on Replit
-        domain: '.replit.dev' // Correct Replit domain
+        domain: undefined // Let browser handle domain automatically for Replit
       } : {
         sameSite: 'lax' // Development setting
       })

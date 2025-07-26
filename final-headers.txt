@@ -1,0 +1,12 @@
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Vary: Origin
+Access-Control-Allow-Credentials: true
+Access-Control-Expose-Headers: set-cookie
+Content-Type: application/json; charset=utf-8
+Content-Length: 171
+ETag: W/"ab-sb6Y1CO9CsZnh/A2GpdDoYNNBW8"
+Date: Sat, 26 Jul 2025 22:20:01 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
