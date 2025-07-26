@@ -15,9 +15,7 @@ import EmailVerify from "@/pages/EmailVerify";
 import { useAuth } from "@/hooks/useAuth";
 
 function AuthWrapper({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading, user } = useAuth();
-
-  console.log('AuthWrapper - isLoading:', isLoading, 'isAuthenticated:', isAuthenticated, 'user:', user);
+  const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
     return (
@@ -28,11 +26,9 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
   }
 
   if (!isAuthenticated) {
-    console.log('User not authenticated, showing landing page');
     return <Landing />;
   }
 
-  console.log('User authenticated, showing children');
   return <>{children}</>;
 }
 

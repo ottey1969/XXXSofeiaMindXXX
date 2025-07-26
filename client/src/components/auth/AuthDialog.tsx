@@ -26,14 +26,11 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
     e.preventDefault();
     
     try {
-      console.log('Starting registration for:', email);
       const result = await registerMutation.mutateAsync(email);
-      console.log('Registration result:', result);
       setUserId(result.userId);
       
       // Check if user is already verified and logged in
       if (result.autoLogin) {
-        console.log('User has autoLogin, redirecting to chat');
         toast({
           title: "Welcome back!",
           description: "You can start creating content immediately with your free credits."
@@ -45,7 +42,6 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
       
       // User needs email verification
       if (result.requiresVerification) {
-        console.log('User requires verification, showing verification dialog');
         setIsVerifying(true);
         if (result.emailSent) {
           toast({
@@ -59,11 +55,8 @@ export default function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
             duration: 8000
           });
         }
-      } else {
-        console.log('Unexpected registration result - no autoLogin or requiresVerification');
       }
     } catch (error: any) {
-      console.error('Registration error:', error);
       toast({
         title: "Registration failed",
         description: error.message || "Please try again",

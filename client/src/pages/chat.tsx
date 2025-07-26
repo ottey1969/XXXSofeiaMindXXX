@@ -10,7 +10,7 @@ import TypingIndicator from "@/components/chat/typing-indicator";
 import InputArea from "@/components/chat/input-area";
 import ProviderStatus from "@/components/chat/provider-status";
 import CreditStatus from "@/components/auth/CreditStatus";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth, useLogout } from "@/hooks/useAuth";
 import { Brain, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import NotificationPopup from "@/components/NotificationPopup";
@@ -19,6 +19,7 @@ export default function Chat() {
   const { id: conversationId } = useParams();
   const { user, isVerified } = useAuth();
   const { toast } = useToast();
+  const logoutMutation = useLogout();
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [isTyping, setIsTyping] = useState(false);
   const [currentProvider, setCurrentProvider] = useState("Groq Ready");
@@ -171,12 +172,11 @@ export default function Chat() {
             variant="outline" 
             size="sm"
             onClick={() => {
-              // Clear auth and reload to landing page
-              document.cookie = 'connect.sid=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
-              window.location.reload();
+              logoutMutation.mutate();
             }}
+            disabled={logoutMutation.isPending}
           >
-            Logout
+            {logoutMutation.isPending ? "Logging out..." : "Logout"}
           </Button>
         </div>
       </header>
