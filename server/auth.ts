@@ -175,9 +175,9 @@ export class AuthService {
       regularRenewed = true;
     }
 
-    // Check if 14 days have passed since last bonus renewal
+    // Check if 14 days have passed since last bonus renewal - EXPIRE and reset cycle
     if (lastBonusRenewal < fourteenDaysAgo) {
-      updateData.bonusCredits = 5; // Reset bonus credits to 5
+      updateData.bonusCredits = 5; // Reset to 5 (expire any unused and start fresh)
       updateData.lastBonusRenewal = now;
       bonusRenewed = true;
     }

@@ -206,11 +206,12 @@ The architecture emphasizes modularity, type safety, and developer experience wh
   - Added credit renewal notifications and next renewal date tracking
   - System automatically renews credits when users access the application after 2+ days
   - Frontend displays renewal notifications and countdown to next credit renewal
-- **Special Promotional Offer System** ✅: Enhanced landing page and bonus credit system
-  - Added promotional banner on landing page highlighting "3 FREE credits every 2 days + BONUS 5 extra credits every 14 days"
-  - Implemented bonus credit system with 14-day renewal cycle (separate from regular 2-day credits)
+- **Special Promotional Offer System** ✅: Enhanced landing page and bonus credit expiration system
+  - Added promotional banner on landing page highlighting "3 FREE credits every 2 days + BONUS 5 extra credits that expire every 14 days"
+  - Implemented bonus credit EXPIRATION system with 14-day reset cycle (not accumulative)
   - Updated database schema with `bonusCredits` and `lastBonusRenewal` fields
   - Enhanced credit usage logic to prioritize bonus credits over regular credits
   - Updated all frontend components to display both regular credits and bonus credits
-  - Modified auth responses to include both credit renewal types with appropriate messaging
-  - System now tracks and manages two separate credit renewal cycles simultaneously
+  - Modified auth responses to include "credits reset for 14-day cycle" messaging for expired bonus credits
+  - System tracks separate renewal cycles: regular credits (2 days) and bonus credit expiration (14 days)
+  - "Use it or lose it" model: unused bonus credits expire and reset to 5 every 14 days to encourage active usage
