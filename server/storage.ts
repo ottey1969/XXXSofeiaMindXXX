@@ -7,12 +7,40 @@ export interface IStorage {
   createConversation(conversation: InsertConversation): Promise<Conversation>;
   updateConversation(id: string, updates: Partial<Conversation>): Promise<Conversation | undefined>;
   listConversations(): Promise<Conversation[]>;
+  getUserConversations(userId: string): Promise<Conversation[]>;
+  deleteConversation(id: string): Promise<boolean>;
   
   // Messages
   getMessage(id: string): Promise<Message | undefined>;
   createMessage(message: InsertMessage): Promise<Message>;
   getMessagesByConversation(conversationId: string): Promise<Message[]>;
   updateMessage(id: string, updates: Partial<Message>): Promise<Message | undefined>;
+
+  // User management
+  createUser(userData: any): Promise<any>;
+  getUser(id: string): Promise<any | undefined>;
+  getUserByEmail(email: string): Promise<any | undefined>;
+  updateUser(id: string, updates: any): Promise<any | undefined>;
+
+  // Security Management
+  createIpSecurityRule(rule: any): Promise<any>;
+  blockUser(blockData: any): Promise<any>;
+  logUserActivity(activity: any): Promise<void>;
+  getRecentActivity(): Promise<any[]>;
+  isIpBlocked(ipAddress: string): Promise<boolean>;
+  isUserBlocked(userId: string): Promise<boolean>;
+
+  // File uploads
+  createUploadFile(uploadData: any): Promise<any>;
+  getUploadFile(id: string): Promise<any | undefined>;
+  getUserUploadFiles(userId: string): Promise<any[]>;
+  deleteUploadFile(id: string): Promise<boolean>;
+
+  // Admin Messages
+  createAdminMessage(messageData: any): Promise<any>;
+  getAdminMessages(): Promise<any[]>;
+  markAdminMessageAsRead(messageId: string): Promise<void>;
+  deleteAdminMessage(messageId: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
