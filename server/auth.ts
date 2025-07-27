@@ -113,19 +113,31 @@ export class AuthService {
 
 
 
-  async useCredit(userId: string): Promise<{ success: boolean; remainingCredits: number }> {
+  async useCredit(userId: string): Promise<{ success: boolean; remainingCredits: number; remainingBonusCredits: number }> {
     const user = await this.getUserById(userId);
-    if (!user || user.credits <= 0) {
-      return { success: false, remainingCredits: user?.credits || 0 };
+    if (!user || (user.credits <= 0 && (user.bonusCredits || 0) <= 0)) {
+      return { success: false, remainingCredits: user?.credits || 0, remainingBonusCredits: user?.bonusCredits || 0 };
+    }
+
+    // Use bonus credits first if available, then regular credits
+    let updateData: any = {};
+    if ((user.bonusCredits || 0) > 0) {
+      updateData.bonusCredits = user.bonusCredits! - 1;
+    } else {
+      updateData.credits = user.credits - 1;
     }
 
     const [updatedUser] = await db
       .update(users)
-      .set({ credits: user.credits - 1 })
+      .set(updateData)
       .where(eq(users.id, userId))
       .returning();
 
-    return { success: true, remainingCredits: updatedUser.credits };
+    return { 
+      success: true, 
+      remainingCredits: updatedUser.credits,
+      remainingBonusCredits: updatedUser.bonusCredits || 0
+    };
   }
 
   async addCredits(userId: string, amount: number): Promise<User> {
@@ -138,8 +150,8 @@ export class AuthService {
     return user;
   }
 
-  // Check and renew credits for eligible users (3 credits every 2 days)
-  async checkAndRenewCredits(userId: string): Promise<{ renewed: boolean; newCredits: number }> {
+  // Check and renew credits for eligible users (3 credits every 2 days + 5 bonus credits every 14 days)
+  async checkAndRenewCredits(userId: string): Promise<{ renewed: boolean; bonusRenewed: boolean; newCredits: number; newBonusCredits: number }> {
     const user = await this.getUserById(userId);
     if (!user) {
       throw new Error('User not found');
@@ -147,29 +159,50 @@ export class AuthService {
 
     const now = new Date();
     const lastRenewal = user.lastCreditRenewal ? new Date(user.lastCreditRenewal) : new Date(user.createdAt!);
+    const lastBonusRenewal = user.lastBonusRenewal ? new Date(user.lastBonusRenewal) : new Date(user.createdAt!);
+    
     const twoDaysAgo = new Date(now.getTime() - (2 * 24 * 60 * 60 * 1000)); // 2 days in milliseconds
+    const fourteenDaysAgo = new Date(now.getTime() - (14 * 24 * 60 * 60 * 1000)); // 14 days in milliseconds
 
-    // Check if 2 days have passed since last renewal
+    let regularRenewed = false;
+    let bonusRenewed = false;
+    let updateData: any = { updatedAt: now };
+
+    // Check if 2 days have passed since last regular renewal
     if (lastRenewal < twoDaysAgo) {
+      updateData.credits = sql`credits + 3`;
+      updateData.lastCreditRenewal = now;
+      regularRenewed = true;
+    }
+
+    // Check if 14 days have passed since last bonus renewal
+    if (lastBonusRenewal < fourteenDaysAgo) {
+      updateData.bonusCredits = 5; // Reset bonus credits to 5
+      updateData.lastBonusRenewal = now;
+      bonusRenewed = true;
+    }
+
+    // Only update if there's something to renew
+    if (regularRenewed || bonusRenewed) {
       const [updatedUser] = await db
         .update(users)
-        .set({
-          credits: sql`credits + 3`,
-          lastCreditRenewal: now,
-          updatedAt: now
-        })
+        .set(updateData)
         .where(eq(users.id, userId))
         .returning();
 
       return {
-        renewed: true,
-        newCredits: updatedUser.credits
+        renewed: regularRenewed,
+        bonusRenewed: bonusRenewed,
+        newCredits: updatedUser.credits,
+        newBonusCredits: updatedUser.bonusCredits
       };
     }
 
     return {
       renewed: false,
-      newCredits: user.credits
+      bonusRenewed: false,
+      newCredits: user.credits,
+      newBonusCredits: user.bonusCredits || 0
     };
   }
 

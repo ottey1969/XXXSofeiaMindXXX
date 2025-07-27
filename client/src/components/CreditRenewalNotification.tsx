@@ -26,7 +26,7 @@ export function CreditRenewalNotification() {
     <Alert className="mb-4 border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
       <Gift className="h-4 w-4 text-green-600 dark:text-green-400" />
       <AlertDescription className="text-green-700 dark:text-green-300">
-        🎉 {user.creditRenewal.message} You now have {user.credits} credits total.
+        🎉 {user.creditRenewal.message} You now have {user.credits} credits + {user.bonusCredits || 0} bonus credits.
       </AlertDescription>
     </Alert>
   );

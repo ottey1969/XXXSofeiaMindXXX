@@ -39,19 +39,28 @@ router.post('/login', async (req, res) => {
         
         console.log('Session saved successfully, ID:', req.sessionID);
         
-        const renewalMessage = renewalResult.renewed ? ' You received 3 new credits!' : '';
+        let renewalMessage = '';
+        if (renewalResult.renewed && renewalResult.bonusRenewed) {
+          renewalMessage = ' You received 3 new credits + 5 bonus credits!';
+        } else if (renewalResult.renewed) {
+          renewalMessage = ' You received 3 new credits!';
+        } else if (renewalResult.bonusRenewed) {
+          renewalMessage = ' You received 5 bonus credits!';
+        }
         
         res.json({
-          message: `Welcome back! You have ${renewalResult.newCredits} credits remaining.${renewalMessage}`,
+          message: `Welcome back! You have ${renewalResult.newCredits} credits + ${renewalResult.newBonusCredits} bonus credits.${renewalMessage}`,
           user: {
             id: user.id,
             email: user.email,
             credits: renewalResult.newCredits,
+            bonusCredits: renewalResult.newBonusCredits,
             emailVerified: user.emailVerified
           },
           creditRenewal: {
             renewed: renewalResult.renewed,
-            message: renewalResult.renewed ? 'You received 3 new credits!' : null
+            bonusRenewed: renewalResult.bonusRenewed,
+            message: renewalMessage.trim() || null
           }
         });
       });
@@ -87,7 +96,14 @@ router.post('/register', async (req, res) => {
             return res.status(500).json({ message: 'Login failed - session error' });
           }
           
-          const renewalMessage = renewalResult.renewed ? ' You received 3 new credits!' : '';
+          let renewalMessage = '';
+          if (renewalResult.renewed && renewalResult.bonusRenewed) {
+            renewalMessage = ' You received 3 new credits + 5 bonus credits!';
+          } else if (renewalResult.renewed) {
+            renewalMessage = ' You received 3 new credits!';
+          } else if (renewalResult.bonusRenewed) {
+            renewalMessage = ' You received 5 bonus credits!';
+          }
           
           res.json({
             message: `Email already registered and verified.${renewalMessage}`,
@@ -95,10 +111,12 @@ router.post('/register', async (req, res) => {
             email: existingUser.email,
             emailVerified: true,
             credits: renewalResult.newCredits,
+            bonusCredits: renewalResult.newBonusCredits,
             autoLogin: true,
             creditRenewal: {
               renewed: renewalResult.renewed,
-              message: renewalResult.renewed ? 'You received 3 new credits!' : null
+              bonusRenewed: renewalResult.bonusRenewed,
+              message: renewalMessage.trim() || null
             }
           });
         });
@@ -123,18 +141,27 @@ router.post('/register', async (req, res) => {
           }
           
           console.log('Session saved successfully for user:', existingUser.id);
-          const renewalMessage = renewalResult.renewed ? ' You received 3 new credits!' : '';
+          let renewalMessage = '';
+          if (renewalResult.renewed && renewalResult.bonusRenewed) {
+            renewalMessage = ' You received 3 new credits + 5 bonus credits!';
+          } else if (renewalResult.renewed) {
+            renewalMessage = ' You received 3 new credits!';
+          } else if (renewalResult.bonusRenewed) {
+            renewalMessage = ' You received 5 bonus credits!';
+          }
           
           res.json({
-            message: `Welcome back! You have ${renewalResult.newCredits} credits remaining.${renewalMessage}`,
+            message: `Welcome back! You have ${renewalResult.newCredits} credits + ${renewalResult.newBonusCredits} bonus credits.${renewalMessage}`,
             userId: existingUser.id,
             email: existingUser.email,
             credits: renewalResult.newCredits,
+            bonusCredits: renewalResult.newBonusCredits,
             autoLogin: true,
             sessionId: req.sessionID, // Debug info
             creditRenewal: {
               renewed: renewalResult.renewed,
-              message: renewalResult.renewed ? 'You received 3 new credits!' : null
+              bonusRenewed: renewalResult.bonusRenewed,
+              message: renewalMessage.trim() || null
             }
           });
         });
@@ -226,15 +253,26 @@ router.get('/me', async (req, res) => {
     const renewalResult = await authService.checkAndRenewCredits(user.id);
     const nextRenewal = await authService.getNextRenewalDate(user.id);
 
+    let renewalMessage = '';
+    if (renewalResult.renewed && renewalResult.bonusRenewed) {
+      renewalMessage = 'You received 3 new credits + 5 bonus credits!';
+    } else if (renewalResult.renewed) {
+      renewalMessage = 'You received 3 new credits!';
+    } else if (renewalResult.bonusRenewed) {
+      renewalMessage = 'You received 5 bonus credits!';
+    }
+
     res.json({
       id: user.id,
       email: user.email,
       credits: renewalResult.newCredits,
+      bonusCredits: renewalResult.newBonusCredits,
       emailVerified: user.emailVerified,
       creditRenewal: {
         renewed: renewalResult.renewed,
+        bonusRenewed: renewalResult.bonusRenewed,
         nextRenewalDate: nextRenewal,
-        message: renewalResult.renewed ? 'You received 3 new credits!' : null
+        message: renewalMessage || null
       }
     });
   } catch (error) {

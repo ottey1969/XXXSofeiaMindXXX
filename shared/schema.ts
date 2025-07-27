@@ -22,12 +22,14 @@ export const users = pgTable("users", {
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
   credits: integer("credits").default(3).notNull(),
+  bonusCredits: integer("bonus_credits").default(5).notNull(),
   emailVerified: boolean("email_verified").default(false).notNull(),
   marketingConsent: boolean("marketing_consent").default(false).notNull(),
   ipAddress: varchar("ip_address"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
   lastCreditRenewal: timestamp("last_credit_renewal").defaultNow(),
+  lastBonusRenewal: timestamp("last_bonus_renewal").defaultNow(),
 });
 
 export const conversations = pgTable("conversations", {

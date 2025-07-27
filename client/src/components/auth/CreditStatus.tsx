@@ -22,21 +22,21 @@ export default function CreditStatus() {
     <div className="flex items-center gap-2 px-3 py-2 bg-muted/50 rounded-lg">
       <div className="flex-1">
         <p className="text-sm font-medium">
-          {user.credits} credit{user.credits !== 1 ? 's' : ''} remaining
+          {user.credits} credit{user.credits !== 1 ? 's' : ''} + {user.bonusCredits || 0} bonus
         </p>
         <p className="text-xs text-muted-foreground">{user.email}</p>
         <NextRenewalInfo />
       </div>
-      {user.credits <= 1 && (
+      {(user.credits + (user.bonusCredits || 0)) <= 1 && (
         <div className="flex gap-2">
           <Button 
             size="sm" 
             onClick={handleContactSupport}
             className="gap-1"
-            variant={user.credits === 0 ? "default" : "outline"}
+            variant={(user.credits + (user.bonusCredits || 0)) === 0 ? "default" : "outline"}
           >
             <ExternalLink className="h-3 w-3" />
-            {user.credits === 0 ? "Get Credits" : "Buy More"}
+            {(user.credits + (user.bonusCredits || 0)) === 0 ? "Get Credits" : "Buy More"}
           </Button>
           <Button 
             size="sm" 

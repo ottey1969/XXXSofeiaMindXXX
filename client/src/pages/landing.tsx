@@ -45,13 +45,29 @@ export default function Landing() {
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
               Free AI SEO content generator by ContentScale. Outperforms BrandWell & Content at Scale with advanced C.R.A.F.T optimization and multi-AI routing for superior content creation.
             </p>
+            
+            {/* Special Offer Banner */}
+            <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white p-4 rounded-lg mb-6 mx-auto max-w-2xl">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <Sparkles className="h-5 w-5" />
+                <span className="font-bold text-lg">🎁 SPECIAL OFFER - Limited Time!</span>
+                <Sparkles className="h-5 w-5" />
+              </div>
+              <p className="text-center">
+                <strong>Receive 3 FREE credits every 2 days</strong> + <strong>BONUS 5 extra credits every 14 days!</strong>
+              </p>
+              <p className="text-center text-sm mt-1 opacity-90">
+                Temporal Offer: Extra bonus credits refresh automatically every 14 days
+              </p>
+            </div>
+
             <Button 
               size="lg" 
               onClick={() => setAuthOpen(true)}
-              className="text-lg px-8 py-6"
-              aria-label="Start using AI content generator with 3 free credits"
+              className="text-lg px-8 py-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+              aria-label="Start using AI content generator with special offer"
             >
-              Get Free AI Content Generator - 3 Credits
+              Get Free AI Content Generator - Start Now!
             </Button>
           </div>
 
