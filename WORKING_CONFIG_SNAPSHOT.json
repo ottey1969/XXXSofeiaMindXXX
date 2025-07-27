@@ -1,0 +1,32 @@
+{
+  "backup_date": "2025-01-27T00:10:00Z",
+  "status": "AUTHENTICATION_FULLY_WORKING", 
+  "critical_fixes": {
+    "session_secure_cookie": "secure: false for development",
+    "session_save_uninitialized": "true to create session cookies",
+    "session_regenerate": "proper session.regenerate() calls",
+    "session_save_callback": "explicit session.save() with callbacks"
+  },
+  "test_verification": {
+    "curl_register": "curl -v -H 'Content-Type: application/json' -d '{\"email\":\"test@example.com\"}' -c cookies.txt 'http://localhost:5000/api/auth/register'",
+    "expected_cookie": "Set-Cookie: sofeia.sid=...; Path=/; Expires=...; HttpOnly; SameSite=Lax",
+    "curl_verify": "curl -b cookies.txt 'http://localhost:5000/api/auth/me'",
+    "expected_response": "user data with id, email, credits"
+  },
+  "key_files_to_preserve": [
+    "server/middleware/session.ts",
+    "server/routes/auth.ts", 
+    "client/src/components/auth/AuthDialog.tsx"
+  ],
+  "danger_changes": [
+    "NEVER set secure: true in development",
+    "NEVER remove saveUninitialized: true",
+    "NEVER remove session.regenerate() calls",
+    "NEVER remove session.save() callbacks"
+  ],
+  "working_logs": [
+    "12:09:51 AM [express] GET /api/auth/me 200 in 365ms",
+    "Session saved successfully for user:",
+    "FORCED DEV SESSION - cookies will work:"
+  ]
+}
