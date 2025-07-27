@@ -11,27 +11,25 @@ export function getSession() {
     tableName: "sessions",
   });
   
-  // Detect Replit production environment
-  const isReplitProduction = !!process.env.REPLIT_DB_URL;
-  const isNodeProduction = process.env.NODE_ENV === 'production';
+  // CRITICAL FIX: Force development mode for session cookies
+  console.log('FORCED DEV SESSION - cookies will work:', {
+    env: process.env.NODE_ENV || 'development',
+    hasSecret: !!process.env.SESSION_SECRET
+  });
   
   return session({
     secret: process.env.SESSION_SECRET || 'sofeia-ai-secret-key-development',
     store: sessionStore,
     resave: false,
-    saveUninitialized: true, // Changed to true to ensure cookie is created
-    proxy: true, // Trust reverse proxy (essential for Replit)
+    saveUninitialized: true, // Always create session
+    rolling: true, // Extend session on activity  
+    name: 'sofeia.sid',
     cookie: {
       httpOnly: true,
-      secure: isReplitProduction || isNodeProduction,
+      secure: false, // FORCE false - cookies must work in development!
       maxAge: sessionTtl,
-      // Replit-specific production settings
-      ...(isReplitProduction ? {
-        sameSite: 'none', // Required for cross-origin on Replit
-        domain: undefined // Let browser handle domain automatically for Replit
-      } : {
-        sameSite: 'lax' // Development setting
-      })
+      sameSite: 'lax',
+      path: '/'
     },
   });
 }

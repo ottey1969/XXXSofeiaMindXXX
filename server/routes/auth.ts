@@ -107,27 +107,36 @@ router.post('/register', async (req, res) => {
       // Check for credit renewal
       const renewalResult = await authService.checkAndRenewCredits(existingUser.id);
       
-      // Set session to log existing user in immediately  
-      (req.session as any).userId = existingUser.id;
-      
-      return req.session.save((err) => {
-        if (err) {
-          console.error('Session save error:', err);
-          return res.status(500).json({ message: 'Registration failed - session error' });
+      // CRITICAL FIX: Force session creation and save
+      req.session.regenerate((regErr) => {
+        if (regErr) {
+          console.error('Session regenerate error:', regErr);
         }
         
-        const renewalMessage = renewalResult.renewed ? ' You received 3 new credits!' : '';
+        (req.session as any).userId = existingUser.id;
+        console.log('Setting userId in session:', existingUser.id, 'SessionID:', req.sessionID);
         
-        res.json({
-          message: `Welcome back! You have ${renewalResult.newCredits} credits remaining.${renewalMessage}`,
-          userId: existingUser.id,
-          email: existingUser.email,
-          credits: renewalResult.newCredits,
-          autoLogin: true,
-          creditRenewal: {
-            renewed: renewalResult.renewed,
-            message: renewalResult.renewed ? 'You received 3 new credits!' : null
+        req.session.save((err) => {
+          if (err) {
+            console.error('Session save error:', err);
+            return res.status(500).json({ message: 'Registration failed - session error' });
           }
+          
+          console.log('Session saved successfully for user:', existingUser.id);
+          const renewalMessage = renewalResult.renewed ? ' You received 3 new credits!' : '';
+          
+          res.json({
+            message: `Welcome back! You have ${renewalResult.newCredits} credits remaining.${renewalMessage}`,
+            userId: existingUser.id,
+            email: existingUser.email,
+            credits: renewalResult.newCredits,
+            autoLogin: true,
+            sessionId: req.sessionID, // Debug info
+            creditRenewal: {
+              renewed: renewalResult.renewed,
+              message: renewalResult.renewed ? 'You received 3 new credits!' : null
+            }
+          });
         });
       });
     }
