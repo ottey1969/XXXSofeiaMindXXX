@@ -59,6 +59,23 @@ const upload = multer({
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
+  // Health check endpoint for deployment (must be first)
+  app.get('/', (req, res) => {
+    res.status(200).json({ 
+      status: 'healthy', 
+      message: 'Sofeia AI Agent is running',
+      timestamp: new Date().toISOString()
+    });
+  });
+
+  app.get('/health', (req, res) => {
+    res.status(200).json({ 
+      status: 'healthy', 
+      service: 'sofeia-ai-agent',
+      timestamp: new Date().toISOString()
+    });
+  });
+  
   // Trust proxy for correct IP addresses (essential for Replit)
   app.set('trust proxy', 1);
   
@@ -87,6 +104,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     next();
   }, express.static(uploadsDir));
   
+  // Health check endpoints for deployment
+  app.get('/api/health', (req, res) => {
+    res.status(200).json({ 
+      status: 'healthy', 
+      service: 'sofeia-ai-agent',
+      message: 'Sofeia AI Agent is running',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV
+    });
+  });
+
   // Authentication routes
   app.use('/api/auth', authRoutes);
   
@@ -658,7 +686,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Save upload info to storage
-      const uploadRecord = await storage.createUpload({
+      const uploadRecord = await storage.createUploadFile({
         userId: req.user!.id,
         filename: req.file.filename,
         originalName: req.file.originalname,
@@ -695,7 +723,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get user's uploaded files
   app.get("/api/uploads", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
-      const uploads = await storage.getUserUploads(req.user!.id);
+      const uploads = await storage.getUserUploadFiles(req.user!.id);
       res.json(uploads);
     } catch (error) {
       console.error("Error fetching uploads:", error);
@@ -707,7 +735,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/uploads/:id", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
       const { id } = req.params;
-      const upload = await storage.getUpload(id);
+      const upload = await storage.getUploadFile(id);
       
       if (!upload || upload.userId !== req.user!.id) {
         return res.status(404).json({ message: "File not found" });
@@ -720,7 +748,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Delete from storage
-      await storage.deleteUpload(id);
+      await storage.deleteUploadFile(id);
       
       res.json({ message: "File deleted successfully" });
     } catch (error) {

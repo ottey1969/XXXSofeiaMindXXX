@@ -156,31 +156,31 @@ export class MemStorage implements IStorage {
   }
 
   // File upload management
-  private uploads = new Map<string, any>();
+  private uploadFiles = new Map<string, any>();
 
-  async createUpload(uploadData: any): Promise<any> {
+  async createUploadFile(uploadData: any): Promise<any> {
     const id = `upload_${Date.now()}`;
     const upload = {
       id,
       ...uploadData,
       uploadedAt: new Date()
     };
-    this.uploads.set(id, upload);
+    this.uploadFiles.set(id, upload);
     return upload;
   }
 
-  async getUpload(id: string): Promise<any | undefined> {
-    return this.uploads.get(id);
+  async getUploadFile(id: string): Promise<any | undefined> {
+    return this.uploadFiles.get(id);
   }
 
-  async getUserUploads(userId: string): Promise<any[]> {
-    return Array.from(this.uploads.values())
+  async getUserUploadFiles(userId: string): Promise<any[]> {
+    return Array.from(this.uploadFiles.values())
       .filter(upload => upload.userId === userId)
       .sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime());
   }
 
-  async deleteUpload(id: string): Promise<boolean> {
-    return this.uploads.delete(id);
+  async deleteUploadFile(id: string): Promise<boolean> {
+    return this.uploadFiles.delete(id);
   }
 
   async getMessage(id: string): Promise<Message | undefined> {
@@ -220,32 +220,35 @@ export class MemStorage implements IStorage {
     return updated;
   }
 
-  // Upload file management
-  private uploads: Map<string, UploadedFile> = new Map();
+  // User management
+  private users = new Map<string, any>();
 
-  async createUpload(uploadData: any): Promise<UploadedFile> {
-    const id = `upload_${Date.now()}`;
-    const upload = {
+  async createUser(userData: any): Promise<any> {
+    const id = `user_${Date.now()}`;
+    const user = {
       id,
-      ...uploadData,
+      ...userData,
       createdAt: new Date(),
     };
-    this.uploads.set(id, upload);
-    return upload;
+    this.users.set(id, user);
+    return user;
   }
 
-  async getUserUploads(userId: string): Promise<UploadedFile[]> {
-    return Array.from(this.uploads.values())
-      .filter(upload => upload.userId === userId)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  async getUser(id: string): Promise<any | undefined> {
+    return this.users.get(id);
   }
 
-  async getUpload(id: string): Promise<UploadedFile | undefined> {
-    return this.uploads.get(id);
+  async getUserByEmail(email: string): Promise<any | undefined> {
+    return Array.from(this.users.values()).find(user => user.email === email);
   }
 
-  async deleteUpload(id: string): Promise<boolean> {
-    return this.uploads.delete(id);
+  async updateUser(id: string, updates: any): Promise<any | undefined> {
+    const user = this.users.get(id);
+    if (!user) return undefined;
+    
+    const updated = { ...user, ...updates };
+    this.users.set(id, updated);
+    return updated;
   }
 
   // Admin Messages Methods
@@ -277,9 +280,7 @@ export class MemStorage implements IStorage {
     }
   }
 
-  async getUserByEmail(email: string): Promise<any> {
-    return Array.from(this.users.values()).find(user => user.email === email);
-  }
+
 
   async deleteAdminMessage(messageId: string): Promise<boolean> {
     return this.adminMessages.delete(messageId);
