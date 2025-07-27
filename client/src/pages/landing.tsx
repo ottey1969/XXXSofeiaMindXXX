@@ -54,7 +54,7 @@ export default function Landing() {
                 <Sparkles className="h-5 w-5" />
               </div>
               <p className="text-center">
-                <strong>Receive 3 FREE credits every 2 days</strong> + <strong>BONUS 3 extra credits every 2 days that expire every 14 days!</strong>
+                <strong>Get 3 FREE credits at signup</strong> + <strong>3 BONUS credits every 2 days that expire every 14 days!</strong>
               </p>
               <p className="text-center text-sm mt-1 opacity-90">
                 Use it or lose it: All bonus credits expire every 14 days to encourage active usage

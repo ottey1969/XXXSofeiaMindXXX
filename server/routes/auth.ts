@@ -40,12 +40,8 @@ router.post('/login', async (req, res) => {
         console.log('Session saved successfully, ID:', req.sessionID);
         
         let renewalMessage = '';
-        if (renewalResult.renewed && renewalResult.bonusRenewed) {
-          renewalMessage = user.bonusCredits > 0 ? ' You received 3 new credits + 3 bonus credits!' : ' You received 3 new credits! (Bonus credits expired after 14 days)';
-        } else if (renewalResult.renewed) {
-          renewalMessage = ' You received 3 new credits!';
-        } else if (renewalResult.bonusRenewed) {
-          renewalMessage = user.bonusCredits > 0 ? ' You received 3 bonus credits!' : ' Your bonus credits expired after 14 days!';
+        if (renewalResult.bonusRenewed) {
+          renewalMessage = renewalResult.newBonusCredits > 0 ? ' You received 3 bonus credits!' : ' Your bonus credits expired after 14 days!';
         }
         
         res.json({
