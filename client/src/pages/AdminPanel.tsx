@@ -504,6 +504,7 @@ export default function AdminPanel() {
 
     try {
       await apiRequest("POST", "/api/admin/broadcast", {
+        adminKey: ADMIN_KEY,
         title: broadcastTitle.trim(),
         message: broadcastMessage.trim(),
         type: broadcastType,
@@ -541,6 +542,7 @@ export default function AdminPanel() {
 
     try {
       await apiRequest("POST", "/api/admin/announcement", {
+        adminKey: ADMIN_KEY,
         title: announcementTitle.trim(),
         message: announcementMessage.trim(),
         type: announcementType,
