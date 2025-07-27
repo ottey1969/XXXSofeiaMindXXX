@@ -17,7 +17,7 @@ import { requireAuth, requireCredits, type AuthenticatedRequest } from "./middle
 import { authService } from "./auth";
 import authRoutes from "./routes/auth";
 import adminRoutes from "./routes/admin";
-import { notifications, broadcasts, broadcastReads, announcements, insertBroadcastSchema, insertAnnouncementSchema } from "@shared/schema";
+import { notifications, broadcasts, broadcastReads, announcements, insertBroadcastSchema, insertAnnouncementSchema, users } from "@shared/schema";
 import { eq, sql } from "drizzle-orm";
 import { db } from "./db";
 
@@ -104,15 +104,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     next();
   }, express.static(uploadsDir));
   
-  // Health check endpoints for deployment
-  app.get('/api/health', (req, res) => {
-    res.status(200).json({ 
-      status: 'healthy', 
-      service: 'sofeia-ai-agent',
-      message: 'Sofeia AI Agent is running',
-      timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV
-    });
+  // Enhanced health check endpoints for deployment
+  app.get('/api/health', async (req, res) => {
+    try {
+      // Check database connection
+      const dbCheck = await db.select().from(users).limit(1);
+      
+      res.status(200).json({ 
+        status: 'healthy', 
+        service: 'sofeia-ai-agent',
+        message: 'Sofeia AI Agent is running',
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV,
+        database: 'connected',
+        uptime: process.uptime(),
+        memory: process.memoryUsage(),
+        version: '2.0.0'
+      });
+    } catch (error: any) {
+      res.status(503).json({
+        status: 'unhealthy',
+        service: 'sofeia-ai-agent', 
+        message: 'Database connection failed',
+        error: error?.message || 'Unknown error',
+        timestamp: new Date().toISOString()
+      });
+    }
   });
 
   // Authentication routes

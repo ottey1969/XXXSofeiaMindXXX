@@ -5,7 +5,16 @@ Sofeia AI Agent is an intelligent multi-provider content creation platform with 
 
 ## Recent Changes (January 27, 2025)
 
-### Deployment Fixes Applied (January 27, 2025)
+### Anti-Sleep Deployment Fixes (January 27, 2025)
+✅ **CRITICAL FIX:** Implemented keep-alive mechanisms to prevent server sleep
+✅ **SOLVED:** "Not Found" errors when accessing deployed site (contentscale.site/admin)
+✅ **ADDED:** Self-ping system - server pings itself every 14 minutes in production
+✅ **ENHANCED:** Health check endpoints with database monitoring and error detection
+✅ **IMPLEMENTED:** Production process management with graceful shutdown
+✅ **OPTIMIZED:** Memory management and connection pooling
+✅ **MONITORING:** Comprehensive health reporting with uptime and memory usage
+
+### Previous Deployment Fixes Applied (January 27, 2025)
 ✓ Added health check endpoints at `/health` and `/healthcheck` for deployment health checks  
 ✓ Added `/api/health` endpoint for comprehensive health monitoring  
 ✓ **CRITICAL FIX:** Removed health check from root path (`/`) to allow main application interface to load properly  
