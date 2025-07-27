@@ -172,55 +172,212 @@ export default function AdminPanel() {
     console.log('Continuous sound stopping');
   };
 
-  // User Messages Component
+  // Enhanced User Messages Component with Real-time Features
   const UserMessages = () => {
-    const { data: userMessages = [], refetch } = useQuery({
+    const [lastMessageCount, setLastMessageCount] = useState(0);
+    const [showPushNotification, setShowPushNotification] = useState(false);
+    const [lastNotificationTime, setLastNotificationTime] = useState(0);
+    const [isWindowFocused, setIsWindowFocused] = useState(true);
+    const [wsConnected, setWsConnected] = useState(false);
+    const wsRef = useRef<WebSocket | null>(null);
+    
+    // Enhanced query with faster refresh and better error handling
+    const { data: userMessages = [], refetch, isError, isLoading } = useQuery({
       queryKey: ["/api/admin/messages"],
-      refetchInterval: 5000, // Refresh every 5 seconds for real-time notifications
+      refetchInterval: isWindowFocused ? 2000 : 10000, // 2s when focused, 10s when not
+      refetchIntervalInBackground: true,
+      refetchOnWindowFocus: true,
+      retry: 3,
       queryFn: async () => {
-        const response = await apiRequest("GET", `/api/admin/messages?adminKey=${ADMIN_KEY}`);
-        return response.json();
+        try {
+          const response = await apiRequest("GET", `/api/admin/messages?adminKey=${ADMIN_KEY}`);
+          return response.json();
+        } catch (error) {
+          console.error('Failed to fetch user messages:', error);
+          throw error;
+        }
       },
-      enabled: isAuthenticated, // Only fetch when admin is authenticated
+      enabled: isAuthenticated,
     });
 
-    // Sound notification logic
+    // Window focus detection for optimized refresh rates
+    useEffect(() => {
+      const handleFocus = () => setIsWindowFocused(true);
+      const handleBlur = () => setIsWindowFocused(false);
+      
+      window.addEventListener('focus', handleFocus);
+      window.addEventListener('blur', handleBlur);
+      
+      return () => {
+        window.removeEventListener('focus', handleFocus);
+        window.removeEventListener('blur', handleBlur);
+      };
+    }, []);
+
+    // Request push notification permission and setup WebSocket
+    useEffect(() => {
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission().then((permission) => {
+          if (permission === 'granted') {
+            console.log('Push notifications enabled');
+          }
+        });
+      }
+
+      // Setup WebSocket connection for real-time updates
+      if (isAuthenticated && !wsRef.current) {
+        const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+        const wsUrl = `${protocol}//${window.location.host}/ws`;
+        
+        const ws = new WebSocket(wsUrl);
+        wsRef.current = ws;
+        
+        ws.onopen = () => {
+          console.log('WebSocket connected');
+          setWsConnected(true);
+          
+          // Authenticate as admin
+          ws.send(JSON.stringify({
+            type: 'admin_auth',
+            adminKey: ADMIN_KEY
+          }));
+        };
+        
+        ws.onmessage = (event) => {
+          try {
+            const message = JSON.parse(event.data);
+            
+            if (message.type === 'admin_notification') {
+              console.log('Real-time admin notification:', message.data);
+              
+              // Play instant notification sound
+              if (soundEnabled) {
+                playNotificationSound();
+              }
+              
+              // Show instant toast
+              toast({
+                title: "🔔 Real-time Alert",
+                description: `New message from ${message.data.from}`,
+                variant: "default",
+              });
+              
+              // Trigger immediate refresh
+              refetch();
+            }
+          } catch (error) {
+            console.error('WebSocket message error:', error);
+          }
+        };
+        
+        ws.onclose = () => {
+          console.log('WebSocket disconnected');
+          setWsConnected(false);
+          wsRef.current = null;
+        };
+        
+        ws.onerror = (error) => {
+          console.error('WebSocket error:', error);
+          setWsConnected(false);
+        };
+      }
+
+      return () => {
+        if (wsRef.current) {
+          wsRef.current.close();
+          wsRef.current = null;
+        }
+      };
+    }, [isAuthenticated, soundEnabled]);
+
+    // Enhanced real-time notification system
     useEffect(() => {
       if (!Array.isArray(userMessages) || !soundEnabled) return;
       
       const unreadCount = userMessages.filter((msg: any) => !msg.isRead).length;
       const totalCount = userMessages.length;
+      const currentTime = Date.now();
       
-      console.log('Sound check:', {
+      console.log('Enhanced notification check:', {
         totalCount,
-        previousMessageCount,
+        lastMessageCount,
         unreadCount,
         soundEnabled,
-        continuousSound
+        continuousSound,
+        isWindowFocused
       });
       
-      // Check for new messages
-      if (totalCount > previousMessageCount && previousMessageCount >= 0) {
-        console.log('Playing notification sound for new message');
-        // Play notification sound for new message
-        playNotificationSound();
+      // Detect new messages
+      if (totalCount > lastMessageCount && lastMessageCount >= 0) {
+        const newMessageCount = totalCount - lastMessageCount;
+        console.log(`${newMessageCount} new message(s) detected`);
         
+        // Play enhanced notification sound
+        if (soundEnabled) {
+          playNotificationSound();
+          
+          // Additional alert sounds for multiple messages
+          if (newMessageCount > 1) {
+            setTimeout(() => playNotificationSound(), 500);
+            setTimeout(() => playNotificationSound(), 1000);
+          }
+        }
+        
+        // Show enhanced toast notification
         toast({
-          title: "New User Message",
-          description: `You have ${unreadCount} unread message${unreadCount !== 1 ? 's' : ''}`,
+          title: `🔔 ${newMessageCount} New User Message${newMessageCount > 1 ? 's' : ''}`,
+          description: `Total unread: ${unreadCount} message${unreadCount !== 1 ? 's' : ''}`,
           variant: "default",
         });
+        
+        // Browser push notification (when window not focused)
+        if (!isWindowFocused && 'Notification' in window && Notification.permission === 'granted') {
+          const notification = new Notification('Sofeia AI - New User Message', {
+            body: `You have ${unreadCount} unread message${unreadCount !== 1 ? 's' : ''}`,
+            icon: '/favicon.ico',
+            tag: 'user-message',
+            requireInteraction: true
+          });
+          
+          notification.onclick = () => {
+            window.focus();
+            notification.close();
+          };
+          
+          // Auto-close after 10 seconds
+          setTimeout(() => notification.close(), 10000);
+        }
+        
+        // Visual flash notification in title
+        if (!isWindowFocused) {
+          let flashCount = 0;
+          const originalTitle = document.title;
+          const flashInterval = setInterval(() => {
+            document.title = flashCount % 2 === 0 ? 
+              `🔔 New Message - Sofeia AI Admin` : 
+              originalTitle;
+            flashCount++;
+            if (flashCount >= 10) {
+              clearInterval(flashInterval);
+              document.title = originalTitle;
+            }
+          }, 1000);
+        }
       }
       
-      // Handle continuous sound for unread messages
+      // Continuous alert for unread messages
       if (unreadCount > 0 && soundEnabled && continuousSound) {
-        startContinuousSound();
+        const now = Date.now();
+        if (now - lastNotificationTime > 30000) { // Every 30 seconds
+          startContinuousSound();
+          setLastNotificationTime(now);
+        }
       } else {
         stopContinuousSound();
       }
       
-      setPreviousMessageCount(totalCount);
-    }, [userMessages, soundEnabled, continuousSound, previousMessageCount]);
+      setLastMessageCount(totalCount);
+    }, [userMessages, soundEnabled, continuousSound, lastMessageCount, isWindowFocused, lastNotificationTime]);
 
     const markAsReadMutation = useMutation({
       mutationFn: async (messageId: string) => {
@@ -266,16 +423,16 @@ export default function AdminPanel() {
               )}
             </div>
             
-            {/* Sound Controls */}
+            {/* Enhanced Sound Controls */}
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setSoundEnabled(!soundEnabled)}
-                className="flex items-center gap-1"
+                className={`flex items-center gap-1 ${soundEnabled ? 'bg-green-50 border-green-300 text-green-700' : ''}`}
               >
                 {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-                {soundEnabled ? "Sound On" : "Sound Off"}
+                {soundEnabled ? "🔊 Sound On" : "🔇 Sound Off"}
               </Button>
               
               <Button
@@ -284,12 +441,11 @@ export default function AdminPanel() {
                 onClick={() => {
                   setContinuousSound(!continuousSound);
                   if (continuousSound) {
-                    // Stop sound when disabling
                     stopContinuousSound();
                   }
                 }}
                 disabled={!soundEnabled}
-                className="flex items-center gap-1"
+                className={`flex items-center gap-1 ${continuousSound ? 'bg-orange-500 hover:bg-orange-600' : ''}`}
               >
                 📢 Alert Mode
               </Button>
@@ -303,16 +459,44 @@ export default function AdminPanel() {
               >
                 🔊 Test
               </Button>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => refetch()}
+                className="flex items-center gap-1"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <div className="w-4 h-4 animate-spin border-2 border-gray-300 border-t-gray-600 rounded-full" />
+                ) : (
+                  "🔄"
+                )}
+                Refresh
+              </Button>
             </div>
           </CardTitle>
           <CardDescription>
             Messages from users that need your attention • Sound alerts {soundEnabled ? 'enabled' : 'disabled'}
             {soundEnabled && continuousSound && " • Continuous alert active"}
+            <br />
+            <span className="flex items-center gap-2 mt-1">
+              <span className={`w-2 h-2 rounded-full ${isError ? 'bg-red-500' : wsConnected ? 'bg-green-500' : 'bg-yellow-500'} animate-pulse`}></span>
+              {isError ? 'Connection error' : wsConnected ? 'WebSocket + polling active' : 'Polling active'}
+              • Auto-refresh: {isWindowFocused ? '2s' : '10s'}
+              • Push notifications: {Notification.permission === 'granted' ? 'enabled' : 'disabled'}
+            </span>
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="mb-4 text-xs text-gray-500">
-            Debug: {Array.isArray(userMessages) ? `${userMessages.length} messages` : `Type: ${typeof userMessages}`}
+          <div className="mb-4 flex items-center justify-between">
+            <div className="text-xs text-gray-500">
+              Debug: {Array.isArray(userMessages) ? `${userMessages.length} messages` : `Type: ${typeof userMessages}`}
+              {isLoading && " • Loading..."}
+            </div>
+            <div className="text-xs text-gray-500">
+              Last updated: {new Date().toLocaleTimeString()}
+            </div>
           </div>
           {Array.isArray(userMessages) && userMessages.length === 0 ? (
             <div className="text-center text-gray-500 py-8">
