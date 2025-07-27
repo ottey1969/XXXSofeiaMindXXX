@@ -63,6 +63,89 @@ export class AIRouter {
     
     return languageCountryMap[language] || 'usa';
   }
+
+  // Comprehensive request analysis to understand all user requirements
+  private analyzeUserRequest(query: string) {
+    const lowercaseQuery = query.toLowerCase();
+    
+    // Detect multiple requests or requirements
+    const hasMultipleRequests = /\band\b|\bplus\b|\balso\b|\badditionally\b|\bfurthermore\b|\bmoreover\b|,|;/.test(lowercaseQuery) ||
+                               /\ben\b|\btevens\b|\book\b|\bdarnaast\b|\bbovendien\b/.test(lowercaseQuery) || // Dutch
+                               /\bund\b|\bauch\b|\bzusätzlich\b|\baußerdem\b|\bferner\b/.test(lowercaseQuery) || // German
+                               /\bet\b|\baussi\b|\ben plus\b|\bde plus\b|\bpar ailleurs\b/.test(lowercaseQuery) || // French
+                               /\by\b|\btambién\b|\badicionalmente\b|\bademás\b|\baparte\b/.test(lowercaseQuery) || // Spanish
+                               /\be\b|\binoltre\b|\baggiungere\b|\boltre\b|\binfatti\b/.test(lowercaseQuery); // Italian
+    
+    // Identify request types
+    const requestTypes = [];
+    if (/create|make|generate|build|develop|design|write|produce/.test(lowercaseQuery) ||
+        /maak|genereer|bouw|ontwikkel|ontwerp|schrijf|produceer/.test(lowercaseQuery) ||
+        /erstellen|machen|generieren|bauen|entwickeln|entwerfen|schreiben/.test(lowercaseQuery) ||
+        /créer|faire|générer|construire|développer|concevoir|écrire/.test(lowercaseQuery) ||
+        /crear|hacer|generar|construir|desarrollar|diseñar|escribir/.test(lowercaseQuery) ||
+        /creare|fare|generare|costruire|sviluppare|progettare|scrivere/.test(lowercaseQuery)) {
+      requestTypes.push('create');
+    }
+    
+    if (/analyze|research|investigate|study|examine|compare/.test(lowercaseQuery) ||
+        /analyseer|onderzoek|bestudeer|vergelijk/.test(lowercaseQuery) ||
+        /analysieren|forschen|untersuchen|studieren|vergleichen/.test(lowercaseQuery) ||
+        /analyser|rechercher|étudier|examiner|comparer/.test(lowercaseQuery) ||
+        /analizar|investigar|estudiar|examinar|comparar/.test(lowercaseQuery) ||
+        /analizzare|ricercare|studiare|esaminare|confrontare/.test(lowercaseQuery)) {
+      requestTypes.push('analyze');
+    }
+    
+    if (/explain|describe|define|clarify|elaborate/.test(lowercaseQuery) ||
+        /uitleggen|beschrijven|definiëren|verduidelijken/.test(lowercaseQuery) ||
+        /erklären|beschreiben|definieren|klären/.test(lowercaseQuery) ||
+        /expliquer|décrire|définir|clarifier/.test(lowercaseQuery) ||
+        /explicar|describir|definir|aclarar/.test(lowercaseQuery) ||
+        /spiegare|descrivere|definire|chiarire/.test(lowercaseQuery)) {
+      requestTypes.push('explain');
+    }
+    
+    if (/optimize|improve|enhance|upgrade|refine/.test(lowercaseQuery) ||
+        /optimaliseer|verbeter|verfijn/.test(lowercaseQuery) ||
+        /optimieren|verbessern|verfeinern/.test(lowercaseQuery) ||
+        /optimiser|améliorer|affiner/.test(lowercaseQuery) ||
+        /optimizar|mejorar|refinar/.test(lowercaseQuery) ||
+        /ottimizzare|migliorare|raffinare/.test(lowercaseQuery)) {
+      requestTypes.push('optimize');
+    }
+    
+    // Check for step-by-step requirements
+    const requiresSteps = /step|steps|guide|tutorial|process|procedure|method|how to/.test(lowercaseQuery) ||
+                         /stap|stappen|gids|proces|procedure|methode|hoe/.test(lowercaseQuery) ||
+                         /schritt|schritte|anleitung|prozess|verfahren|methode|wie/.test(lowercaseQuery) ||
+                         /étape|étapes|guide|processus|procédure|méthode|comment/.test(lowercaseQuery) ||
+                         /paso|pasos|guía|proceso|procedimiento|método|cómo/.test(lowercaseQuery) ||
+                         /passo|passi|guida|processo|procedura|metodo|come/.test(lowercaseQuery);
+    
+    // Check for constraints or specific requirements
+    const hasConstraints = /must|should|need|require|important|essential|critical/.test(lowercaseQuery) ||
+                          /moet|hoort|nodig|vereist|belangrijk|essentieel|kritiek/.test(lowercaseQuery) ||
+                          /muss|sollte|braucht|erfordert|wichtig|wesentlich|kritisch/.test(lowercaseQuery) ||
+                          /doit|devrait|besoin|exiger|important|essentiel|critique/.test(lowercaseQuery) ||
+                          /debe|debería|necesita|requiere|importante|esencial|crítico/.test(lowercaseQuery) ||
+                          /deve|dovrebbe|bisogno|richiede|importante|essenziale|critico/.test(lowercaseQuery);
+    
+    // Check for comprehensive answer needs
+    const needsComprehensiveAnswer = /comprehensive|complete|detailed|thorough|extensive|all/.test(lowercaseQuery) ||
+                                   /uitgebreid|compleet|gedetailleerd|grondig|alles/.test(lowercaseQuery) ||
+                                   /umfassend|vollständig|detailliert|gründlich|alle/.test(lowercaseQuery) ||
+                                   /complet|détaillé|approfondi|extensif|tout/.test(lowercaseQuery) ||
+                                   /completo|detallado|exhaustivo|extenso|todo/.test(lowercaseQuery) ||
+                                   /completo|dettagliato|approfondito|estensivo|tutto/.test(lowercaseQuery);
+    
+    return {
+      hasMultipleRequests,
+      requestTypes,
+      requiresSteps,
+      hasConstraints,
+      needsComprehensiveAnswer
+    };
+  }
   
   analyzeQuery(query: string): QueryAnalysis {
     const lowercaseQuery = query.toLowerCase();
@@ -70,6 +153,9 @@ export class AIRouter {
     // Language detection
     const detectedLanguage = this.detectLanguage(query);
     const targetCountry = this.getCountryFromLanguage(detectedLanguage, query);
+    
+    // Comprehensive request analysis
+    const requestAnalysis = this.analyzeUserRequest(query);
     
     // Multilingual patterns
     const simplePatterns = [
@@ -191,7 +277,8 @@ export class AIRouter {
       requiresCraft,
       requiresKeywordResearch,
       targetCountry: finalTargetCountry,
-      detectedLanguage
+      detectedLanguage,
+      requestAnalysis
     };
   }
 

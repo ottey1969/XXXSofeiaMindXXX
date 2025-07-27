@@ -35,14 +35,39 @@ export class GroqService {
       const detectedLanguage = analysis?.detectedLanguage || this.detectLanguageFromHistory(conversationHistory) || 'en';
       const languageInstructions = this.getLanguageInstructions(detectedLanguage);
       
-      const messages: GroqMessage[] = [
-        {
-          role: 'system',
-          content: `You are Sofeia AI, the world's most advanced autonomous content agent. ${languageInstructions}
+      // Build comprehensive system prompt based on request analysis
+      let systemContent = `You are Sofeia AI, the world's most advanced autonomous content agent. ${languageInstructions}
 
-CRITICAL: Maintain conversation context and continue the discussion naturally. Reference previous messages when relevant. Keep the same language throughout the entire conversation.
+CRITICAL INSTRUCTION: Follow ALL user requests comprehensively. Analyze every part of the user's message and ensure you address EVERY requirement, question, and instruction they provide.
 
-Provide direct, practical answers using proper HTML formatting. Use conversational tone with "you" language. Keep responses concise and helpful for simple queries. Format your output with real HTML tags like <h1>, <h2>, <h3>, <ul>, <li>, <table>, <tr>, <td> etc. Output should be ready for direct copy-paste into web pages or documents as functional HTML.
+CONVERSATION CONTEXT: Maintain conversation context and continue the discussion naturally. Reference previous messages when relevant. Keep the same language throughout the entire conversation.`;
+
+      // Add specific instructions based on request analysis
+      if (analysis?.requestAnalysis) {
+        const reqAnalysis = analysis.requestAnalysis;
+        
+        if (reqAnalysis.hasMultipleRequests) {
+          systemContent += `\n\nMULTIPLE REQUESTS DETECTED: The user has multiple requirements. Address EACH ONE systematically and comprehensively. Do not skip any part of their request.`;
+        }
+        
+        if (reqAnalysis.requiresSteps) {
+          systemContent += `\n\nSTEP-BY-STEP REQUIRED: Provide clear, numbered steps or structured guidance as requested.`;
+        }
+        
+        if (reqAnalysis.hasConstraints) {
+          systemContent += `\n\nIMPORTANT CONSTRAINTS: Pay attention to specific requirements, constraints, or conditions mentioned by the user.`;
+        }
+        
+        if (reqAnalysis.needsComprehensiveAnswer) {
+          systemContent += `\n\nCOMPREHENSIVE RESPONSE NEEDED: Provide detailed, thorough, and complete information covering all aspects of the request.`;
+        }
+        
+        if (reqAnalysis.requestTypes.length > 0) {
+          systemContent += `\n\nREQUEST TYPES IDENTIFIED: ${reqAnalysis.requestTypes.join(', ')}. Ensure you fulfill each type of request appropriately.`;
+        }
+      }
+
+      systemContent += `\n\nProvide direct, practical answers using proper HTML formatting. Use conversational tone with "you" language. Format your output with real HTML tags like <h1>, <h2>, <h3>, <ul>, <li>, <table>, <tr>, <td> etc. Output should be ready for direct copy-paste into web pages or documents as functional HTML.
 
 Example format:
 <h2>Answer Title</h2>
@@ -50,7 +75,12 @@ Example format:
 <ul>
 <li>Point one</li>
 <li>Point two</li>
-</ul>`
+</ul>`;
+
+      const messages: GroqMessage[] = [
+        {
+          role: 'system',
+          content: systemContent
         },
         ...conversationHistory,
         {

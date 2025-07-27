@@ -478,7 +478,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const contextSummary = formattedHistory.length > 0 
               ? `Previous conversation context: ${formattedHistory.slice(-4).map(msg => `${msg.role}: ${msg.content.substring(0, 200)}`).join(' | ')}\n\nCurrent query: ${content}`
               : content;
-            aiResponse = await perplexityService.researchQuery(contextSummary, analysis.targetCountry, analysis.detectedLanguage);
+            aiResponse = await perplexityService.researchQuery(contextSummary, analysis.targetCountry, analysis.detectedLanguage, analysis);
             break;
           case 'anthropic':
             aiResponse = await anthropicService.generateResponse(content, formattedHistory, analysis);

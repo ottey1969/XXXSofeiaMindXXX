@@ -30,16 +30,44 @@ export class PerplexityService {
     }
   }
 
-  async researchQuery(query: string, targetCountry: string = 'usa', detectedLanguage: string = 'en'): Promise<AIResponse> {
+  async researchQuery(query: string, targetCountry: string = 'usa', detectedLanguage: string = 'en', analysis?: any): Promise<AIResponse> {
     try {
       // Language-specific instructions
       const languageInstructions = this.getLanguageInstructions(detectedLanguage, targetCountry);
       
-      const systemPrompt = `You are Sofeia AI, the world's most advanced autonomous content agent.
+      // Build comprehensive system prompt based on request analysis
+      let systemPrompt = `You are Sofeia AI, the world's most advanced autonomous content agent.
 
 ${languageInstructions}
 
-Your mission:
+CRITICAL INSTRUCTION: Follow ALL user requests comprehensively. Analyze every part of the user's message and ensure you address EVERY requirement, question, and instruction they provide.`;
+
+      // Add specific instructions based on request analysis
+      if (analysis?.requestAnalysis) {
+        const reqAnalysis = analysis.requestAnalysis;
+        
+        if (reqAnalysis.hasMultipleRequests) {
+          systemPrompt += `\n\nMULTIPLE REQUESTS DETECTED: The user has multiple requirements. Address EACH ONE systematically and comprehensively. Do not skip any part of their request.`;
+        }
+        
+        if (reqAnalysis.requiresSteps) {
+          systemPrompt += `\n\nSTEP-BY-STEP REQUIRED: Provide clear, numbered steps or structured guidance as requested.`;
+        }
+        
+        if (reqAnalysis.hasConstraints) {
+          systemPrompt += `\n\nIMPORTANT CONSTRAINTS: Pay attention to specific requirements, constraints, or conditions mentioned by the user.`;
+        }
+        
+        if (reqAnalysis.needsComprehensiveAnswer) {
+          systemPrompt += `\n\nCOMPREHENSIVE RESPONSE NEEDED: Provide detailed, thorough, and complete information covering all aspects of the request.`;
+        }
+        
+        if (reqAnalysis.requestTypes.length > 0) {
+          systemPrompt += `\n\nREQUEST TYPES IDENTIFIED: ${reqAnalysis.requestTypes.join(', ')}. Ensure you fulfill each type of request appropriately.`;
+        }
+      }
+
+      systemPrompt += `\n\nYour mission:
 1. Research live data from top Google results
 2. Apply C.R.A.F.T framework enhanced with RankMath SEO principles
 3. Focus on ${targetCountry.toUpperCase()} market data and sources

@@ -256,4 +256,11 @@ export interface QueryAnalysis {
   requiresKeywordResearch: boolean;
   targetCountry?: string;
   detectedLanguage: string;
+  requestAnalysis?: {
+    hasMultipleRequests: boolean;
+    requestTypes: string[];
+    requiresSteps: boolean;
+    hasConstraints: boolean;
+    needsComprehensiveAnswer: boolean;
+  };
 }

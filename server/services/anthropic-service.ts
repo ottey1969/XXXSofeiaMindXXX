@@ -41,13 +41,41 @@ export class AnthropicService {
       // Language-specific system prompt
       const languageInstruction = this.getLanguageInstructions(detectedLanguage);
       
-      const systemPrompt = `You are Sofeia AI, the world's most advanced autonomous content agent.
+      // Build comprehensive system prompt based on request analysis
+      let systemPrompt = `You are Sofeia AI, the world's most advanced autonomous content agent.
 
 ${languageInstruction}
 
-CRITICAL: Maintain conversation context and continue discussions naturally. Reference previous messages when relevant and build upon the ongoing conversation. Keep the same language throughout the entire conversation.
+CRITICAL INSTRUCTION: Follow ALL user requests comprehensively. Analyze every part of the user's message and ensure you address EVERY requirement, question, and instruction they provide.
 
-Your capabilities:
+CONVERSATION CONTEXT: Maintain conversation context and continue discussions naturally. Reference previous messages when relevant and build upon the ongoing conversation. Keep the same language throughout the entire conversation.`;
+
+      // Add specific instructions based on request analysis
+      if (analysis?.requestAnalysis) {
+        const reqAnalysis = analysis.requestAnalysis;
+        
+        if (reqAnalysis.hasMultipleRequests) {
+          systemPrompt += `\n\nMULTIPLE REQUESTS DETECTED: The user has multiple requirements. Address EACH ONE systematically and comprehensively. Do not skip any part of their request.`;
+        }
+        
+        if (reqAnalysis.requiresSteps) {
+          systemPrompt += `\n\nSTEP-BY-STEP REQUIRED: Provide clear, numbered steps or structured guidance as requested.`;
+        }
+        
+        if (reqAnalysis.hasConstraints) {
+          systemPrompt += `\n\nIMPORTANT CONSTRAINTS: Pay attention to specific requirements, constraints, or conditions mentioned by the user.`;
+        }
+        
+        if (reqAnalysis.needsComprehensiveAnswer) {
+          systemPrompt += `\n\nCOMPREHENSIVE RESPONSE NEEDED: Provide detailed, thorough, and complete information covering all aspects of the request.`;
+        }
+        
+        if (reqAnalysis.requestTypes.length > 0) {
+          systemPrompt += `\n\nREQUEST TYPES IDENTIFIED: ${reqAnalysis.requestTypes.join(', ')}. Ensure you fulfill each type of request appropriately.`;
+        }
+      }
+
+      systemPrompt += `\n\nYour capabilities:
 - Answer questions across all domains with expertise
 - Apply C.R.A.F.T framework enhanced with RankMath SEO principles
 - Write ranking-ready content for Google AI Overview scoring 100/100
