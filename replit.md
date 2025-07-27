@@ -6,8 +6,9 @@ Sofeia AI Agent is an intelligent multi-provider content creation platform with 
 ## Recent Changes (January 27, 2025)
 
 ### Deployment Fixes Applied (January 27, 2025)
-✓ Added health check endpoints at root path (`/`) and `/health` for deployment health checks  
+✓ Added health check endpoints at `/health` and `/healthcheck` for deployment health checks  
 ✓ Added `/api/health` endpoint for comprehensive health monitoring  
+✓ **CRITICAL FIX:** Removed health check from root path (`/`) to allow main application interface to load properly
 ✓ Fixed duplicate method definitions in `server/storage.ts`  
 ✓ Resolved upload method naming conflicts (`createUpload` → `createUploadFile`)  
 ✓ Updated storage interface with consistent typing  

@@ -59,19 +59,19 @@ const upload = multer({
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
-  // Health check endpoint for deployment (must be first)
-  app.get('/', (req, res) => {
-    res.status(200).json({ 
-      status: 'healthy', 
-      message: 'Sofeia AI Agent is running',
-      timestamp: new Date().toISOString()
-    });
-  });
-
+  // Health check endpoints for deployment - use specific paths only
   app.get('/health', (req, res) => {
     res.status(200).json({ 
       status: 'healthy', 
       service: 'sofeia-ai-agent',
+      timestamp: new Date().toISOString()
+    });
+  });
+
+  app.get('/healthcheck', (req, res) => {
+    res.status(200).json({ 
+      status: 'healthy', 
+      message: 'Sofeia AI Agent is running',
       timestamp: new Date().toISOString()
     });
   });
