@@ -255,4 +255,5 @@ export interface QueryAnalysis {
   requiresCraft: boolean;
   requiresKeywordResearch: boolean;
   targetCountry?: string;
+  detectedLanguage: string;
 }

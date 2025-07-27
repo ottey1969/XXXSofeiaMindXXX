@@ -32,9 +32,18 @@ export class AnthropicService {
     });
   }
 
-  async generateResponse(query: string, conversationHistory: AnthropicMessage[] = []): Promise<AIResponse> {
+  async generateResponse(query: string, conversationHistory: AnthropicMessage[] = [], analysis?: any): Promise<AIResponse> {
     try {
+      // Language detection and context
+      const detectedLanguage = analysis?.detectedLanguage || 'en';
+      const targetCountry = analysis?.targetCountry || 'usa';
+      
+      // Language-specific system prompt
+      const languageInstruction = this.getLanguageInstructions(detectedLanguage);
+      
       const systemPrompt = `You are Sofeia AI, the world's most advanced autonomous content agent.
+
+${languageInstruction}
 
 Your capabilities:
 - Answer questions across all domains with expertise
@@ -171,6 +180,23 @@ Format as structured HTML with clear headings and actionable recommendations.`;
     } catch (error) {
       console.error('Anthropic CRAFT analysis error:', error);
       throw error;
+    }
+  }
+
+  private getLanguageInstructions(language: string): string {
+    switch (language) {
+      case 'nl':
+        return 'BELANGRIJK: Beantwoord ALTIJD in het Nederlands. Alle content, voorbeelden en uitleg moeten in het Nederlands zijn. Focus op Nederlandse markten en gebruikers.';
+      case 'de':
+        return 'WICHTIG: Antworten Sie IMMER auf Deutsch. Alle Inhalte, Beispiele und Erklärungen müssen auf Deutsch sein. Fokussieren Sie sich auf deutsche Märkte und Benutzer.';
+      case 'fr':
+        return 'IMPORTANT: Répondez TOUJOURS en français. Tout le contenu, les exemples et les explications doivent être en français. Concentrez-vous sur les marchés et utilisateurs français.';
+      case 'es':
+        return 'IMPORTANTE: Responda SIEMPRE en español. Todo el contenido, ejemplos y explicaciones deben estar en español. Enfóquese en mercados y usuarios españoles.';
+      case 'it':
+        return 'IMPORTANTE: Rispondi SEMPRE in italiano. Tutti i contenuti, esempi e spiegazioni devono essere in italiano. Concentrati sui mercati e utenti italiani.';
+      default:
+        return 'Respond in English with focus on international markets and users.';
     }
   }
 }

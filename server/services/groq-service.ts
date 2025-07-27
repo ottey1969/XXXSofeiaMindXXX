@@ -29,12 +29,18 @@ export class GroqService {
     }
   }
 
-  async generateResponse(query: string, conversationHistory: GroqMessage[] = []): Promise<AIResponse> {
+  async generateResponse(query: string, conversationHistory: GroqMessage[] = [], analysis?: any): Promise<AIResponse> {
     try {
+      // Language detection and instructions
+      const detectedLanguage = analysis?.detectedLanguage || 'en';
+      const languageInstructions = this.getLanguageInstructions(detectedLanguage);
+      
       const messages: GroqMessage[] = [
         {
           role: 'system',
-          content: `You are Sofeia AI, the world's most advanced autonomous content agent. Provide direct, practical answers using proper HTML formatting. Use conversational tone with "you" language. Keep responses concise and helpful for simple queries. Format your output with real HTML tags like <h1>, <h2>, <h3>, <ul>, <li>, <table>, <tr>, <td> etc. Output should be ready for direct copy-paste into web pages or documents as functional HTML.
+          content: `You are Sofeia AI, the world's most advanced autonomous content agent. ${languageInstructions}
+
+Provide direct, practical answers using proper HTML formatting. Use conversational tone with "you" language. Keep responses concise and helpful for simple queries. Format your output with real HTML tags like <h1>, <h2>, <h3>, <ul>, <li>, <table>, <tr>, <td> etc. Output should be ready for direct copy-paste into web pages or documents as functional HTML.
 
 Example format:
 <h2>Answer Title</h2>
@@ -89,6 +95,23 @@ Example format:
     } catch (error) {
       console.error('Groq service error:', error);
       throw error;
+    }
+  }
+
+  private getLanguageInstructions(language: string): string {
+    switch (language) {
+      case 'nl':
+        return 'BELANGRIJK: Beantwoord ALTIJD in het Nederlands. Alle content, voorbeelden en uitleg moeten in het Nederlands zijn. Focus op Nederlandse markten en gebruikers.';
+      case 'de':
+        return 'WICHTIG: Antworten Sie IMMER auf Deutsch. Alle Inhalte, Beispiele und Erklärungen müssen auf Deutsch sein. Fokussieren Sie sich auf deutsche Märkte und Benutzer.';
+      case 'fr':
+        return 'IMPORTANT: Répondez TOUJOURS en français. Tout le contenu, les exemples et les explications doivent être en français. Concentrez-vous sur les marchés et utilisateurs français.';
+      case 'es':
+        return 'IMPORTANTE: Responda SIEMPRE en español. Todo el contenido, ejemplos y explicaciones deben estar en español. Enfóquese en mercados y usuarios españoles.';
+      case 'it':
+        return 'IMPORTANTE: Rispondi SEMPRE in italiano. Tutti i contenuti, esempi e spiegazioni devono essere in italiano. Concentrati sui mercati e utenti italiani.';
+      default:
+        return 'Respond in English with focus on international markets and users.';
     }
   }
 }

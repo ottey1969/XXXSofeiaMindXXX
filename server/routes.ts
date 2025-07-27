@@ -457,16 +457,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let retryWithFallback = false;
 
       try {
-        // Route to appropriate AI service
+        // Route to appropriate AI service with analysis data
         switch (analysis.provider) {
           case 'groq':
-            aiResponse = await groqService.generateResponse(content);
+            aiResponse = await groqService.generateResponse(content, [], analysis);
             break;
           case 'perplexity':
-            aiResponse = await perplexityService.researchQuery(content, analysis.targetCountry);
+            aiResponse = await perplexityService.researchQuery(content, analysis.targetCountry, analysis.detectedLanguage);
             break;
           case 'anthropic':
-            aiResponse = await anthropicService.generateResponse(content);
+            aiResponse = await anthropicService.generateResponse(content, [], analysis);
             break;
           default:
             throw new Error(`Unknown provider: ${analysis.provider}`);
