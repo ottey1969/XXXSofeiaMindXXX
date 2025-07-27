@@ -22,7 +22,7 @@ export const users = pgTable("users", {
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
   credits: integer("credits").default(3).notNull(),
-  bonusCredits: integer("bonus_credits").default(5).notNull(),
+  bonusCredits: integer("bonus_credits").default(0).notNull(),
   emailVerified: boolean("email_verified").default(false).notNull(),
   marketingConsent: boolean("marketing_consent").default(false).notNull(),
   ipAddress: varchar("ip_address"),

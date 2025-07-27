@@ -175,11 +175,51 @@ export class AuthService {
       regularRenewed = true;
     }
 
-    // Check if 14 days have passed since last bonus renewal - EXPIRE and reset cycle
-    if (lastBonusRenewal < fourteenDaysAgo) {
-      updateData.bonusCredits = 5; // Reset to 5 (expire any unused and start fresh)
-      updateData.lastBonusRenewal = now;
-      bonusRenewed = true;
+    // Check if 14 days have passed since account creation - EXPIRE all bonus credits and restart cycle
+    const accountAge = now.getTime() - new Date(user.createdAt!).getTime();
+    const daysSinceCreation = Math.floor(accountAge / (24 * 60 * 60 * 1000));
+    const currentCycle = Math.floor(daysSinceCreation / 14); // Which 14-day cycle are we in?
+    
+    // Calculate when the current 14-day cycle started
+    const cycleStartDate = new Date(user.createdAt!);
+    cycleStartDate.setDate(cycleStartDate.getDate() + (currentCycle * 14));
+    
+    // Check if we've moved to a new 14-day cycle and need to expire bonus credits
+    const lastCycleStartFromBonus = user.lastBonusRenewal ? new Date(user.lastBonusRenewal) : new Date(user.createdAt!);
+    const daysSinceLastBonus = Math.floor((now.getTime() - lastCycleStartFromBonus.getTime()) / (24 * 60 * 60 * 1000));
+    
+    // If 14+ days have passed since account creation and we have bonus credits, expire them
+    if (daysSinceCreation >= 14 && user.bonusCredits! > 0) {
+      const currentCycleFromCreation = Math.floor(daysSinceCreation / 14);
+      const lastProcessedCycle = user.lastBonusRenewal ? 
+        Math.floor((new Date(user.lastBonusRenewal).getTime() - new Date(user.createdAt!).getTime()) / (14 * 24 * 60 * 60 * 1000)) : -1;
+      
+      if (currentCycleFromCreation > lastProcessedCycle) {
+        // New 14-day cycle started - expire all bonus credits
+        updateData.bonusCredits = 0;
+        updateData.lastBonusRenewal = cycleStartDate;
+        bonusRenewed = true; // Mark as expired
+      }
+    }
+    
+    // Add 3 bonus credits every 2 days within the current 14-day cycle
+    if (daysSinceCreation >= 2) { // Only start giving bonus after 2 days
+      const daysInCurrentCycle = daysSinceCreation % 14;
+      const lastBonusInCycle = user.lastBonusRenewal ? 
+        Math.floor((new Date(user.lastBonusRenewal).getTime() - cycleStartDate.getTime()) / (24 * 60 * 60 * 1000)) : -1;
+      
+      // Give bonus credits on days 2, 4, 6, 8, 10, 12 within each 14-day cycle
+      if (daysInCurrentCycle >= 2 && daysInCurrentCycle < 14) {
+        const bonusDaysInCycle = Math.floor(daysInCurrentCycle / 2); // How many 2-day periods have passed
+        const lastBonusDaysInCycle = Math.max(0, Math.floor(lastBonusInCycle / 2));
+        
+        if (bonusDaysInCycle > lastBonusDaysInCycle) {
+          const creditsToAdd = (bonusDaysInCycle - lastBonusDaysInCycle) * 3;
+          updateData.bonusCredits = sql`bonus_credits + ${creditsToAdd}`;
+          updateData.lastBonusRenewal = now;
+          bonusRenewed = true;
+        }
+      }
     }
 
     // Only update if there's something to renew

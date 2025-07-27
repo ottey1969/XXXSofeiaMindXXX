@@ -206,12 +206,13 @@ The architecture emphasizes modularity, type safety, and developer experience wh
   - Added credit renewal notifications and next renewal date tracking
   - System automatically renews credits when users access the application after 2+ days
   - Frontend displays renewal notifications and countdown to next credit renewal
-- **Special Promotional Offer System** ✅: Enhanced landing page and bonus credit expiration system
-  - Added promotional banner on landing page highlighting "3 FREE credits every 2 days + BONUS 5 extra credits that expire every 14 days"
-  - Implemented bonus credit EXPIRATION system with 14-day reset cycle (not accumulative)
-  - Updated database schema with `bonusCredits` and `lastBonusRenewal` fields
+- **Special Promotional Offer System** ✅: Enhanced landing page and bonus credit expiration system  
+  - **FINAL Credit Model**: 3 credits every 2 days + 3 bonus credits every 2 days that ALL expire every 14 days
+  - Added promotional banner highlighting "3 FREE credits every 2 days + BONUS 3 extra credits every 2 days that expire every 14 days"
+  - Implemented dual renewal system: regular credits accumulate, bonus credits expire completely every 14 days
+  - Updated database schema with `bonusCredits` (default 0) and `lastBonusRenewal` fields
   - Enhanced credit usage logic to prioritize bonus credits over regular credits
   - Updated all frontend components to display both regular credits and bonus credits
-  - Modified auth responses to include "credits reset for 14-day cycle" messaging for expired bonus credits
-  - System tracks separate renewal cycles: regular credits (2 days) and bonus credit expiration (14 days)
-  - "Use it or lose it" model: unused bonus credits expire and reset to 5 every 14 days to encourage active usage
+  - Modified auth responses to show appropriate messaging for credit additions vs expiration
+  - System tracks separate cycles: regular credits (2 days), bonus credits (2 days), bonus expiration (14 days)
+  - "Use it or lose it" model: all bonus credits expire every 14 days to encourage active usage

@@ -41,11 +41,11 @@ router.post('/login', async (req, res) => {
         
         let renewalMessage = '';
         if (renewalResult.renewed && renewalResult.bonusRenewed) {
-          renewalMessage = ' You received 3 new credits + 5 bonus credits reset for 14-day cycle!';
+          renewalMessage = user.bonusCredits > 0 ? ' You received 3 new credits + 3 bonus credits!' : ' You received 3 new credits! (Bonus credits expired after 14 days)';
         } else if (renewalResult.renewed) {
           renewalMessage = ' You received 3 new credits!';
         } else if (renewalResult.bonusRenewed) {
-          renewalMessage = ' Your 5 bonus credits reset for a new 14-day cycle!';
+          renewalMessage = user.bonusCredits > 0 ? ' You received 3 bonus credits!' : ' Your bonus credits expired after 14 days!';
         }
         
         res.json({
@@ -98,11 +98,11 @@ router.post('/register', async (req, res) => {
           
           let renewalMessage = '';
           if (renewalResult.renewed && renewalResult.bonusRenewed) {
-            renewalMessage = ' You received 3 new credits + 5 bonus credits reset for 14-day cycle!';
+            renewalMessage = renewalResult.newBonusCredits > 0 ? ' You received 3 new credits + 3 bonus credits!' : ' You received 3 new credits! (Bonus credits expired after 14 days)';
           } else if (renewalResult.renewed) {
             renewalMessage = ' You received 3 new credits!';
           } else if (renewalResult.bonusRenewed) {
-            renewalMessage = ' Your 5 bonus credits reset for a new 14-day cycle!';
+            renewalMessage = renewalResult.newBonusCredits > 0 ? ' You received 3 bonus credits!' : ' Your bonus credits expired after 14 days!';
           }
           
           res.json({
@@ -143,11 +143,11 @@ router.post('/register', async (req, res) => {
           console.log('Session saved successfully for user:', existingUser.id);
           let renewalMessage = '';
           if (renewalResult.renewed && renewalResult.bonusRenewed) {
-            renewalMessage = ' You received 3 new credits + 5 bonus credits reset for 14-day cycle!';
+            renewalMessage = renewalResult.newBonusCredits > 0 ? ' You received 3 new credits + 3 bonus credits!' : ' You received 3 new credits! (Bonus credits expired after 14 days)';
           } else if (renewalResult.renewed) {
             renewalMessage = ' You received 3 new credits!';
           } else if (renewalResult.bonusRenewed) {
-            renewalMessage = ' Your 5 bonus credits reset for a new 14-day cycle!';
+            renewalMessage = renewalResult.newBonusCredits > 0 ? ' You received 3 bonus credits!' : ' Your bonus credits expired after 14 days!';
           }
           
           res.json({
@@ -255,11 +255,11 @@ router.get('/me', async (req, res) => {
 
     let renewalMessage = '';
     if (renewalResult.renewed && renewalResult.bonusRenewed) {
-      renewalMessage = 'You received 3 new credits + 5 bonus credits reset for 14-day cycle!';
+      renewalMessage = renewalResult.newBonusCredits > 0 ? 'You received 3 new credits + 3 bonus credits!' : 'You received 3 new credits! (Bonus credits expired after 14 days)';
     } else if (renewalResult.renewed) {
       renewalMessage = 'You received 3 new credits!';
     } else if (renewalResult.bonusRenewed) {
-      renewalMessage = 'Your 5 bonus credits reset for a new 14-day cycle!';
+      renewalMessage = renewalResult.newBonusCredits > 0 ? 'You received 3 bonus credits!' : 'Your bonus credits expired after 14 days!';
     }
 
     res.json({
