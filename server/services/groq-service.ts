@@ -67,22 +67,19 @@ CONVERSATION CONTEXT: Maintain conversation context and continue the discussion 
         }
         
         if (reqAnalysis.focusKeyword) {
-          const isClusterRequest = /cluster voor|bedrijvencluster/i.test(query);
-          if (isClusterRequest) {
-            systemContent = `You are an expert on business clusters and industrial districts. The user wants information about geographic concentration of ${reqAnalysis.focusKeyword} businesses.
-
-MANDATORY: Provide ONLY business cluster information. Do NOT provide SEO keyword research.
-
-Write about:
-1. Definition of bedrijvencluster for ${reqAnalysis.focusKeyword}
-2. Geographic concentration of ${reqAnalysis.focusKeyword} companies
-3. Suppliers and related businesses in the ${reqAnalysis.focusKeyword} sector
-4. Networking and collaboration benefits
-5. Michael Porter's cluster theory applied to ${reqAnalysis.focusKeyword}
-6. Regional advantages and economies of scale
-
-FORBIDDEN: Keyword research tables, SEO volumes, search difficulty, content marketing advice.
-REQUIRED: Business information about ${reqAnalysis.focusKeyword} industry clusters.`;
+          const isBusinessClusterRequest = /bedrijvencluster|geografische concentratie|michael porter|industrieel district/i.test(query);
+          const isContentClusterRequest = /content cluster|zoekwoord|keyword|seo/i.test(query);
+          
+          if (isBusinessClusterRequest && !isContentClusterRequest) {
+            systemContent += `\n\nBUSINESS CLUSTER REQUEST: User wants information about geographic concentration of ${reqAnalysis.focusKeyword} businesses (Michael Porter's cluster concept).`;
+          } else if (isContentClusterRequest || /cluster voor/i.test(query)) {
+            systemContent += `\n\nCONTENT CLUSTER REQUEST: User wants SEO keyword research and content clusters for "${reqAnalysis.focusKeyword}". 
+            
+Provide:
+- Content cluster table with zoekwoorden and maandelijks zoekvolume
+- Related keywords grouped by topic/theme
+- Search volumes for Dutch market
+- Content opportunities and keyword difficulty`;
           } else {
             systemContent += `\n\nTOPIC: "${reqAnalysis.focusKeyword}" - User wants information about ${reqAnalysis.focusKeyword}.`;
           }
