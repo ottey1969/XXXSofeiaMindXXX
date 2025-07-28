@@ -20,6 +20,11 @@ interface AnthropicMessage {
   content: string;
 }
 
+interface ConversationMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
 export class AnthropicService {
   private anthropic: Anthropic;
 
@@ -34,7 +39,7 @@ export class AnthropicService {
     });
   }
 
-  async generateResponse(query: string, conversationHistory: AnthropicMessage[] = []): Promise<AIResponse> {
+  async generateResponse(query: string, conversationHistory: ConversationMessage[] = []): Promise<AIResponse> {
     try {
       console.log(`🤖 Anthropic Service: Processing query - "${query}"`);
       console.log(`📝 Using model: ${DEFAULT_MODEL_STR}`);

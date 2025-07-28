@@ -5,6 +5,11 @@ interface GroqMessage {
   content: string;
 }
 
+interface ConversationMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
 interface GroqResponse {
   choices: Array<{
     message: {
@@ -29,7 +34,7 @@ export class GroqService {
     }
   }
 
-  async generateResponse(query: string, conversationHistory: GroqMessage[] = []): Promise<AIResponse> {
+  async generateResponse(query: string, conversationHistory: ConversationMessage[] = []): Promise<AIResponse> {
     try {
       console.log(`⚡ Groq Service: Processing quick query - "${query}"`);
       const messages: GroqMessage[] = [
