@@ -77,6 +77,12 @@ CONVERSATION CONTEXT: Maintain conversation context and continue the discussion 
 
       systemContent += `\n\nProvide direct, practical answers using proper HTML formatting. Use conversational tone with "you" language. Format your output with real HTML tags like <h1>, <h2>, <h3>, <ul>, <li>, <table>, <tr>, <td> etc. Output should be ready for direct copy-paste into web pages or documents as functional HTML.
 
+IMPORTANT FORMATTING RULES:
+- Create ONLY ONE table of contents (inhoudsopgave) at the beginning
+- Do NOT duplicate tables, headings, or content sections
+- Each section should appear only ONCE in your response
+- Use clear, unique section headers without repetition
+
 Example format:
 <h2>Answer Title</h2>
 <p>Your explanation here...</p>
