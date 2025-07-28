@@ -43,7 +43,7 @@ export class PerplexityService {
         : '';
       
       // Get relevant statistics table for the topic
-      const statsTable = statisticsService.getStatisticsTable(query);
+      const statsTable = await statisticsService.getStatisticsTable(query);
       const statsContext = statsTable 
         ? `\n\nInclude this statistics table in your content where it adds value:\n${statsTable.htmlTable}`
         : '';
