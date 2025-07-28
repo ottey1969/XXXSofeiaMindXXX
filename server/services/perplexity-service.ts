@@ -81,7 +81,8 @@ CRITICAL INSTRUCTION: Follow ALL user requests comprehensively. Analyze every pa
 - Dupliceer NOOIT tabellen, secties, koppen of content blokken
 - Elke sectie moet precies ÉÉN keer verschijnen
 - Gebruik geen Engelse termen zoals "Table of Contents" - gebruik alleen Nederlandse termen
-- Vermijd herhaling van dezelfde informatie in verschillende formats`;
+- Vermijd herhaling van dezelfde informatie in verschillende formats
+- VERWIJDER ALLE citation markers zoals [1], [2], [1][3] uit je antwoord - gebruikers willen GEEN referentie nummers in de tekst`;
         }
       }
 

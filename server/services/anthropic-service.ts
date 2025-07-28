@@ -90,7 +90,8 @@ CONVERSATION CONTEXT: Maintain conversation context and continue discussions nat
 - Elke sectie moet precies ÉÉN keer verschijnen in je antwoord
 - Gebruik geen Engelse termen - alles moet in het Nederlands
 - Vermijd herhaling van dezelfde informatie in verschillende formats
-- Start met één duidelijke Nederlandse inhoudsopgave en stop daar`;
+- Start met één duidelijke Nederlandse inhoudsopgave en stop daar
+- VERWIJDER ALLE citation markers zoals [1], [2], [1][3] uit je antwoord - gebruikers willen GEEN referentie nummers in de tekst`;
         }
       }
 

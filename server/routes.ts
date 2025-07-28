@@ -499,13 +499,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
+      // Clean citation markers from AI response
+      const cleanedContent = aiResponse.content.replace(/\[\d+\](\[\d+\])*/g, '').trim();
+      
       // Apply C.R.A.F.T framework if needed
-      let finalContent = aiResponse.content;
+      let finalContent = cleanedContent;
       let craftSteps = undefined;
       
       if (analysis.requiresCraft) {
         const craftResult = await craftFramework.applyCraftFramework(
-          aiResponse.content, 
+          cleanedContent, 
           analysis.targetCountry
         );
         finalContent = craftResult.optimizedContent;
