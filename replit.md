@@ -26,15 +26,19 @@ Sofeia AI Agent is an intelligent multi-provider content creation platform with 
   - EPA/DOE: Energy efficiency and roofing industry data
   - No dummy data fallbacks - authentic research only
 
-### AI Provider Routing Enhancement (January 27, 2025 - 2:32 AM)
-✅ **FIXED:** Blog content now properly routes to Anthropic instead of defaulting to Groq
-✅ **ENHANCED:** AI provider routing with priority-based pattern matching
-✅ **IMPROVED:** Keyword research service to extract meaningful topics from user queries
-✅ **ADDED:** Comprehensive debugging logs for provider selection
+### 4000-Word Content Support & Formatting Fix (January 27, 2025 - 3:50 AM)
+✅ **ENHANCED:** All three AI services now support 4000-word comprehensive content
+✅ **FIXED:** Groq plain text formatting - NO markdown or HTML syntax
+✅ **UPDATED:** Token limits increased to 4096 across all services (Anthropic, Perplexity, Groq)
+✅ **CLARIFIED:** Groq should ask clarifying questions when requests are unclear
+✅ **FORMATTING RULES:**
+  - **Groq**: Pure plain text, can use actual bold (not **markdown**), no HTML/markdown syntax
+  - **Anthropic**: HTML formatted content for blogs/articles (using Claude Sonnet 4.0)
+  - **Perplexity**: Research-driven HTML content with live data integration
 ✅ **ROUTING LOGIC:**
-  - **Anthropic**: Blog posts, articles, content creation, copywriting (using Claude Sonnet 4.0)
-  - **Perplexity**: Research queries, market analysis, trending topics
-  - **Groq**: Simple questions, quick responses
+  - **Anthropic**: Blog posts, articles, content creation, copywriting
+  - **Perplexity**: Research queries, market analysis, trending topics  
+  - **Groq**: Simple questions, quick responses, plain text content
 
 ### Anti-Sleep Deployment Fixes (January 27, 2025)
 ✅ **CRITICAL FIX:** Implemented keep-alive mechanisms to prevent server sleep
