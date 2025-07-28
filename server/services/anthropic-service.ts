@@ -75,16 +75,25 @@ CONVERSATION CONTEXT: Maintain conversation context and continue discussions nat
         }
         
         if (reqAnalysis.focusKeyword) {
-          systemPrompt += `\n\nTOPIC: "${reqAnalysis.focusKeyword}" - User wants information about ${reqAnalysis.focusKeyword}.
-          
-If user asks about "cluster voor ${reqAnalysis.focusKeyword}" or similar, provide information about:
-1. Geographic concentration of ${reqAnalysis.focusKeyword} businesses (bedrijvencluster)
-2. Companies and suppliers in the ${reqAnalysis.focusKeyword} industry
-3. Regional advantages and networking opportunities
-4. Michael Porter's industrial district concept applied to ${reqAnalysis.focusKeyword}
-5. How businesses collaborate and benefit from clustering
+          const isClusterRequest = /cluster voor|bedrijvencluster/i.test(query);
+          if (isClusterRequest) {
+            systemPrompt = `You are an expert on business clusters and industrial districts. The user wants information about geographic concentration of ${reqAnalysis.focusKeyword} businesses.
 
-Do NOT provide content marketing or SEO keyword lists. Focus on actual business cluster information.`;
+MANDATORY: Provide ONLY business cluster information. Do NOT provide SEO keyword research.
+
+Write about:
+1. Definition of bedrijvencluster for ${reqAnalysis.focusKeyword}
+2. Geographic concentration of ${reqAnalysis.focusKeyword} companies
+3. Suppliers and related businesses in the ${reqAnalysis.focusKeyword} sector
+4. Networking and collaboration benefits
+5. Michael Porter's cluster theory applied to ${reqAnalysis.focusKeyword}
+6. Regional advantages and economies of scale
+
+FORBIDDEN: Keyword research tables, SEO volumes, search difficulty, content marketing advice.
+REQUIRED: Business information about ${reqAnalysis.focusKeyword} industry clusters.`;
+          } else {
+            systemPrompt += `\n\nTOPIC: "${reqAnalysis.focusKeyword}" - User wants information about ${reqAnalysis.focusKeyword}.`;
+          }
         }
         
         if (reqAnalysis.mainKeywords.length > 0) {
