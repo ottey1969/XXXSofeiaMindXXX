@@ -450,17 +450,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         keywordData: null
       });
 
-      // Get conversation history for context
-      const conversationHistory = await storage.getMessagesByConversation(conversationId);
-      
-      // Convert to format expected by AI services (excluding the current user message)
-      const formattedHistory = conversationHistory
-        .filter(msg => msg.role !== 'system')
-        .map(msg => ({
-          role: msg.role as 'user' | 'assistant',
-          content: msg.content
-        }));
-
       // Analyze query and determine AI provider
       const analysis = aiRouter.analyzeQuery(content);
       
@@ -468,20 +457,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let retryWithFallback = false;
 
       try {
-        // Route to appropriate AI service with conversation history and analysis data
+        // Route to appropriate AI service
         switch (analysis.provider) {
           case 'groq':
-            aiResponse = await groqService.generateResponse(content, formattedHistory, analysis);
+            aiResponse = await groqService.generateResponse(content);
             break;
           case 'perplexity':
-            // Perplexity uses search, so we include a summary of recent context
-            const contextSummary = formattedHistory.length > 0 
-              ? `Previous conversation context: ${formattedHistory.slice(-4).map(msg => `${msg.role}: ${msg.content.substring(0, 200)}`).join(' | ')}\n\nCurrent query: ${content}`
-              : content;
-            aiResponse = await perplexityService.researchQuery(contextSummary, analysis.targetCountry, analysis.detectedLanguage);
+            aiResponse = await perplexityService.researchQuery(content, analysis.targetCountry);
             break;
           case 'anthropic':
-            aiResponse = await anthropicService.generateResponse(content, formattedHistory, analysis);
+            aiResponse = await anthropicService.generateResponse(content);
             break;
           default:
             throw new Error(`Unknown provider: ${analysis.provider}`);
@@ -492,7 +477,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Check if we should fallback to Anthropic
         if (aiRouter.shouldFallbackToAnthropic(analysis.provider, error)) {
           console.log('Falling back to Anthropic...');
-          aiResponse = await anthropicService.generateResponse(content, formattedHistory, analysis);
+          aiResponse = await anthropicService.generateResponse(content);
           retryWithFallback = true;
         } else {
           throw error;

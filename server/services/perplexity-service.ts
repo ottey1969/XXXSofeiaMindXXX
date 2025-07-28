@@ -30,14 +30,9 @@ export class PerplexityService {
     }
   }
 
-  async researchQuery(query: string, targetCountry: string = 'usa', detectedLanguage: string = 'en'): Promise<AIResponse> {
+  async researchQuery(query: string, targetCountry: string = 'usa'): Promise<AIResponse> {
     try {
-      // Language-specific instructions
-      const languageInstructions = this.getLanguageInstructions(detectedLanguage, targetCountry);
-      
       const systemPrompt = `You are Sofeia AI, the world's most advanced autonomous content agent.
-
-${languageInstructions}
 
 Your mission:
 1. Research live data from top Google results
@@ -166,25 +161,6 @@ RankMath SEO-Optimized HTML format:
       return urlObj.hostname.replace('www.', '');
     } catch {
       return 'Unknown Source';
-    }
-  }
-
-  private getLanguageInstructions(language: string, targetCountry: string): string {
-    const countryName = targetCountry.charAt(0).toUpperCase() + targetCountry.slice(1);
-    
-    switch (language) {
-      case 'nl':
-        return `KRITIEK: Beantwoord ALTIJD in het Nederlands en focus op de Nederlandse markt. Alle research en content moet in het Nederlands zijn. Gebruik Nederlandse bronnen en voorbeelden. Land focus: ${countryName}.`;
-      case 'de':
-        return `KRITISCH: Antworten Sie IMMER auf Deutsch und konzentrieren Sie sich auf den deutschen Markt. Alle Recherchen und Inhalte müssen auf Deutsch sein. Verwenden Sie deutsche Quellen und Beispiele. Landerfokus: ${countryName}.`;
-      case 'fr':
-        return `CRITIQUE: Répondez TOUJOURS en français et concentrez-vous sur le marché français. Toutes les recherches et contenus doivent être en français. Utilisez des sources et exemples français. Focus pays: ${countryName}.`;
-      case 'es':
-        return `CRÍTICO: Responda SIEMPRE en español y enfóquese en el mercado español. Toda la investigación y contenido debe estar en español. Use fuentes y ejemplos españoles. Enfoque del país: ${countryName}.`;
-      case 'it':
-        return `CRITICO: Rispondi SEMPRE in italiano e concentrati sul mercato italiano. Tutte le ricerche e i contenuti devono essere in italiano. Usa fonti ed esempi italiani. Focus paese: ${countryName}.`;
-      default:
-        return `CRITICAL: Always respond in English and focus on international/US markets. All research and content should be in English. Use authoritative English sources. Country focus: ${countryName}.`;
     }
   }
 }

@@ -5,14 +5,6 @@ Sofeia AI Agent is an intelligent multi-provider content creation platform with 
 
 ## Recent Changes (January 27, 2025)
 
-### Multilingual Conversation Context Enhancement (January 27, 2025)
-✅ **CRITICAL FIX:** Enhanced conversation history tracking - AI now maintains context throughout conversations
-✅ **IMPROVED:** Language detection with conversation memory - maintains user's language across all messages
-✅ **ENHANCED:** All AI services (Groq, Perplexity, Anthropic) now receive and use conversation history
-✅ **ADDED:** Context-aware language detection from conversation history
-✅ **IMPLEMENTED:** Multilingual conversation continuity with proper follow-ups and references
-✅ **FIXED:** AI now remembers what conversations are about and builds upon previous messages
-
 ### Anti-Sleep Deployment Fixes (January 27, 2025)
 ✅ **CRITICAL FIX:** Implemented keep-alive mechanisms to prevent server sleep
 ✅ **SOLVED:** "Not Found" errors when accessing deployed site (contentscale.site/admin)

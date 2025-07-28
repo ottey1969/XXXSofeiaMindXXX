@@ -29,20 +29,12 @@ export class GroqService {
     }
   }
 
-  async generateResponse(query: string, conversationHistory: GroqMessage[] = [], analysis?: any): Promise<AIResponse> {
+  async generateResponse(query: string, conversationHistory: GroqMessage[] = []): Promise<AIResponse> {
     try {
-      // Language detection and instructions
-      const detectedLanguage = analysis?.detectedLanguage || this.detectLanguageFromHistory(conversationHistory) || 'en';
-      const languageInstructions = this.getLanguageInstructions(detectedLanguage);
-      
       const messages: GroqMessage[] = [
         {
           role: 'system',
-          content: `You are Sofeia AI, the world's most advanced autonomous content agent. ${languageInstructions}
-
-CRITICAL: Maintain conversation context and continue the discussion naturally. Reference previous messages when relevant. Keep the same language throughout the entire conversation.
-
-Provide direct, practical answers using proper HTML formatting. Use conversational tone with "you" language. Keep responses concise and helpful for simple queries. Format your output with real HTML tags like <h1>, <h2>, <h3>, <ul>, <li>, <table>, <tr>, <td> etc. Output should be ready for direct copy-paste into web pages or documents as functional HTML.
+          content: `You are Sofeia AI, the world's most advanced autonomous content agent. Provide direct, practical answers using proper HTML formatting. Use conversational tone with "you" language. Keep responses concise and helpful for simple queries. Format your output with real HTML tags like <h1>, <h2>, <h3>, <ul>, <li>, <table>, <tr>, <td> etc. Output should be ready for direct copy-paste into web pages or documents as functional HTML.
 
 Example format:
 <h2>Answer Title</h2>
@@ -97,54 +89,6 @@ Example format:
     } catch (error) {
       console.error('Groq service error:', error);
       throw error;
-    }
-  }
-
-  private detectLanguageFromHistory(history: GroqMessage[]): string | null {
-    // Look at recent messages to detect language patterns
-    const recentMessages = history.slice(-4);
-    for (const msg of recentMessages) {
-      if (msg.role === 'user') {
-        const content = msg.content.toLowerCase();
-        // Dutch detection
-        if (/\b(dakwerken|het|de|een|van|voor|met|en|is|zijn|wordt|kan|mag|zal|hebben|maken)\b/.test(content)) {
-          return 'nl';
-        }
-        // German detection
-        if (/\b(der|die|das|ein|eine|und|ist|sind|wird|kann|soll|haben|machen)\b/.test(content)) {
-          return 'de';
-        }
-        // French detection
-        if (/\b(le|la|les|un|une|de|du|des|et|est|sont|peut|doit|avoir|faire)\b/.test(content)) {
-          return 'fr';
-        }
-        // Spanish detection
-        if (/\b(el|la|los|las|un|una|de|del|y|es|son|puede|debe|tener|hacer)\b/.test(content)) {
-          return 'es';
-        }
-        // Italian detection
-        if (/\b(il|la|lo|gli|le|un|una|di|del|e|è|sono|può|deve|avere|fare)\b/.test(content)) {
-          return 'it';
-        }
-      }
-    }
-    return null;
-  }
-
-  private getLanguageInstructions(language: string): string {
-    switch (language) {
-      case 'nl':
-        return 'KRITIEK: Beantwoord ALTIJD in het Nederlands. Alle content, voorbeelden en uitleg moeten in het Nederlands zijn. Focus op Nederlandse markten en gebruikers. Gebruik de context van het gesprek om relevante follow-ups te geven.';
-      case 'de':
-        return 'KRITISCH: Antworten Sie IMMER auf Deutsch. Alle Inhalte, Beispiele und Erklärungen müssen auf Deutsch sein. Fokussieren Sie sich auf deutsche Märkte und Benutzer. Verwenden Sie den Gesprächskontext für relevante Anschlüsse.';
-      case 'fr':
-        return 'CRITIQUE: Répondez TOUJOURS en français. Tout le contenu, les exemples et les explications doivent être en français. Concentrez-vous sur les marchés et utilisateurs français. Utilisez le contexte de conversation pour des suivis pertinents.';
-      case 'es':
-        return 'CRÍTICO: Responda SIEMPRE en español. Todo el contenido, ejemplos y explicaciones deben estar en español. Enfóquese en mercados y usuarios españoles. Use el contexto de conversación para seguimientos relevantes.';
-      case 'it':
-        return 'CRITICO: Rispondi SEMPRE in italiano. Tutti i contenuti, esempi e spiegazioni devono essere in italiano. Concentrati sui mercati e utenti italiani. Usa il contesto di conversazione per follow-up pertinenti.';
-      default:
-        return 'Respond in English with focus on international markets and users. Use conversation context to provide relevant follow-ups and maintain topic continuity.';
     }
   }
 }
