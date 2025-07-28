@@ -1,7 +1,7 @@
 // Service for managing authoritative external links
 export class ExternalLinksService {
   
-  // High-authority government and educational sources by topic
+  // VERIFIED government and educational sources by topic - REAL URLS ONLY
   private authorityLinks = {
     roofing: [
       { url: 'https://www.energy.gov/energysaver/weatherize/air-sealing-your-home/installing-roof-system', anchor: 'Department of Energy roofing guidelines', type: 'gov' },
