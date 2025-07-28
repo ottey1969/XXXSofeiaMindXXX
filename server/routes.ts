@@ -1,5 +1,6 @@
 import express, { type Express } from "express";
 import { createServer, type Server } from "http";
+import { WebSocketServer, WebSocket } from "ws";
 import cors from "cors";
 import multer from "multer";
 import path from "path";
@@ -22,6 +23,9 @@ import { eq, sql } from "drizzle-orm";
 import { db } from "./db";
 
 const ADMIN_KEY = "0f5db72a966a8d5f7ebae96c6a1e2cc574c2bf926c62dc4526bd43df1c0f42eb";
+
+// Track connected admin WebSocket clients
+const adminConnections = new Set<WebSocket>();
 
 // Ensure uploads directory exists
 const uploadsDir = path.join(process.cwd(), 'uploads');
@@ -56,6 +60,29 @@ const upload = multer({
     }
   }
 });
+
+// Function to notify admins of new user messages
+function notifyAdmins(message: any) {
+  const adminMessage = {
+    type: 'admin_notification',
+    data: {
+      id: message.id,
+      userEmail: message.userEmail,
+      subject: message.subject,
+      message: message.message,
+      userCredits: message.userCredits,
+      timestamp: new Date().toISOString()
+    }
+  };
+
+  adminConnections.forEach(ws => {
+    if (ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify(adminMessage));
+    }
+  });
+
+  console.log(`🔔 Notified ${adminConnections.size} admin(s) of new message from ${message.userEmail}`);
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -224,13 +251,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userEmail = req.user!.email;
 
       // Store the admin message 
-      await storage.createAdminMessage({
+      const adminMessage = await storage.createAdminMessage({
         userEmail,
         userId,
         subject: subject.trim(),
         message: message.trim(),
         userCredits: req.user!.credits || 0,
       });
+
+      // Send real-time notification to connected admins
+      notifyAdmins(adminMessage);
 
       res.json({ message: 'Message sent successfully' });
     } catch (error) {
@@ -838,5 +868,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   const httpServer = createServer(app);
+  // Set up WebSocket server for admin notifications
+  const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
+  
+  wss.on('connection', (ws, req) => {
+    console.log('WebSocket connection established');
+    
+    ws.on('message', (data) => {
+      try {
+        const message = JSON.parse(data.toString());
+        
+        // Handle admin authentication
+        if (message.type === 'admin_auth' && message.adminKey === ADMIN_KEY) {
+          adminConnections.add(ws);
+          console.log(`Admin connected via WebSocket. Total admin connections: ${adminConnections.size}`);
+          ws.send(JSON.stringify({ type: 'auth_success', message: 'Admin authenticated' }));
+        }
+      } catch (error) {
+        console.error('WebSocket message error:', error);
+      }
+    });
+    
+    ws.on('close', () => {
+      adminConnections.delete(ws);
+      console.log(`Admin disconnected. Remaining admin connections: ${adminConnections.size}`);
+    });
+    
+    ws.on('error', (error) => {
+      console.error('WebSocket error:', error);
+      adminConnections.delete(ws);
+    });
+  });
+
   return httpServer;
 }

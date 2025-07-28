@@ -59,6 +59,12 @@ export default function AdminPanel() {
   const [continuousSound, setContinuousSound] = useState(false);
   const [previousMessageCount, setPreviousMessageCount] = useState(0);
   
+  // WebSocket for real-time notifications
+  const [wsConnected, setWsConnected] = useState(false);
+  const [realtimeNotifications, setRealtimeNotifications] = useState<any[]>([]);
+  const wsRef = useRef<WebSocket | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  
   // Messaging system fields
   const [broadcastTitle, setBroadcastTitle] = useState("");
   const [broadcastMessage, setBroadcastMessage] = useState("");
@@ -73,71 +79,96 @@ export default function AdminPanel() {
   
   const { toast } = useToast();
 
-  // Audio refs for sound notifications
-  const notificationAudioRef = useRef<HTMLAudioElement | null>(null);
-  const continuousAudioRef = useRef<HTMLAudioElement | null>(null);
-
-  // Initialize audio elements using Web Audio API
+  // Initialize audio for notifications
   useEffect(() => {
-    let audioContext: AudioContext | null = null;
-    
-    const initializeAudio = () => {
-      try {
-        audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-        console.log('Audio context initialized');
-      } catch (e) {
-        console.log('Audio context failed:', e);
-      }
-    };
-    
-    // Initialize audio context on first user interaction
-    const handleUserInteraction = () => {
-      if (!audioContext) {
-        initializeAudio();
-      }
-      if (audioContext && audioContext.state === 'suspended') {
-        audioContext.resume();
-      }
-    };
-    
-    // Add event listeners for user interaction
-    document.addEventListener('click', handleUserInteraction, { once: true });
-    document.addEventListener('keydown', handleUserInteraction, { once: true });
-    
-    // Initialize previous count
-    setPreviousMessageCount(0);
-    
-    return () => {
-      document.removeEventListener('click', handleUserInteraction);
-      document.removeEventListener('keydown', handleUserInteraction);
-    };
+    // Create notification sound (high-pitch beep)
+    audioRef.current = new Audio();
+    audioRef.current.preload = 'auto';
+    // Use a data URL for a beep sound
+    audioRef.current.src = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+Xy0IFEDUCLyeXcpF0aAB1+wOzs1k8LEU6q5+a+ZSIPdre6y8XOuLQ3N1+eP51E6P2dqJx';
   }, []);
 
-  // Sound functions using Web Audio API
+  // WebSocket connection logic
+  useEffect(() => {
+    if (isAuthenticated && adminKey) {
+      connectWebSocket();
+    }
+    
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+    };
+  }, [isAuthenticated, adminKey]);
+
+  const connectWebSocket = () => {
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const wsUrl = `${protocol}//${window.location.host}/ws`;
+    
+    wsRef.current = new WebSocket(wsUrl);
+    
+    wsRef.current.onopen = () => {
+      console.log('WebSocket connected');
+      setWsConnected(true);
+      
+      // Authenticate as admin
+      wsRef.current?.send(JSON.stringify({
+        type: 'admin_auth',
+        adminKey: adminKey
+      }));
+    };
+    
+    wsRef.current.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      
+      if (data.type === 'auth_success') {
+        toast({
+          title: "Real-time notifications active",
+          description: "You'll receive live alerts for new user messages",
+        });
+      } else if (data.type === 'admin_notification') {
+        // New user message received
+        setRealtimeNotifications(prev => [data.data, ...prev]);
+        
+        // Play notification sound
+        if (soundEnabled && audioRef.current) {
+          audioRef.current.play().catch(console.error);
+        }
+        
+        // Show toast notification
+        toast({
+          title: "New user message!",
+          description: `${data.data.userEmail}: ${data.data.subject}`,
+          duration: 5000,
+        });
+      }
+    };
+    
+    wsRef.current.onclose = () => {
+      console.log('WebSocket disconnected');
+      setWsConnected(false);
+      
+      // Attempt to reconnect after 3 seconds
+      setTimeout(() => {
+        if (isAuthenticated && adminKey) {
+          connectWebSocket();
+        }
+      }, 3000);
+    };
+    
+    wsRef.current.onerror = (error) => {
+      console.error('WebSocket error:', error);
+      setWsConnected(false);
+    };
+  };
+
   const playNotificationSound = () => {
-    console.log('Attempting to play notification sound', { soundEnabled });
-    if (!soundEnabled) return;
+    if (!soundEnabled || !audioRef.current) return;
     
     try {
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-      
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-      
-      oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-      oscillator.type = 'sine';
-      
-      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-      
-      oscillator.start(audioContext.currentTime);
-      oscillator.stop(audioContext.currentTime + 0.3);
-      
-      console.log('Sound played successfully');
+      audioRef.current.play().catch(console.error);
     } catch (e) {
-      console.log('Audio play failed:', e);
+      console.log('Notification sound failed:', e);
     }
   };
 
@@ -159,9 +190,6 @@ export default function AdminPanel() {
       
       oscillator.start(audioContext.currentTime);
       oscillator.stop(audioContext.currentTime + 0.5);
-      
-      // Store reference for stopping
-      continuousAudioRef.current = { stop: () => oscillator.stop() } as any;
     } catch (e) {
       console.log('Continuous audio failed:', e);
     }
@@ -264,6 +292,10 @@ export default function AdminPanel() {
                   {userMessages.filter((msg: any) => !msg.isRead).length} new
                 </Badge>
               )}
+              <Badge variant={wsConnected ? "default" : "secondary"} className="flex items-center gap-1">
+                <Radio className="w-3 h-3" />
+                {wsConnected ? "Live" : "Offline"}
+              </Badge>
             </div>
             
             {/* Sound Controls */}
@@ -308,6 +340,8 @@ export default function AdminPanel() {
           <CardDescription>
             Messages from users that need your attention • Sound alerts {soundEnabled ? 'enabled' : 'disabled'}
             {soundEnabled && continuousSound && " • Continuous alert active"}
+            • Real-time notifications {wsConnected ? 'connected' : 'disconnected'}
+            {realtimeNotifications.length > 0 && ` • ${realtimeNotifications.length} live alert(s) received`}
           </CardDescription>
         </CardHeader>
         <CardContent>
