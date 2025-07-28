@@ -67,7 +67,7 @@ CONVERSATION CONTEXT: Maintain conversation context and continue the discussion 
         }
         
         if (reqAnalysis.focusKeyword) {
-          systemContent += `\n\nFOCUS KEYWORD DETECTED: "${reqAnalysis.focusKeyword}" - This is the main topic/keyword the user wants content about. Build your entire response around this specific keyword, not around the request format.`;
+          systemContent += `\n\nFOCUS KEYWORD DETECTED: "${reqAnalysis.focusKeyword}" - This is the main topic/keyword the user wants content about. Build your entire response around this specific keyword, not around the request format. For keyword research, use this as the primary focus keyword and find related terms in the same industry/niche.`;
         }
         
         if (reqAnalysis.mainKeywords.length > 0) {
@@ -172,15 +172,15 @@ Example format:
   private getLanguageInstructions(language: string): string {
     switch (language) {
       case 'nl':
-        return 'KRITIEK: Beantwoord ALTIJD in het Nederlands. Alle content, voorbeelden en uitleg moeten in het Nederlands zijn. Focus op Nederlandse markten en gebruikers. Gebruik de context van het gesprek om relevante follow-ups te geven.';
+        return 'KRITIEK: Beantwoord ALTIJD in het Nederlands. Alle content, voorbeelden, zoekwoorden, tabellen en uitleg moeten in het Nederlands zijn. Focus op Nederlandse markten en gebruikers. Gebruik ALLEEN Nederlandse zoekwoorden en terminologie. GEEN Engelse termen in inhoudsopgave of tabellen.';
       case 'de':
-        return 'KRITISCH: Antworten Sie IMMER auf Deutsch. Alle Inhalte, Beispiele und Erklärungen müssen auf Deutsch sein. Fokussieren Sie sich auf deutsche Märkte und Benutzer. Verwenden Sie den Gesprächskontext für relevante Anschlüsse.';
+        return 'KRITISCH: Antworten Sie IMMER auf Deutsch. Alle Inhalte, Beispiele, Keywords, Tabellen und Erklärungen müssen auf Deutsch sein. Fokussieren Sie sich auf deutsche Märkte und Benutzer. Verwenden Sie NUR deutsche Keywords und Terminologie.';
       case 'fr':
-        return 'CRITIQUE: Répondez TOUJOURS en français. Tout le contenu, les exemples et les explications doivent être en français. Concentrez-vous sur les marchés et utilisateurs français. Utilisez le contexte de conversation pour des suivis pertinents.';
+        return 'CRITIQUE: Répondez TOUJOURS en français. Tout le contenu, exemples, mots-clés, tableaux et explications doivent être en français. Concentrez-vous sur les marchés et utilisateurs français. Utilisez UNIQUEMENT des mots-clés et terminologie français.';
       case 'es':
-        return 'CRÍTICO: Responda SIEMPRE en español. Todo el contenido, ejemplos y explicaciones deben estar en español. Enfóquese en mercados y usuarios españoles. Use el contexto de conversación para seguimientos relevantes.';
+        return 'CRÍTICO: Responda SIEMPRE en español. Todo el contenido, ejemplos, palabras clave, tablas y explicaciones deben estar en español. Enfóquese en mercados y usuarios españoles. Use SOLO palabras clave y terminología en español.';
       case 'it':
-        return 'CRITICO: Rispondi SEMPRE in italiano. Tutti i contenuti, esempi e spiegazioni devono essere in italiano. Concentrati sui mercati e utenti italiani. Usa il contesto di conversazione per follow-up pertinenti.';
+        return 'CRITICO: Rispondi SEMPRE in italiano. Tutti i contenuti, esempi, parole chiave, tabelle e spiegazioni devono essere in italiano. Concentrati sui mercati e utenti italiani. Usa SOLO parole chiave e terminologia italiane.';
       default:
         return 'Respond in English with focus on international markets and users. Use conversation context to provide relevant follow-ups and maintain topic continuity.';
     }

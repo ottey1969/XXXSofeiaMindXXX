@@ -210,15 +210,15 @@ RankMath SEO-Optimized HTML format:
     
     switch (language) {
       case 'nl':
-        return `KRITIEK: Beantwoord ALTIJD in het Nederlands en focus op de Nederlandse markt. Alle research en content moet in het Nederlands zijn. Gebruik Nederlandse bronnen en voorbeelden. Land focus: ${countryName}.`;
+        return `KRITIEK: Beantwoord ALTIJD in het Nederlands en focus op de Nederlandse markt. Alle research, content, zoekwoorden, tabellen en koppen moeten in het Nederlands zijn. Gebruik ALLEEN Nederlandse bronnen, voorbeelden en terminologie. GEEN Engelse woorden in zoekwoordonderzoek of tabellen. Vermijd dubbele inhoudsopgaves. Land focus: ${countryName}.`;
       case 'de':
-        return `KRITISCH: Antworten Sie IMMER auf Deutsch und konzentrieren Sie sich auf den deutschen Markt. Alle Recherchen und Inhalte müssen auf Deutsch sein. Verwenden Sie deutsche Quellen und Beispiele. Landerfokus: ${countryName}.`;
+        return `KRITISCH: Antworten Sie IMMER auf Deutsch und konzentrieren Sie sich auf den deutschen Markt. Alle Recherchen, Inhalte, Keywords, Tabellen und Überschriften müssen auf Deutsch sein. Verwenden Sie NUR deutsche Quellen, Beispiele und Terminologie. Landerfokus: ${countryName}.`;
       case 'fr':
-        return `CRITIQUE: Répondez TOUJOURS en français et concentrez-vous sur le marché français. Toutes les recherches et contenus doivent être en français. Utilisez des sources et exemples français. Focus pays: ${countryName}.`;
+        return `CRITIQUE: Répondez TOUJOURS en français et concentrez-vous sur le marché français. Toutes les recherches, contenus, mots-clés, tableaux et titres doivent être en français. Utilisez UNIQUEMENT des sources, exemples et terminologie français. Focus pays: ${countryName}.`;
       case 'es':
-        return `CRÍTICO: Responda SIEMPRE en español y enfóquese en el mercado español. Toda la investigación y contenido debe estar en español. Use fuentes y ejemplos españoles. Enfoque del país: ${countryName}.`;
+        return `CRÍTICO: Responda SIEMPRE en español y enfóquese en el mercado español. Toda la investigación, contenido, palabras clave, tablas y títulos debe estar en español. Use SOLO fuentes, ejemplos y terminología españoles. Enfoque del país: ${countryName}.`;
       case 'it':
-        return `CRITICO: Rispondi SEMPRE in italiano e concentrati sul mercato italiano. Tutte le ricerche e i contenuti devono essere in italiano. Usa fonti ed esempi italiani. Focus paese: ${countryName}.`;
+        return `CRITICO: Rispondi SEMPRE in italiano e concentrati sul mercato italiano. Tutte le ricerche, contenuti, parole chiave, tabelle e titoli devono essere in italiano. Usa SOLO fonti, esempi e terminologia italiane. Focus paese: ${countryName}.`;
       default:
         return `CRITICAL: Always respond in English and focus on international/US markets. All research and content should be in English. Use authoritative English sources. Country focus: ${countryName}.`;
     }

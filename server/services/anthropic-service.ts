@@ -255,15 +255,15 @@ Format as structured HTML with clear headings and actionable recommendations.`;
   private getLanguageInstructions(language: string): string {
     switch (language) {
       case 'nl':
-        return 'KRITIEK: Beantwoord ALTIJD in het Nederlands. Alle content, voorbeelden en uitleg moeten in het Nederlands zijn. Focus op Nederlandse markten en gebruikers. Gebruik de context van het gesprek om relevante follow-ups te geven en bouw voort op eerdere berichten.';
+        return 'KRITIEK: Beantwoord ALTIJD in het Nederlands. Alle content, voorbeelden, zoekwoorden, tabellen, koppen en uitleg moeten in het Nederlands zijn. Focus op Nederlandse markten en gebruikers. Gebruik ALLEEN Nederlandse zoekwoorden en terminologie. GEEN Engelse termen in inhoudsopgave, tabellen of content. Vermijd dubbele inhoudsopgaves.';
       case 'de':
-        return 'KRITISCH: Antworten Sie IMMER auf Deutsch. Alle Inhalte, Beispiele und Erklärungen müssen auf Deutsch sein. Fokussieren Sie sich auf deutsche Märkte und Benutzer. Verwenden Sie den Gesprächskontext für relevante Anschlüsse und bauen Sie auf frühere Nachrichten auf.';
+        return 'KRITISCH: Antworten Sie IMMER auf Deutsch. Alle Inhalte, Beispiele, Keywords, Tabellen, Überschriften und Erklärungen müssen auf Deutsch sein. Fokussieren Sie sich auf deutsche Märkte und Benutzer. Verwenden Sie NUR deutsche Keywords und Terminologie.';
       case 'fr':
-        return 'CRITIQUE: Répondez TOUJOURS en français. Tout le contenu, les exemples et les explications doivent être en français. Concentrez-vous sur les marchés et utilisateurs français. Utilisez le contexte de conversation pour des suivis pertinents et construisez sur les messages précédents.';
+        return 'CRITIQUE: Répondez TOUJOURS en français. Tout le contenu, exemples, mots-clés, tableaux, titres et explications doivent être en français. Concentrez-vous sur les marchés et utilisateurs français. Utilisez UNIQUEMENT des mots-clés et terminologie français.';
       case 'es':
-        return 'CRÍTICO: Responda SIEMPRE en español. Todo el contenido, ejemplos y explicaciones deben estar en español. Enfóquese en mercados y usuarios españoles. Use el contexto de conversación para seguimientos relevantes y construya sobre mensajes anteriores.';
+        return 'CRÍTICO: Responda SIEMPRE en español. Todo el contenido, ejemplos, palabras clave, tablas, títulos y explicaciones deben estar en español. Enfóquese en mercados y usuarios españoles. Use SOLO palabras clave y terminología en español.';
       case 'it':
-        return 'CRITICO: Rispondi SEMPRE in italiano. Tutti i contenuti, esempi e spiegazioni devono essere in italiano. Concentrati sui mercati e utenti italiani. Usa il contesto di conversazione per follow-up pertinenti e costruisci sui messaggi precedenti.';
+        return 'CRITICO: Rispondi SEMPRE in italiano. Tutti i contenuti, esempi, parole chiave, tabelle, titoli e spiegazioni devono essere in italiano. Concentrati sui mercati e utenti italiani. Usa SOLO parole chiave e terminologia italiane.';
       default:
         return 'Respond in English with focus on international markets and users. Use conversation context to provide relevant follow-ups, maintain topic continuity, and build upon previous messages.';
     }
