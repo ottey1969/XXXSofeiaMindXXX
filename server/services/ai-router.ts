@@ -10,9 +10,7 @@ export class AIRouter {
       /^what is|^who is|^when is|^where is|^how to/,
       /^define|^explain briefly|^summarize/,
       /^yes|^no|^thanks|^hello|^hi/,
-      /^simple|^quick|^basic/,
-      /groq|groc/,
-      /only groq|only groc/
+      /^simple|^quick|^basic/
     ];
     
     // Blog and content creation patterns (use Anthropic - prioritized)
@@ -57,28 +55,21 @@ export class AIRouter {
     let requiresCraft = false;
     let requiresKeywordResearch = false;
 
-    // Priority 1: Explicit provider requests (highest priority)
-    if (/groq|groc|only groq|only groc/.test(lowercaseQuery)) {
-      complexity = 'simple';
-      provider = 'groq';
-      requiresCraft = false;
-      requiresKeywordResearch = false;
-    }
-    // Priority 2: Blog/Content Creation 
-    else if (blogContentPatterns.some(pattern => pattern.test(lowercaseQuery))) {
+    // Priority routing: Blog/Content Creation first (most common use case)
+    if (blogContentPatterns.some(pattern => pattern.test(lowercaseQuery))) {
       complexity = 'complex';
       provider = 'anthropic';
       requiresCraft = true;
       requiresKeywordResearch = false; // Don't show keyword research for blog posts
     } 
-    // Priority 3: Research queries for data-heavy content
+    // Research queries for data-heavy content
     else if (researchPatterns.some(pattern => pattern.test(lowercaseQuery))) {
       complexity = 'research';
       provider = 'perplexity';
       requiresCraft = true;
       requiresKeywordResearch = false; // Only show when explicitly requested
     } 
-    // Priority 4: Complex analysis and strategies
+    // Complex analysis and strategies
     else if (complexPatterns.some(pattern => pattern.test(lowercaseQuery))) {
       complexity = 'complex';
       provider = 'anthropic';
