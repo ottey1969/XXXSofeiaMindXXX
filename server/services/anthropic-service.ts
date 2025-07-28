@@ -34,112 +34,18 @@ export class AnthropicService {
 
   async generateResponse(query: string, conversationHistory: AnthropicMessage[] = [], analysis?: any): Promise<AIResponse> {
     try {
-      // Language detection with conversation context
-      const detectedLanguage = analysis?.detectedLanguage || this.detectLanguageFromHistory(conversationHistory) || 'en';
+      // Language detection and context
+      const detectedLanguage = analysis?.detectedLanguage || 'en';
       const targetCountry = analysis?.targetCountry || 'usa';
       
       // Language-specific system prompt
       const languageInstruction = this.getLanguageInstructions(detectedLanguage);
       
-      // Build comprehensive system prompt based on request analysis
-      let systemPrompt = `You are Sofeia AI, the world's most advanced autonomous content agent.
+      const systemPrompt = `You are Sofeia AI, the world's most advanced autonomous content agent.
 
 ${languageInstruction}
 
-CRITICAL INSTRUCTION: Follow ALL user requests comprehensively. Analyze every part of the user's message and ensure you address EVERY requirement, question, and instruction they provide.
-
-CONVERSATION CONTEXT: Maintain conversation context and continue discussions naturally. Reference previous messages when relevant and build upon the ongoing conversation. Keep the same language throughout the entire conversation.`;
-
-      // Add specific instructions based on request analysis
-      if (analysis?.requestAnalysis) {
-        const reqAnalysis = analysis.requestAnalysis;
-        
-        if (reqAnalysis.hasMultipleRequests) {
-          systemPrompt += `\n\nMULTIPLE REQUESTS DETECTED: The user has multiple requirements. Address EACH ONE systematically and comprehensively. Do not skip any part of their request.`;
-        }
-        
-        if (reqAnalysis.requiresSteps) {
-          systemPrompt += `\n\nSTEP-BY-STEP REQUIRED: Provide clear, numbered steps or structured guidance as requested.`;
-        }
-        
-        if (reqAnalysis.hasConstraints) {
-          systemPrompt += `\n\nIMPORTANT CONSTRAINTS: Pay attention to specific requirements, constraints, or conditions mentioned by the user.`;
-        }
-        
-        if (reqAnalysis.needsComprehensiveAnswer) {
-          systemPrompt += `\n\nCOMPREHENSIVE RESPONSE NEEDED: Provide detailed, thorough, and complete information covering all aspects of the request.`;
-        }
-        
-        if (reqAnalysis.requestTypes.length > 0) {
-          systemPrompt += `\n\nREQUEST TYPES IDENTIFIED: ${reqAnalysis.requestTypes.join(', ')}. Ensure you fulfill each type of request appropriately.`;
-        }
-        
-        if (reqAnalysis.focusKeyword) {
-          const isBusinessClusterRequest = /bedrijvencluster|geografische concentratie|michael porter|industrieel district/i.test(query);
-          const isContentClusterRequest = /content cluster|zoekwoord|keyword|seo/i.test(query);
-          
-          if (isBusinessClusterRequest && !isContentClusterRequest) {
-            systemPrompt += `\n\nBUSINESS CLUSTER REQUEST: User wants information about geographic concentration of ${reqAnalysis.focusKeyword} businesses (Michael Porter's cluster concept).`;
-          } else if (isContentClusterRequest || /cluster voor/i.test(query)) {
-            systemPrompt += `\n\nCONTENT CLUSTER REQUEST: User wants SEO keyword research ONLY for "${reqAnalysis.focusKeyword}" industry keywords.
-
-CRITICAL RULES:
-- Research keywords ABOUT ${reqAnalysis.focusKeyword} (the industry/topic)
-- DO NOT use the user's query as a keyword
-- DO NOT include phrases like "geef me een cluster voor"
-- ONLY provide ${reqAnalysis.focusKeyword}-related industry keywords
-- Focus on ${reqAnalysis.focusKeyword} services, products, and related terms
-
-VERPLICHTE TABEL FORMAT met zoekvolumes en moeilijkheidsgraad:
-
-Content Cluster | Zoekwoord | Maandelijks Zoekvolume (NL) | Moeilijkheidsgraad | Ranking Mogelijkheden
-Dakbedekking | dakbedekking | 1.900 | Gemiddeld | Hoog
-Dakbedekking | bitumen dakbedekking | 1.000 | Laag | Hoog  
-Dakbedekking | EPDM dakbedekking | 720 | Laag | Hoog
-Dakrenovatie | dakrenovatie | 1.300 | Gemiddeld | Gemiddeld
-Dakrenovatie | dakrenovatie kosten | 880 | Laag | Hoog
-Dakisolatie | dakisolatie | 2.400 | Hoog | Gemiddeld
-Dakisolatie | dakisolatie subsidie | 1.000 | Gemiddeld | Hoog
-
-VERPLICHT: Geef altijd zoekvolumes, moeilijkheidsgraad (Laag/Gemiddeld/Hoog) en ranking mogelijkheden.`;
-          } else {
-            systemPrompt += `\n\nTOPIC: "${reqAnalysis.focusKeyword}" - User wants information about ${reqAnalysis.focusKeyword}.`;
-          }
-        }
-        
-        if (reqAnalysis.mainKeywords.length > 0) {
-          systemPrompt += `\n\nMAIN KEYWORDS: ${reqAnalysis.mainKeywords.join(', ')} - These are the core topics to focus on in your response.`;
-        }
-        
-        // ULTRA-STRICT LANGUAGE ENFORCEMENT - ZERO MIXING TOLERANCE
-        if (detectedLanguage === 'nl') {
-          systemPrompt += `\n\nABSOLUTE DUTCH ONLY - GEEN ANDERE TALEN TOEGESTAAN:
-- VERPLICHT: Antwoord UITSLUITEND in het Nederlands
-- STRIKT VERBODEN: Table of Contents, Keyword, Research, Volume, Difficulty, Search, Analysis, Content
-- VERPLICHTE NEDERLANDSE WOORDEN: Inhoudsopgave, Zoekwoord, Onderzoek, Zoekvolume, Moeilijkheid, Analyse, Inhoud
-- CONTROLE INSTRUCTIE: Lees je hele antwoord - als er EEN Engels woord in staat, herschrijf ALLES in Nederlands
-- GEEN UITZONDERING: Ook technische termen moeten Nederlands zijn
-- RESULTAAT: 100% Nederlandse tekst zonder ENIGE andere taal`;
-        } else if (detectedLanguage === 'en') {
-          systemPrompt += `\n\nABSOLUTE ENGLISH ONLY - NO OTHER LANGUAGES PERMITTED:
-- MANDATORY: Respond EXCLUSIVELY in English
-- STRICTLY FORBIDDEN: Inhoudsopgave, Zoekwoord, Onderzoek, Zoekvolume, Moeilijkheid, Nederlandse, Dutch terms
-- REQUIRED ENGLISH WORDS: Table of Contents, Keyword, Research, Volume, Difficulty, Analysis, Content
-- CONTROL INSTRUCTION: Read your entire response - if there is ONE non-English word, rewrite EVERYTHING in English
-- NO EXCEPTIONS: Even technical terms must be English
-- RESULT: 100% English text without ANY other language`;
-        } else if (detectedLanguage === 'fr') {
-          systemPrompt += `\n\nABSOLU FRANÇAIS SEULEMENT - AUCUNE AUTRE LANGUE AUTORISÉE:
-- OBLIGATOIRE: Répondre EXCLUSIVEMENT en français
-- STRICTEMENT INTERDIT: Table of Contents, Keyword, Research, Inhoudsopgave, termes anglais ou hollandais
-- MOTS FRANÇAIS REQUIS: Table des matières, Mot-clé, Recherche, Volume, Difficulté, Analyse, Contenu
-- INSTRUCTION DE CONTRÔLE: Lisez votre réponse entière - s'il y a UN mot non-français, réécrivez TOUT en français
-- AUCUNE EXCEPTION: Même les termes techniques doivent être français
-- RÉSULTAT: 100% texte français sans AUCUNE autre langue`;
-        }
-      }
-
-      systemPrompt += `\n\nYour capabilities:
+Your capabilities:
 - Answer questions across all domains with expertise
 - Apply C.R.A.F.T framework enhanced with RankMath SEO principles
 - Write ranking-ready content for Google AI Overview scoring 100/100
@@ -148,13 +54,6 @@ VERPLICHT: Geef altijd zoekvolumes, moeilijkheidsgraad (Laag/Gemiddeld/Hoog) en 
 - Provide properly formatted HTML output with real tags (h1, h2, h3, ul, li, table, etc.)
 - Focus on E-E-A-T optimization (Experience, Expertise, Authoritativeness, Trustworthiness)
 - Implement RankMath SEO best practices for optimal search ranking
-
-CRITICAL FORMATTING RULES:
-- Create ONLY ONE table of contents (inhoudsopgave) at the beginning of your response
-- Do NOT duplicate tables, sections, headings, or content blocks
-- Each piece of information should appear exactly ONCE
-- Avoid repetitive structures or double content sections
-- Use clear, unique section headers without duplication
 
 Always:
 1. Use conversational tone that builds trust
@@ -284,51 +183,20 @@ Format as structured HTML with clear headings and actionable recommendations.`;
     }
   }
 
-  private detectLanguageFromHistory(history: AnthropicMessage[]): string | null {
-    // Look at recent messages to detect language patterns
-    const recentMessages = history.slice(-4);
-    for (const msg of recentMessages) {
-      if (msg.role === 'user') {
-        const content = msg.content.toLowerCase();
-        // Dutch detection (enhanced with roofing terms)
-        if (/\b(dakwerken|dakbedekking|dakpannen|het|de|een|van|voor|met|en|is|zijn|wordt|kan|mag|zal|hebben|maken)\b/.test(content)) {
-          return 'nl';
-        }
-        // German detection
-        if (/\b(der|die|das|ein|eine|und|ist|sind|wird|kann|soll|haben|machen)\b/.test(content)) {
-          return 'de';
-        }
-        // French detection
-        if (/\b(le|la|les|un|une|de|du|des|et|est|sont|peut|doit|avoir|faire)\b/.test(content)) {
-          return 'fr';
-        }
-        // Spanish detection
-        if (/\b(el|la|los|las|un|una|de|del|y|es|son|puede|debe|tener|hacer)\b/.test(content)) {
-          return 'es';
-        }
-        // Italian detection
-        if (/\b(il|la|lo|gli|le|un|una|di|del|e|è|sono|può|deve|avere|fare)\b/.test(content)) {
-          return 'it';
-        }
-      }
-    }
-    return null;
-  }
-
   private getLanguageInstructions(language: string): string {
     switch (language) {
       case 'nl':
-        return 'KRITIEK: Beantwoord ALTIJD in het Nederlands. Alle content, voorbeelden, zoekwoorden, tabellen, koppen en uitleg moeten in het Nederlands zijn. Focus op Nederlandse markten en gebruikers. Gebruik ALLEEN Nederlandse zoekwoorden en terminologie. GEEN Engelse termen in inhoudsopgave, tabellen of content. Vermijd dubbele inhoudsopgaves.';
+        return 'BELANGRIJK: Beantwoord ALTIJD in het Nederlands. Alle content, voorbeelden en uitleg moeten in het Nederlands zijn. Focus op Nederlandse markten en gebruikers.';
       case 'de':
-        return 'KRITISCH: Antworten Sie IMMER auf Deutsch. Alle Inhalte, Beispiele, Keywords, Tabellen, Überschriften und Erklärungen müssen auf Deutsch sein. Fokussieren Sie sich auf deutsche Märkte und Benutzer. Verwenden Sie NUR deutsche Keywords und Terminologie.';
+        return 'WICHTIG: Antworten Sie IMMER auf Deutsch. Alle Inhalte, Beispiele und Erklärungen müssen auf Deutsch sein. Fokussieren Sie sich auf deutsche Märkte und Benutzer.';
       case 'fr':
-        return 'CRITIQUE: Répondez TOUJOURS en français. Tout le contenu, exemples, mots-clés, tableaux, titres et explications doivent être en français. Concentrez-vous sur les marchés et utilisateurs français. Utilisez UNIQUEMENT des mots-clés et terminologie français.';
+        return 'IMPORTANT: Répondez TOUJOURS en français. Tout le contenu, les exemples et les explications doivent être en français. Concentrez-vous sur les marchés et utilisateurs français.';
       case 'es':
-        return 'CRÍTICO: Responda SIEMPRE en español. Todo el contenido, ejemplos, palabras clave, tablas, títulos y explicaciones deben estar en español. Enfóquese en mercados y usuarios españoles. Use SOLO palabras clave y terminología en español.';
+        return 'IMPORTANTE: Responda SIEMPRE en español. Todo el contenido, ejemplos y explicaciones deben estar en español. Enfóquese en mercados y usuarios españoles.';
       case 'it':
-        return 'CRITICO: Rispondi SEMPRE in italiano. Tutti i contenuti, esempi, parole chiave, tabelle, titoli e spiegazioni devono essere in italiano. Concentrati sui mercati e utenti italiani. Usa SOLO parole chiave e terminologia italiane.';
+        return 'IMPORTANTE: Rispondi SEMPRE in italiano. Tutti i contenuti, esempi e spiegazioni devono essere in italiano. Concentrati sui mercati e utenti italiani.';
       default:
-        return 'Respond in English with focus on international markets and users. Use conversation context to provide relevant follow-ups, maintain topic continuity, and build upon previous messages.';
+        return 'Respond in English with focus on international markets and users.';
     }
   }
 }

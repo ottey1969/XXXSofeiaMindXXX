@@ -1,5 +1,4 @@
 import { AIResponse, Citation } from "@shared/schema";
-import { EnhancedKeywordResearchService } from './keyword-research-enhanced.js';
 
 interface PerplexityMessage {
   role: 'system' | 'user' | 'assistant';
@@ -23,141 +22,24 @@ interface PerplexityResponse {
 export class PerplexityService {
   private apiKey: string;
   private baseUrl = 'https://api.perplexity.ai';
-  private keywordService: EnhancedKeywordResearchService;
 
   constructor() {
     this.apiKey = process.env.PERPLEXITY_API_KEY || process.env.PERPLEXITY_API_KEY_ENV_VAR || "";
     if (!this.apiKey) {
       throw new Error('PERPLEXITY_API_KEY is required');
     }
-    this.keywordService = new EnhancedKeywordResearchService();
   }
 
-  async researchQuery(query: string, targetCountry: string = 'usa', detectedLanguage: string = 'en', analysis?: any): Promise<AIResponse> {
+  async researchQuery(query: string, targetCountry: string = 'usa', detectedLanguage: string = 'en'): Promise<AIResponse> {
     try {
       // Language-specific instructions
       const languageInstructions = this.getLanguageInstructions(detectedLanguage, targetCountry);
       
-      // Build comprehensive system prompt based on request analysis
-      let systemPrompt = `You are Sofeia AI, the world's most advanced autonomous content agent.
+      const systemPrompt = `You are Sofeia AI, the world's most advanced autonomous content agent.
 
 ${languageInstructions}
 
-CRITICAL INSTRUCTION: Follow ALL user requests comprehensively. Analyze every part of the user's message and ensure you address EVERY requirement, question, and instruction they provide.`;
-
-      // Check if this is a keyword research request and use enhanced system
-      const isKeywordRequest = /cluster|zoekwoord|keyword|seo|content plan|dakwerken|loodgieter/i.test(query);
-      
-      if (isKeywordRequest) {
-        try {
-          const enhancedReport = await this.keywordService.generateKeywordReport(query);
-          if (enhancedReport && !enhancedReport.includes('❌')) {
-            return {
-              content: enhancedReport,
-              provider: 'perplexity-enhanced',
-              citations: [],
-              metadata: {
-                enhanced_keyword_research: true,
-                language: detectedLanguage,
-                target_country: targetCountry
-              }
-            };
-          }
-        } catch (error) {
-          console.log('Enhanced keyword research failed, falling back to standard Perplexity:', error);
-        }
-      }
-
-      // Add specific instructions based on request analysis
-      if (analysis?.requestAnalysis) {
-        const reqAnalysis = analysis.requestAnalysis;
-        
-        if (reqAnalysis.hasMultipleRequests) {
-          systemPrompt += `\n\nMULTIPLE REQUESTS DETECTED: The user has multiple requirements. Address EACH ONE systematically and comprehensively. Do not skip any part of their request.`;
-        }
-        
-        if (reqAnalysis.requiresSteps) {
-          systemPrompt += `\n\nSTEP-BY-STEP REQUIRED: Provide clear, numbered steps or structured guidance as requested.`;
-        }
-        
-        if (reqAnalysis.hasConstraints) {
-          systemPrompt += `\n\nIMPORTANT CONSTRAINTS: Pay attention to specific requirements, constraints, or conditions mentioned by the user.`;
-        }
-        
-        if (reqAnalysis.needsComprehensiveAnswer) {
-          systemPrompt += `\n\nCOMPREHENSIVE RESPONSE NEEDED: Provide detailed, thorough, and complete information covering all aspects of the request.`;
-        }
-        
-        if (reqAnalysis.requestTypes.length > 0) {
-          systemPrompt += `\n\nREQUEST TYPES IDENTIFIED: ${reqAnalysis.requestTypes.join(', ')}. Ensure you fulfill each type of request appropriately.`;
-        }
-        
-        if (reqAnalysis.focusKeyword) {
-          const isBusinessClusterRequest = /bedrijvencluster|geografische concentratie|michael porter|industrieel district/i.test(query);
-          const isContentClusterRequest = /content cluster|zoekwoord|keyword|seo/i.test(query);
-          
-          if (isBusinessClusterRequest && !isContentClusterRequest) {
-            systemPrompt += `\n\nBUSINESS CLUSTER REQUEST: User wants information about geographic concentration of ${reqAnalysis.focusKeyword} businesses (Michael Porter's cluster concept).`;
-          } else if (isContentClusterRequest || /cluster voor/i.test(query)) {
-            systemPrompt += `\n\nCONTENT CLUSTER REQUEST: User wants SEO keyword research ONLY for "${reqAnalysis.focusKeyword}" industry keywords.
-
-CRITICAL RULES:
-- Research keywords ABOUT ${reqAnalysis.focusKeyword} (the industry/topic)
-- DO NOT use the user's query as a keyword
-- DO NOT include phrases like "geef me een cluster voor"
-- ONLY provide ${reqAnalysis.focusKeyword}-related industry keywords
-- Focus on ${reqAnalysis.focusKeyword} services, products, and related terms
-
-VERPLICHTE TABEL FORMAT met zoekvolumes en moeilijkheidsgraad:
-
-Content Cluster | Zoekwoord | Maandelijks Zoekvolume (NL) | Moeilijkheidsgraad | Ranking Mogelijkheden
-Dakbedekking | dakbedekking | 1.900 | Gemiddeld | Hoog
-Dakbedekking | bitumen dakbedekking | 1.000 | Laag | Hoog  
-Dakbedekking | EPDM dakbedekking | 720 | Laag | Hoog
-Dakrenovatie | dakrenovatie | 1.300 | Gemiddeld | Gemiddeld
-Dakrenovatie | dakrenovatie kosten | 880 | Laag | Hoog
-Dakisolatie | dakisolatie | 2.400 | Hoog | Gemiddeld
-Dakisolatie | dakisolatie subsidie | 1.000 | Gemiddeld | Hoog
-
-VERPLICHT: Geef altijd zoekvolumes, moeilijkheidsgraad (Laag/Gemiddeld/Hoog) en ranking mogelijkheden.`;
-          } else {
-            systemPrompt += `\n\nTOPIC: "${reqAnalysis.focusKeyword}" - User wants information about ${reqAnalysis.focusKeyword}.`;
-          }
-        }
-        
-        if (reqAnalysis.mainKeywords.length > 0) {
-          systemPrompt += `\n\nMAIN KEYWORDS: ${reqAnalysis.mainKeywords.join(', ')} - These are the core topics to focus on in your response.`;
-        }
-        
-        // ULTRA-STRICT LANGUAGE ENFORCEMENT - ZERO MIXING TOLERANCE
-        if (detectedLanguage === 'nl') {
-          systemPrompt += `\n\nABSOLUTE DUTCH ONLY - GEEN ANDERE TALEN TOEGESTAAN:
-- VERPLICHT: Antwoord UITSLUITEND in het Nederlands
-- STRIKT VERBODEN: Table of Contents, Keyword, Research, Volume, Difficulty, Search, Analysis, Content
-- VERPLICHTE NEDERLANDSE WOORDEN: Inhoudsopgave, Zoekwoord, Onderzoek, Zoekvolume, Moeilijkheid, Analyse, Inhoud
-- CONTROLE INSTRUCTIE: Lees je hele antwoord - als er EEN Engels woord in staat, herschrijf ALLES in Nederlands
-- GEEN UITZONDERING: Ook technische termen moeten Nederlands zijn
-- RESULTAAT: 100% Nederlandse tekst zonder ENIGE andere taal`;
-        } else if (detectedLanguage === 'en') {
-          systemPrompt += `\n\nABSOLUTE ENGLISH ONLY - NO OTHER LANGUAGES PERMITTED:
-- MANDATORY: Respond EXCLUSIVELY in English
-- STRICTLY FORBIDDEN: Inhoudsopgave, Zoekwoord, Onderzoek, Zoekvolume, Moeilijkheid, Nederlandse, Dutch terms
-- REQUIRED ENGLISH WORDS: Table of Contents, Keyword, Research, Volume, Difficulty, Analysis, Content
-- CONTROL INSTRUCTION: Read your entire response - if there is ONE non-English word, rewrite EVERYTHING in English
-- NO EXCEPTIONS: Even technical terms must be English
-- RESULT: 100% English text without ANY other language`;
-        } else if (detectedLanguage === 'fr') {
-          systemPrompt += `\n\nABSOLU FRANÇAIS SEULEMENT - AUCUNE AUTRE LANGUE AUTORISÉE:
-- OBLIGATOIRE: Répondre EXCLUSIVEMENT en français
-- STRICTEMENT INTERDIT: Table of Contents, Keyword, Research, Inhoudsopgave, termes anglais ou hollandais
-- MOTS FRANÇAIS REQUIS: Table des matières, Mot-clé, Recherche, Volume, Difficulté, Analyse, Contenu
-- INSTRUCTION DE CONTRÔLE: Lisez votre réponse entière - s'il y a UN mot non-français, réécrivez TOUT en français
-- AUCUNE EXCEPTION: Même les termes techniques doivent être français
-- RÉSULTAT: 100% texte français sans AUCUNE autre langue`;
-        }
-      }
-
-      systemPrompt += `\n\nYour mission:
+Your mission:
 1. Research live data from top Google results
 2. Apply C.R.A.F.T framework enhanced with RankMath SEO principles
 3. Focus on ${targetCountry.toUpperCase()} market data and sources
@@ -292,15 +174,15 @@ RankMath SEO-Optimized HTML format:
     
     switch (language) {
       case 'nl':
-        return `KRITIEK: Beantwoord ALTIJD in het Nederlands en focus op de Nederlandse markt. Alle research, content, zoekwoorden, tabellen en koppen moeten in het Nederlands zijn. Gebruik ALLEEN Nederlandse bronnen, voorbeelden en terminologie. GEEN Engelse woorden in zoekwoordonderzoek of tabellen. Vermijd dubbele inhoudsopgaves. Land focus: ${countryName}.`;
+        return `KRITIEK: Beantwoord ALTIJD in het Nederlands en focus op de Nederlandse markt. Alle research en content moet in het Nederlands zijn. Gebruik Nederlandse bronnen en voorbeelden. Land focus: ${countryName}.`;
       case 'de':
-        return `KRITISCH: Antworten Sie IMMER auf Deutsch und konzentrieren Sie sich auf den deutschen Markt. Alle Recherchen, Inhalte, Keywords, Tabellen und Überschriften müssen auf Deutsch sein. Verwenden Sie NUR deutsche Quellen, Beispiele und Terminologie. Landerfokus: ${countryName}.`;
+        return `KRITISCH: Antworten Sie IMMER auf Deutsch und konzentrieren Sie sich auf den deutschen Markt. Alle Recherchen und Inhalte müssen auf Deutsch sein. Verwenden Sie deutsche Quellen und Beispiele. Landerfokus: ${countryName}.`;
       case 'fr':
-        return `CRITIQUE: Répondez TOUJOURS en français et concentrez-vous sur le marché français. Toutes les recherches, contenus, mots-clés, tableaux et titres doivent être en français. Utilisez UNIQUEMENT des sources, exemples et terminologie français. Focus pays: ${countryName}.`;
+        return `CRITIQUE: Répondez TOUJOURS en français et concentrez-vous sur le marché français. Toutes les recherches et contenus doivent être en français. Utilisez des sources et exemples français. Focus pays: ${countryName}.`;
       case 'es':
-        return `CRÍTICO: Responda SIEMPRE en español y enfóquese en el mercado español. Toda la investigación, contenido, palabras clave, tablas y títulos debe estar en español. Use SOLO fuentes, ejemplos y terminología españoles. Enfoque del país: ${countryName}.`;
+        return `CRÍTICO: Responda SIEMPRE en español y enfóquese en el mercado español. Toda la investigación y contenido debe estar en español. Use fuentes y ejemplos españoles. Enfoque del país: ${countryName}.`;
       case 'it':
-        return `CRITICO: Rispondi SEMPRE in italiano e concentrati sul mercato italiano. Tutte le ricerche, contenuti, parole chiave, tabelle e titoli devono essere in italiano. Usa SOLO fonti, esempi e terminologia italiane. Focus paese: ${countryName}.`;
+        return `CRITICO: Rispondi SEMPRE in italiano e concentrati sul mercato italiano. Tutte le ricerche e i contenuti devono essere in italiano. Usa fonti ed esempi italiani. Focus paese: ${countryName}.`;
       default:
         return `CRITICAL: Always respond in English and focus on international/US markets. All research and content should be in English. Use authoritative English sources. Country focus: ${countryName}.`;
     }
