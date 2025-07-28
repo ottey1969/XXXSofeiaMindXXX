@@ -103,18 +103,29 @@ VERPLICHT: Geef altijd zoekvolumes, moeilijkheidsgraad (Laag/Gemiddeld/Hoog) en 
           systemPrompt += `\n\nMAIN KEYWORDS: ${reqAnalysis.mainKeywords.join(', ')} - These are the core topics to focus on in your response.`;
         }
         
-        // Add anti-duplication rules specifically for Dutch content
+        // STRICT SINGLE LANGUAGE RULES - NO MIXING ALLOWED
         if (detectedLanguage === 'nl') {
-          systemPrompt += `\n\nSTRIKTE NEDERLANDSE TAALREGELS - ALLE TEKST MOET NEDERLANDS ZIJN:
-- ANTWOORD VOLLEDIG IN HET NEDERLANDS - geen Engels toegestaan
-- VERBODEN ENGELSE ZINNEN: "Here's what you need to know", "Table of Contents", "Keyword Research"
-- VERBODEN: "Table of Contents" - gebruik dit NOOIT, ook niet samen met "Inhoudsopgave"
-- VERPLICHT: Gebruik ALLEEN "Inhoudsopgave" als titel voor de inhoudsopgave
-- VERBODEN: Dubbele koppen - maak GEEN tweede inhoudsopgave
-- VERBODEN: Alle Engelse woorden en zinnen in de hele tekst
-- VERPLICHT: Nederlandse alternatieven voor alle termen
-- CONTROLE: Scan je hele antwoord - bevat het ENIG Engels woord? Dan herschrijf volledig in Nederlands
-- RESULTAAT: 100% Nederlandse tekst zonder enig Engels woord`;
+          systemPrompt += `\n\nSTRIKTE NEDERLANDSE TAALREGELS - ALLEEN NEDERLANDS:
+- ANTWOORD 100% IN HET NEDERLANDS - ABSOLUUT GEEN ANDERE TALEN
+- VERBODEN: Engels, Frans, Duits, Spaans of andere talen
+- VERBODEN ENGELSE WOORDEN: "Table", "Contents", "Keyword", "Research", "Volume", "Difficulty"
+- NEDERLANDSE VERTALINGEN: Inhoudsopgave, Zoekwoord, Onderzoek, Volume, Moeilijkheid
+- CONTROLE: Elke zin, elk woord moet Nederlands zijn
+- GEEN MENGTALEN - alleen pure Nederlandse tekst`;
+        } else if (detectedLanguage === 'en') {
+          systemPrompt += `\n\nSTRICT ENGLISH LANGUAGE RULES - ENGLISH ONLY:
+- RESPOND 100% IN ENGLISH - ABSOLUTELY NO OTHER LANGUAGES
+- FORBIDDEN: Dutch, French, German, Spanish or any other languages
+- PURE ENGLISH: All words, phrases, and content must be in English
+- CONTROL: Every sentence, every word must be English
+- NO LANGUAGE MIXING - only pure English text`;
+        } else if (detectedLanguage === 'fr') {
+          systemPrompt += `\n\nRÈGLES STRICTES DE LANGUE FRANÇAISE - FRANÇAIS SEULEMENT:
+- RÉPONDRE 100% EN FRANÇAIS - ABSOLUMENT AUCUNE AUTRE LANGUE
+- INTERDIT: Anglais, néerlandais, allemand, espagnol ou toute autre langue
+- FRANÇAIS PUR: Tous les mots, phrases et contenu doivent être en français
+- CONTRÔLE: Chaque phrase, chaque mot doit être français
+- AUCUN MÉLANGE DE LANGUES - seulement du texte français pur`;
         }
       }
 
