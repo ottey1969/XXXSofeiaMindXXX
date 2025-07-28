@@ -706,6 +706,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get All Users (Admin)
+  app.get("/api/admin/users", async (req, res) => {
+    const { adminKey, search, format } = req.query;
+    
+    if (adminKey !== "0f5db72a966a8d5f7ebae96c6a1e2cc574c2bf926c62dc4526bd43df1c0f42eb") {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      let userQuery = db.select({
+        id: users.id,
+        email: users.email,
+        credits: users.credits,
+        emailVerified: users.emailVerified,
+        createdAt: users.createdAt
+      }).from(users);
+
+      // Apply search filter if provided
+      if (search && typeof search === 'string') {
+        userQuery = userQuery.where(sql`${users.email} ILIKE ${'%' + search + '%'}`);
+      }
+
+      const userList = await userQuery.orderBy(users.createdAt);
+
+      // Handle export formats
+      if (format === 'csv') {
+        const csvData = [
+          'Email,Credits,Email Verified,Created At',
+          ...userList.map(user => 
+            `"${user.email}",${user.credits},${user.emailVerified},${user.createdAt}`
+          )
+        ].join('\n');
+
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename="users_export.csv"');
+        return res.send(csvData);
+      }
+
+      if (format === 'emails') {
+        const emailList = userList.map(user => user.email).join('\n');
+        res.setHeader('Content-Type', 'text/plain');
+        res.setHeader('Content-Disposition', 'attachment; filename="user_emails.txt"');
+        return res.send(emailList);
+      }
+
+      // Default JSON response
+      res.json({
+        users: userList,
+        total: userList.length,
+        searchTerm: search || null
+      });
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      res.status(500).json({ message: "Failed to fetch users" });
+    }
+  });
+
   // Get Activity Log (Admin)
   app.get("/api/admin/activity-log", async (req, res) => {
     const { adminKey } = req.query;

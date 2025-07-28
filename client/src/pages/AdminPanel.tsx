@@ -45,7 +45,7 @@ export default function AdminPanel() {
   const [notificationMessage, setNotificationMessage] = useState("");
   const [notificationType, setNotificationType] = useState<"info" | "warning" | "success" | "error">("info");
   const [expiresInHours, setExpiresInHours] = useState<string>("24");
-  const [activeTab, setActiveTab] = useState<"addCredits" | "searchUser" | "sendNotification" | "adminMessages" | "security" | "messaging">("addCredits");
+  const [activeTab, setActiveTab] = useState<"addCredits" | "searchUser" | "sendNotification" | "adminMessages" | "security" | "messaging" | "userDirectory">("addCredits");
   
   // Security tab fields
   const [ipAddress, setIpAddress] = useState("");
@@ -65,6 +65,11 @@ export default function AdminPanel() {
   const wsRef = useRef<WebSocket | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   
+  // User directory fields
+  const [userSearchTerm, setUserSearchTerm] = useState("");
+  const [allUsers, setAllUsers] = useState<any[]>([]);
+  const [totalUsers, setTotalUsers] = useState(0);
+
   // Messaging system fields
   const [broadcastTitle, setBroadcastTitle] = useState("");
   const [broadcastMessage, setBroadcastMessage] = useState("");
@@ -703,6 +708,91 @@ export default function AdminPanel() {
     searchUserMutation.mutate(searchEmail);
   };
 
+  // User Directory Functions
+  const searchUsersMutation = useMutation({
+    mutationFn: async (searchTerm: string) => {
+      const response = await fetch(`/api/admin/users?adminKey=${ADMIN_KEY}&search=${encodeURIComponent(searchTerm)}`, {
+        method: "GET",
+        headers: {
+          "x-admin-key": ADMIN_KEY,
+        },
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to search users');
+      }
+      
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setAllUsers(data.users);
+      setTotalUsers(data.total);
+      toast({
+        title: "Search Complete",
+        description: `Found ${data.total} user(s)`,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Search Failed",
+        description: error.message || "Failed to search users",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const loadAllUsersMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`/api/admin/users?adminKey=${ADMIN_KEY}`, {
+        method: "GET",
+        headers: {
+          "x-admin-key": ADMIN_KEY,
+        },
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to load users');
+      }
+      
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setAllUsers(data.users);
+      setTotalUsers(data.total);
+      toast({
+        title: "Users Loaded",
+        description: `Loaded ${data.total} user(s)`,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Load Failed",
+        description: error.message || "Failed to load users",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const exportUsers = (format: 'csv' | 'emails') => {
+    const searchParam = userSearchTerm ? `&search=${encodeURIComponent(userSearchTerm)}` : '';
+    const url = `/api/admin/users?adminKey=${ADMIN_KEY}&format=${format}${searchParam}`;
+    
+    // Create a temporary link to download the file
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = format === 'csv' ? 'users_export.csv' : 'user_emails.txt';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast({
+      title: "Export Started",
+      description: `Downloading ${format.toUpperCase()} file...`,
+    });
+  };
+
   const sendNotificationMutation = useMutation({
     mutationFn: async ({ email, title, message, type, expiresInHours }: {
       email: string;
@@ -840,6 +930,10 @@ export default function AdminPanel() {
         <Button onClick={() => setActiveTab("messaging")} variant={activeTab === "messaging" ? "default" : "outline"}>
           <Radio className="w-4 h-4 mr-2" />
           Messaging System
+        </Button>
+        <Button onClick={() => setActiveTab("userDirectory")} variant={activeTab === "userDirectory" ? "default" : "outline"}>
+          <Users className="w-4 h-4 mr-2" />
+          User Directory
         </Button>
       </div>
 
@@ -1466,6 +1560,145 @@ export default function AdminPanel() {
             </CardContent>
           </Card>
         </div>
+        )}
+
+        {/* User Directory Section */}
+        {activeTab === "userDirectory" && (
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="w-5 h-5" />
+                  User Directory & Export
+                </CardTitle>
+                <CardDescription>
+                  Search all users, view their information, and export data in various formats
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Search and Load Controls */}
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="flex-1">
+                    <Input
+                      placeholder="Search users by email..."
+                      value={userSearchTerm}
+                      onChange={(e) => setUserSearchTerm(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          if (userSearchTerm.trim()) {
+                            searchUsersMutation.mutate(userSearchTerm.trim());
+                          } else {
+                            loadAllUsersMutation.mutate();
+                          }
+                        }
+                      }}
+                    />
+                  </div>
+                  <Button
+                    onClick={() => {
+                      if (userSearchTerm.trim()) {
+                        searchUsersMutation.mutate(userSearchTerm.trim());
+                      } else {
+                        loadAllUsersMutation.mutate();
+                      }
+                    }}
+                    disabled={searchUsersMutation.isPending || loadAllUsersMutation.isPending}
+                    className="flex items-center gap-2"
+                  >
+                    <Search className="w-4 h-4" />
+                    {userSearchTerm.trim() ? 'Search' : 'Load All'}
+                  </Button>
+                </div>
+
+                {/* Export Controls */}
+                <div className="flex flex-wrap gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <h3 className="font-semibold text-sm w-full mb-2">Export Options:</h3>
+                  <Button
+                    onClick={() => exportUsers('emails')}
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-2"
+                  >
+                    📧 Email List (.txt)
+                  </Button>
+                  <Button
+                    onClick={() => exportUsers('csv')}
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-2"
+                  >
+                    📊 Full Data (.csv)
+                  </Button>
+                  <div className="text-xs text-gray-600 dark:text-gray-400 w-full mt-2">
+                    Export will include {userSearchTerm ? 'filtered' : 'all'} users
+                  </div>
+                </div>
+
+                {/* Results Display */}
+                {(allUsers.length > 0 || searchUsersMutation.isPending || loadAllUsersMutation.isPending) && (
+                  <div>
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="font-semibold">
+                        Users Found: {totalUsers}
+                        {userSearchTerm && ` (filtered by "${userSearchTerm}")`}
+                      </h3>
+                      {allUsers.length > 0 && (
+                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                          Showing {allUsers.length} of {totalUsers} users
+                        </div>
+                      )}
+                    </div>
+
+                    {(searchUsersMutation.isPending || loadAllUsersMutation.isPending) ? (
+                      <div className="text-center py-8 text-gray-500">
+                        <div className="animate-spin w-6 h-6 border-2 border-gray-300 border-t-blue-600 rounded-full mx-auto mb-2"></div>
+                        Loading users...
+                      </div>
+                    ) : (
+                      <div className="max-h-96 overflow-y-auto space-y-3">
+                        {allUsers.map((user: any) => (
+                          <div key={user.id} className="p-4 border rounded-lg bg-white dark:bg-gray-800">
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                              <div>
+                                <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Email</label>
+                                <div className="font-medium">{user.email}</div>
+                              </div>
+                              <div>
+                                <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Credits</label>
+                                <div>
+                                  <Badge variant="secondary">{user.credits}</Badge>
+                                </div>
+                              </div>
+                              <div>
+                                <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Verified</label>
+                                <div>
+                                  <Badge variant={user.emailVerified ? "default" : "destructive"}>
+                                    {user.emailVerified ? "Yes" : "No"}
+                                  </Badge>
+                                </div>
+                              </div>
+                              <div>
+                                <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Joined</label>
+                                <div className="text-sm">{new Date(user.createdAt).toLocaleDateString()}</div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {allUsers.length === 0 && !searchUsersMutation.isPending && !loadAllUsersMutation.isPending && (
+                  <div className="text-center py-12 text-gray-500">
+                    <Users className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                    <p className="text-lg mb-2">No users loaded</p>
+                    <p className="text-sm">Use the search bar above to find users or click "Load All" to view all users</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         )}
       </div>
     </div>
