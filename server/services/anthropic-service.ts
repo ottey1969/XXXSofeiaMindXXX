@@ -34,8 +34,8 @@ export class AnthropicService {
 
   async generateResponse(query: string, conversationHistory: AnthropicMessage[] = [], analysis?: any): Promise<AIResponse> {
     try {
-      // Language detection and context
-      const detectedLanguage = analysis?.detectedLanguage || 'en';
+      // Language detection with conversation context
+      const detectedLanguage = analysis?.detectedLanguage || this.detectLanguageFromHistory(conversationHistory) || 'en';
       const targetCountry = analysis?.targetCountry || 'usa';
       
       // Language-specific system prompt
@@ -44,6 +44,8 @@ export class AnthropicService {
       const systemPrompt = `You are Sofeia AI, the world's most advanced autonomous content agent.
 
 ${languageInstruction}
+
+CRITICAL: Maintain conversation context and continue discussions naturally. Reference previous messages when relevant and build upon the ongoing conversation. Keep the same language throughout the entire conversation.
 
 Your capabilities:
 - Answer questions across all domains with expertise
@@ -183,20 +185,51 @@ Format as structured HTML with clear headings and actionable recommendations.`;
     }
   }
 
+  private detectLanguageFromHistory(history: AnthropicMessage[]): string | null {
+    // Look at recent messages to detect language patterns
+    const recentMessages = history.slice(-4);
+    for (const msg of recentMessages) {
+      if (msg.role === 'user') {
+        const content = msg.content.toLowerCase();
+        // Dutch detection (enhanced with roofing terms)
+        if (/\b(dakwerken|dakbedekking|dakpannen|het|de|een|van|voor|met|en|is|zijn|wordt|kan|mag|zal|hebben|maken)\b/.test(content)) {
+          return 'nl';
+        }
+        // German detection
+        if (/\b(der|die|das|ein|eine|und|ist|sind|wird|kann|soll|haben|machen)\b/.test(content)) {
+          return 'de';
+        }
+        // French detection
+        if (/\b(le|la|les|un|une|de|du|des|et|est|sont|peut|doit|avoir|faire)\b/.test(content)) {
+          return 'fr';
+        }
+        // Spanish detection
+        if (/\b(el|la|los|las|un|una|de|del|y|es|son|puede|debe|tener|hacer)\b/.test(content)) {
+          return 'es';
+        }
+        // Italian detection
+        if (/\b(il|la|lo|gli|le|un|una|di|del|e|è|sono|può|deve|avere|fare)\b/.test(content)) {
+          return 'it';
+        }
+      }
+    }
+    return null;
+  }
+
   private getLanguageInstructions(language: string): string {
     switch (language) {
       case 'nl':
-        return 'BELANGRIJK: Beantwoord ALTIJD in het Nederlands. Alle content, voorbeelden en uitleg moeten in het Nederlands zijn. Focus op Nederlandse markten en gebruikers.';
+        return 'KRITIEK: Beantwoord ALTIJD in het Nederlands. Alle content, voorbeelden en uitleg moeten in het Nederlands zijn. Focus op Nederlandse markten en gebruikers. Gebruik de context van het gesprek om relevante follow-ups te geven en bouw voort op eerdere berichten.';
       case 'de':
-        return 'WICHTIG: Antworten Sie IMMER auf Deutsch. Alle Inhalte, Beispiele und Erklärungen müssen auf Deutsch sein. Fokussieren Sie sich auf deutsche Märkte und Benutzer.';
+        return 'KRITISCH: Antworten Sie IMMER auf Deutsch. Alle Inhalte, Beispiele und Erklärungen müssen auf Deutsch sein. Fokussieren Sie sich auf deutsche Märkte und Benutzer. Verwenden Sie den Gesprächskontext für relevante Anschlüsse und bauen Sie auf frühere Nachrichten auf.';
       case 'fr':
-        return 'IMPORTANT: Répondez TOUJOURS en français. Tout le contenu, les exemples et les explications doivent être en français. Concentrez-vous sur les marchés et utilisateurs français.';
+        return 'CRITIQUE: Répondez TOUJOURS en français. Tout le contenu, les exemples et les explications doivent être en français. Concentrez-vous sur les marchés et utilisateurs français. Utilisez le contexte de conversation pour des suivis pertinents et construisez sur les messages précédents.';
       case 'es':
-        return 'IMPORTANTE: Responda SIEMPRE en español. Todo el contenido, ejemplos y explicaciones deben estar en español. Enfóquese en mercados y usuarios españoles.';
+        return 'CRÍTICO: Responda SIEMPRE en español. Todo el contenido, ejemplos y explicaciones deben estar en español. Enfóquese en mercados y usuarios españoles. Use el contexto de conversación para seguimientos relevantes y construya sobre mensajes anteriores.';
       case 'it':
-        return 'IMPORTANTE: Rispondi SEMPRE in italiano. Tutti i contenuti, esempi e spiegazioni devono essere in italiano. Concentrati sui mercati e utenti italiani.';
+        return 'CRITICO: Rispondi SEMPRE in italiano. Tutti i contenuti, esempi e spiegazioni devono essere in italiano. Concentrati sui mercati e utenti italiani. Usa il contesto di conversazione per follow-up pertinenti e costruisci sui messaggi precedenti.';
       default:
-        return 'Respond in English with focus on international markets and users.';
+        return 'Respond in English with focus on international markets and users. Use conversation context to provide relevant follow-ups, maintain topic continuity, and build upon previous messages.';
     }
   }
 }
