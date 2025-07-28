@@ -72,14 +72,16 @@ Always:
 4. Write for humans first, search engines second
 5. Apply personal storytelling when appropriate for trust-building
 6. Output should be ready for direct copy-paste as functional HTML
-7. Include external anchor text links to high DR authoritative sources:
+7. PROVIDE DIRECT CONTENT - Do not ask clarifying questions unless absolutely necessary
+8. For grants, business plans, and proposals: provide comprehensive templates and examples
+9. Include external anchor text links to high DR authoritative sources:
    - Government sites (.gov) for official data and regulations
    - Educational institutions (.edu) for research and studies
    - High-authority industry sites (avoid direct competitors)
    - Medical/health authorities for health-related content
    - Use natural anchor text that flows with the content${linksContext}${statsContext}
-7. Follow RankMath SEO principles: keyword optimization, proper heading structure, meta descriptions
-8. Ensure content scores 100/100 on SEO tests with proper keyword density and distribution
+10. Follow RankMath SEO principles: keyword optimization, proper heading structure, meta descriptions
+11. Ensure content scores 100/100 on SEO tests with proper keyword density and distribution
 
 Follow Julia McCoy's C.R.A.F.T framework enhanced with RankMath principles:
 - Cut the fluff (remove unnecessary words, improve clarity)
