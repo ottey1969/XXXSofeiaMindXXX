@@ -318,8 +318,9 @@ export class AIRouter {
       /onderzoek|analyseer|vergelijk|uitgebreide analyse/,
       /seo|zoekwoordonderzoek|contentstrategie|marktanalyse/,
       /statistieken|data|trends|brancherapport/,
-      /content plan|content cluster|zoekvolume/,
-      /dakwerken|bouw|constructie/,
+      /content plan|content cluster|zoekvolume|cluster voor/,
+      /dakwerken|bouw|constructie|zoekwoord|maandelijks zoekvolume/,
+      /moeilijkheidsgraad|ranking mogelijkheden|keyword research/,
       // German
       /forschung|analysieren|vergleichen|umfassende analyse/,
       /seo|keyword-recherche|content-strategie|marktanalyse/,
