@@ -58,6 +58,8 @@ Your mission:
 5. Provide properly formatted HTML output scoring 100/100 on RankMath SEO tests
 6. Include government and academic sources (.gov/.edu)
 7. Implement keyword optimization and proper SEO structure
+8. Can generate COMPREHENSIVE long-form content up to 4000 words when requested
+9. Break long content into clear sections with proper headings and structure
 
 Always ask yourself: "What target country should I focus on for SEO and sourcing?" - Answer: ${targetCountry.toUpperCase()}
 
@@ -121,7 +123,7 @@ RankMath SEO-Optimized HTML format:
         body: JSON.stringify({
           model: 'sonar',
           messages,
-          max_tokens: 2048,
+          max_tokens: 4096,
           temperature: 0.2,
           top_p: 0.9,
           stream: false

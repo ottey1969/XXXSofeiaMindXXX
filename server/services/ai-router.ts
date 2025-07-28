@@ -21,7 +21,8 @@ export class AIRouter {
       /copywriting|copy.*writing|marketing.*content/,
       /website.*content|web.*content|landing.*page/,
       /long.*form|detailed.*guide|comprehensive.*guide/,
-      /creative.*writing|storytelling|narrative/
+      /creative.*writing|storytelling|narrative/,
+      /4000.*word|long.*article|extensive.*content|in.*depth.*content/
     ];
     
     // Research query patterns (use Perplexity)
@@ -31,7 +32,8 @@ export class AIRouter {
       /industry.*insights|market.*analysis|competitive.*research/,
       /statistics|data.*analysis|survey.*results/,
       /government.*data|academic.*research|scientific.*study/,
-      /seo.*research|keyword.*research|search.*trends/
+      /seo.*research|keyword.*research|search.*trends/,
+      /4000.*word.*research|long.*form.*research|extensive.*research/
     ];
 
     // Complex analysis patterns (use Anthropic)

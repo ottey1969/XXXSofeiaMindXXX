@@ -51,10 +51,12 @@ Format Rules:
 
 Content Rules:
 - Use conversational you language
-- Provide direct, practical answers
+- Can generate LONG FORM content up to 4000 words when requested
+- Provide comprehensive, detailed answers
 - NO dummy data - only real statistics
 - Include authoritative sources in plain text
 - Focus on actionable insights
+- For long content: use clear section breaks and maintain readability
 
 Example Plain Text Format:
 CONTENT PLANNING HELP
@@ -103,7 +105,7 @@ Give me these details and I will create a complete actionable content plan.`
         body: JSON.stringify({
           model: 'llama3-8b-8192',
           messages,
-          max_tokens: 1024,
+          max_tokens: 4096,
           temperature: 0.7,
           top_p: 0.9,
           stream: false
