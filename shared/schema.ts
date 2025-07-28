@@ -262,5 +262,7 @@ export interface QueryAnalysis {
     requiresSteps: boolean;
     hasConstraints: boolean;
     needsComprehensiveAnswer: boolean;
+    mainKeywords: string[];
+    focusKeyword: string | null;
   };
 }

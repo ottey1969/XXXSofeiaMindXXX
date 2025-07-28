@@ -65,6 +65,14 @@ CRITICAL INSTRUCTION: Follow ALL user requests comprehensively. Analyze every pa
         if (reqAnalysis.requestTypes.length > 0) {
           systemPrompt += `\n\nREQUEST TYPES IDENTIFIED: ${reqAnalysis.requestTypes.join(', ')}. Ensure you fulfill each type of request appropriately.`;
         }
+        
+        if (reqAnalysis.focusKeyword) {
+          systemPrompt += `\n\nFOCUS KEYWORD DETECTED: "${reqAnalysis.focusKeyword}" - This is the main topic/keyword the user wants content about. Build your entire response around this specific keyword, not around the request format. For keyword research and content clusters, use this as the primary focus keyword.`;
+        }
+        
+        if (reqAnalysis.mainKeywords.length > 0) {
+          systemPrompt += `\n\nMAIN KEYWORDS: ${reqAnalysis.mainKeywords.join(', ')} - These are the core topics to focus on in your response.`;
+        }
       }
 
       systemPrompt += `\n\nYour mission:

@@ -5,6 +5,14 @@ Sofeia AI Agent is an intelligent multi-provider content creation platform with 
 
 ## Recent Changes (January 27, 2025)
 
+### Enhanced Multilingual Keyword Understanding (January 27, 2025)
+✅ **CRITICAL FIX:** Enhanced keyword extraction and context understanding for all languages (Nederlands, Deutsch, Français, Español, Italiano, English)
+✅ **IMPLEMENTED:** Advanced multilingual keyword detection that identifies focus keywords from quoted terms and industry-specific language patterns
+✅ **ENHANCED:** AI now correctly identifies main topics (e.g., "dakwerken") instead of confusing them with request format (e.g., "content plan")
+✅ **ADDED:** Language-specific preposition patterns (voor/für/pour/para/per/for) to extract actual keywords from requests
+✅ **IMPROVED:** Focus keyword detection ensures AI builds responses around actual topics, not request structure
+✅ **FIXED:** AI now understands the difference between what users want content ABOUT vs. what type of content they want
+
 ### Comprehensive Request Understanding Enhancement (January 27, 2025)
 ✅ **CRITICAL FIX:** Enhanced AI to follow and understand ALL user requests comprehensively
 ✅ **IMPLEMENTED:** Advanced request analysis system that detects multiple requirements, constraints, and request types

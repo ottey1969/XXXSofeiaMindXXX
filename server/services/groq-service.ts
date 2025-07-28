@@ -65,6 +65,14 @@ CONVERSATION CONTEXT: Maintain conversation context and continue the discussion 
         if (reqAnalysis.requestTypes.length > 0) {
           systemContent += `\n\nREQUEST TYPES IDENTIFIED: ${reqAnalysis.requestTypes.join(', ')}. Ensure you fulfill each type of request appropriately.`;
         }
+        
+        if (reqAnalysis.focusKeyword) {
+          systemContent += `\n\nFOCUS KEYWORD DETECTED: "${reqAnalysis.focusKeyword}" - This is the main topic/keyword the user wants content about. Build your entire response around this specific keyword, not around the request format.`;
+        }
+        
+        if (reqAnalysis.mainKeywords.length > 0) {
+          systemContent += `\n\nMAIN KEYWORDS: ${reqAnalysis.mainKeywords.join(', ')} - These are the core topics to focus on in your response.`;
+        }
       }
 
       systemContent += `\n\nProvide direct, practical answers using proper HTML formatting. Use conversational tone with "you" language. Format your output with real HTML tags like <h1>, <h2>, <h3>, <ul>, <li>, <table>, <tr>, <td> etc. Output should be ready for direct copy-paste into web pages or documents as functional HTML.

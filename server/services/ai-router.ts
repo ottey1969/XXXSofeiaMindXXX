@@ -64,9 +64,82 @@ export class AIRouter {
     return languageCountryMap[language] || 'usa';
   }
 
+  // Enhanced multilingual keyword extraction for better context understanding
+  private extractMainKeywords(query: string): string[] {
+    const lowercaseQuery = query.toLowerCase();
+    const keywords = [];
+    
+    // Extract quoted terms first (highest priority - universal)
+    const quotedMatches = query.match(/"([^"]+)"/g);
+    if (quotedMatches) {
+      keywords.push(...quotedMatches.map(match => match.replace(/"/g, '')));
+    }
+    
+    // Multilingual keyword extraction patterns
+    const keywordPatterns = {
+      // Dutch patterns
+      dutch: [
+        /voor\s+"?([^".\s,]+)"?/g,
+        /van\s+"?([^".\s,]+)"?/g,
+        /over\s+"?([^".\s,]+)"?/g,
+        /\b(dakwerken|dakbedekking|dakpannen|golfplaten|zinken|dakisolatie|dakrenovatie|dakonderhoud|bouw|constructie|renovatie|installatie|onderhoud|reparatie)\b/g
+      ],
+      // German patterns
+      german: [
+        /für\s+"?([^".\s,]+)"?/g,
+        /von\s+"?([^".\s,]+)"?/g,
+        /über\s+"?([^".\s,]+)"?/g,
+        /\b(dacharbeiten|dachdeckung|dachziegel|dachdecker|zink|wellplatten|bau|konstruktion|renovierung|installation|wartung|reparatur)\b/g
+      ],
+      // French patterns
+      french: [
+        /pour\s+"?([^".\s,]+)"?/g,
+        /de\s+"?([^".\s,]+)"?/g,
+        /sur\s+"?([^".\s,]+)"?/g,
+        /\b(toiture|tuile|ardoise|couvreur|zinc|tôle|construction|rénovation|installation|entretien|réparation)\b/g
+      ],
+      // Spanish patterns
+      spanish: [
+        /para\s+"?([^".\s,]+)"?/g,
+        /de\s+"?([^".\s,]+)"?/g,
+        /sobre\s+"?([^".\s,]+)"?/g,
+        /\b(techado|tejas|pizarra|techador|zinc|chapa|construcción|renovación|instalación|mantenimiento|reparación)\b/g
+      ],
+      // Italian patterns
+      italian: [
+        /per\s+"?([^".\s,]+)"?/g,
+        /di\s+"?([^".\s,]+)"?/g,
+        /su\s+"?([^".\s,]+)"?/g,
+        /\b(coperture|tegole|ardesia|impresa|zinco|lamiera|costruzione|ristrutturazione|installazione|manutenzione|riparazione)\b/g
+      ],
+      // English patterns
+      english: [
+        /for\s+"?([^".\s,]+)"?/g,
+        /about\s+"?([^".\s,]+)"?/g,
+        /on\s+"?([^".\s,]+)"?/g,
+        /\b(roofing|roof|tiles|slate|roofer|zinc|metal|construction|renovation|installation|maintenance|repair)\b/g
+      ]
+    };
+    
+    // Apply all patterns
+    Object.values(keywordPatterns).flat().forEach(pattern => {
+      const matches = lowercaseQuery.match(pattern);
+      if (matches) {
+        keywords.push(...matches.map(match => 
+          match.replace(/voor\s+|van\s+|over\s+|für\s+|von\s+|über\s+|pour\s+|de\s+|sur\s+|para\s+|sobre\s+|per\s+|di\s+|su\s+|for\s+|about\s+|on\s+|"/g, '').trim()
+        ));
+      }
+    });
+    
+    return Array.from(new Set(keywords)).filter(k => k && k.length > 2);
+  }
+
   // Comprehensive request analysis to understand all user requirements
   private analyzeUserRequest(query: string) {
     const lowercaseQuery = query.toLowerCase();
+    
+    // Extract main keywords for better context understanding
+    const mainKeywords = this.extractMainKeywords(query);
     
     // Detect multiple requests or requirements
     const hasMultipleRequests = /\band\b|\bplus\b|\balso\b|\badditionally\b|\bfurthermore\b|\bmoreover\b|,|;/.test(lowercaseQuery) ||
@@ -143,7 +216,9 @@ export class AIRouter {
       requestTypes,
       requiresSteps,
       hasConstraints,
-      needsComprehensiveAnswer
+      needsComprehensiveAnswer,
+      mainKeywords,
+      focusKeyword: mainKeywords.length > 0 ? mainKeywords[0] : null
     };
   }
   
