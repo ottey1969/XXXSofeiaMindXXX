@@ -12,6 +12,8 @@ Sofeia AI Agent is an intelligent multi-provider content creation platform with 
 ✅ **ADDED:** Language-specific preposition patterns (voor/für/pour/para/per/for) to extract actual keywords from requests
 ✅ **IMPROVED:** Focus keyword detection ensures AI builds responses around actual topics, not request structure
 ✅ **FIXED:** AI now understands the difference between what users want content ABOUT vs. what type of content they want
+✅ **RESOLVED:** Duplicate content issues - AI now creates only ONE table of contents without English/Dutch mixing
+✅ **IMPLEMENTED:** Strict anti-duplication rules preventing double inhoudsopgaves and repeated sections
 
 ### Comprehensive Request Understanding Enhancement (January 27, 2025)
 ✅ **CRITICAL FIX:** Enhanced AI to follow and understand ALL user requests comprehensively

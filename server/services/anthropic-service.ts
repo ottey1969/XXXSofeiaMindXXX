@@ -81,6 +81,17 @@ CONVERSATION CONTEXT: Maintain conversation context and continue discussions nat
         if (reqAnalysis.mainKeywords.length > 0) {
           systemPrompt += `\n\nMAIN KEYWORDS: ${reqAnalysis.mainKeywords.join(', ')} - These are the core topics to focus on in your response.`;
         }
+        
+        // Add specific anti-duplication rules for Dutch content
+        if (language === 'nl') {
+          systemPrompt += `\n\nSTRIKTE NEDERLANDSE CONTENT REGELS:
+- Maak SLECHTS ÉÉN inhoudsopgave aan het begin (gebruik ALLEEN "Inhoudsopgave", NOOIT "Table of Contents")
+- Dupliceer NOOIT tabellen, secties, koppen of content blokken
+- Elke sectie moet precies ÉÉN keer verschijnen in je antwoord
+- Gebruik geen Engelse termen - alles moet in het Nederlands
+- Vermijd herhaling van dezelfde informatie in verschillende formats
+- Start met één duidelijke Nederlandse inhoudsopgave en stop daar`;
+        }
       }
 
       systemPrompt += `\n\nYour capabilities:

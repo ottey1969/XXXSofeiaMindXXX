@@ -73,6 +73,17 @@ CONVERSATION CONTEXT: Maintain conversation context and continue the discussion 
         if (reqAnalysis.mainKeywords.length > 0) {
           systemContent += `\n\nMAIN KEYWORDS: ${reqAnalysis.mainKeywords.join(', ')} - These are the core topics to focus on in your response.`;
         }
+        
+        // Add specific anti-duplication rules for Dutch content
+        if (language === 'nl') {
+          systemContent += `\n\nSTRIKTE NEDERLANDSE CONTENT REGELS:
+- Maak SLECHTS ÉÉN inhoudsopgave aan het begin (gebruik ALLEEN "Inhoudsopgave", NOOIT "Table of Contents")
+- Dupliceer NOOIT tabellen, secties, koppen of content blokken
+- Elke sectie moet precies ÉÉN keer verschijnen in je antwoord
+- Gebruik geen Engelse termen - alles moet in het Nederlands
+- Vermijd herhaling van dezelfde informatie in verschillende formats
+- Start met één duidelijke Nederlandse inhoudsopgave en stop daar`;
+        }
       }
 
       systemContent += `\n\nProvide direct, practical answers using proper HTML formatting. Use conversational tone with "you" language. Format your output with real HTML tags like <h1>, <h2>, <h3>, <ul>, <li>, <table>, <tr>, <td> etc. Output should be ready for direct copy-paste into web pages or documents as functional HTML.
