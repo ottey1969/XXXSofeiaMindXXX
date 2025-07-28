@@ -100,14 +100,16 @@ Dakrenovatie | dakrenovatie | 1.300`;
         
         // Add anti-duplication rules specifically for Dutch content
         if (detectedLanguage === 'nl') {
-          systemPrompt += `\n\nSTRIKTE NEDERLANDSE CONTENT REGELS - ABSOLUUT VERBODEN:
+          systemPrompt += `\n\nSTRIKTE NEDERLANDSE TAALREGELS - ALLE TEKST MOET NEDERLANDS ZIJN:
+- ANTWOORD VOLLEDIG IN HET NEDERLANDS - geen Engels toegestaan
+- VERBODEN ENGELSE ZINNEN: "Here's what you need to know", "Table of Contents", "Keyword Research"
 - VERBODEN: "Table of Contents" - gebruik dit NOOIT, ook niet samen met "Inhoudsopgave"
 - VERPLICHT: Gebruik ALLEEN "Inhoudsopgave" als titel voor de inhoudsopgave
 - VERBODEN: Dubbele koppen - maak GEEN tweede inhoudsopgave
-- VERBODEN: Engelse woorden zoals "Table of Contents", "Keyword Research", "Volume", "Difficulty", "Intent"
-- VERPLICHT: Nederlandse alternatieven: "Zoekwoordonderzoek", "Zoekvolume", "Moeilijkheidsgraad", "Intentie"
-- CONTROLE: Scan je antwoord - bevat het "Table of Contents"? Dan VERWIJDER dit volledig
-- RESULTAAT: ALLEEN Nederlandse tekst met ÉÉN "Inhoudsopgave" sectie`;
+- VERBODEN: Alle Engelse woorden en zinnen in de hele tekst
+- VERPLICHT: Nederlandse alternatieven voor alle termen
+- CONTROLE: Scan je hele antwoord - bevat het ENIG Engels woord? Dan herschrijf volledig in Nederlands
+- RESULTAAT: 100% Nederlandse tekst zonder enig Engels woord`;
         }
       }
 
