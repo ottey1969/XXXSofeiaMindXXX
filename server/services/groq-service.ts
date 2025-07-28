@@ -31,6 +31,7 @@ export class GroqService {
 
   async generateResponse(query: string, conversationHistory: GroqMessage[] = []): Promise<AIResponse> {
     try {
+      console.log(`⚡ Groq Service: Processing quick query - "${query}"`);
       const messages: GroqMessage[] = [
         {
           role: 'system',

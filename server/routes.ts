@@ -451,6 +451,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Analyze query and determine AI provider
       const analysis = aiRouter.analyzeQuery(content);
+      console.log(`AI Routing Analysis: Provider=${analysis.provider}, Complexity=${analysis.complexity}, Query="${content}"`);
       
       let aiResponse;
       let retryWithFallback = false;

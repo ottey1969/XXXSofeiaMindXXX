@@ -34,6 +34,8 @@ export class AnthropicService {
 
   async generateResponse(query: string, conversationHistory: AnthropicMessage[] = []): Promise<AIResponse> {
     try {
+      console.log(`🤖 Anthropic Service: Processing query - "${query}"`);
+      console.log(`📝 Using model: ${DEFAULT_MODEL_STR}`);
       const systemPrompt = `You are Sofeia AI, the world's most advanced autonomous content agent.
 
 Your capabilities:

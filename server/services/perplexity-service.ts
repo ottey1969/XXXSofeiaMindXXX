@@ -32,6 +32,7 @@ export class PerplexityService {
 
   async researchQuery(query: string, targetCountry: string = 'usa'): Promise<AIResponse> {
     try {
+      console.log(`🔍 Perplexity Service: Researching query - "${query}" for ${targetCountry}`);
       const systemPrompt = `You are Sofeia AI, the world's most advanced autonomous content agent.
 
 Your mission:
