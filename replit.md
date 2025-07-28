@@ -37,11 +37,12 @@ Sofeia AI Agent is an intelligent multi-provider content creation platform with 
 ✅ **REQUIRED:** All content cluster requests must include 5-column table: Content Cluster | Zoekwoord | Maandelijks Zoekvolume | Moeilijkheidsgraad | Ranking Mogelijkheden
 ✅ **ROUTER FIX:** Enhanced AI routing to ensure "cluster voor" queries go to Perplexity for real research data
 ✅ **CONFIRMED:** Perplexity handles research with real search volumes, Groq only handles text generation
+✅ **ENHANCED KEYWORD SYSTEM:** Integrated Ultimate Keyword AI System with advanced multilingual research capabilities
 ✅ **COMPREHENSIVE ROUTING:** Enhanced AI routing patterns for all research types:
-  - SEO & keyword research → Perplexity
+  - SEO & keyword research → Enhanced Keyword System → Perplexity
   - Grant proposals & business plans → Perplexity  
   - Market analysis & industry studies → Perplexity
-  - Content clusters & search volumes → Perplexity
+  - Content clusters & search volumes → Enhanced Keyword System → Perplexity
   - Simple Q&A → Groq
   - Complex content creation → Anthropic
 

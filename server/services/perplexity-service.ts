@@ -1,4 +1,5 @@
 import { AIResponse, Citation } from "@shared/schema";
+import { EnhancedKeywordResearchService } from './keyword-research-enhanced.js';
 
 interface PerplexityMessage {
   role: 'system' | 'user' | 'assistant';
@@ -22,12 +23,14 @@ interface PerplexityResponse {
 export class PerplexityService {
   private apiKey: string;
   private baseUrl = 'https://api.perplexity.ai';
+  private keywordService: EnhancedKeywordResearchService;
 
   constructor() {
     this.apiKey = process.env.PERPLEXITY_API_KEY || process.env.PERPLEXITY_API_KEY_ENV_VAR || "";
     if (!this.apiKey) {
       throw new Error('PERPLEXITY_API_KEY is required');
     }
+    this.keywordService = new EnhancedKeywordResearchService();
   }
 
   async researchQuery(query: string, targetCountry: string = 'usa', detectedLanguage: string = 'en', analysis?: any): Promise<AIResponse> {
@@ -41,6 +44,29 @@ export class PerplexityService {
 ${languageInstructions}
 
 CRITICAL INSTRUCTION: Follow ALL user requests comprehensively. Analyze every part of the user's message and ensure you address EVERY requirement, question, and instruction they provide.`;
+
+      // Check if this is a keyword research request and use enhanced system
+      const isKeywordRequest = /cluster|zoekwoord|keyword|seo|content plan|dakwerken|loodgieter/i.test(query);
+      
+      if (isKeywordRequest) {
+        try {
+          const enhancedReport = await this.keywordService.generateKeywordReport(query);
+          if (enhancedReport && !enhancedReport.includes('❌')) {
+            return {
+              content: enhancedReport,
+              provider: 'perplexity-enhanced',
+              citations: [],
+              metadata: {
+                enhanced_keyword_research: true,
+                language: detectedLanguage,
+                target_country: targetCountry
+              }
+            };
+          }
+        } catch (error) {
+          console.log('Enhanced keyword research failed, falling back to standard Perplexity:', error);
+        }
+      }
 
       // Add specific instructions based on request analysis
       if (analysis?.requestAnalysis) {
