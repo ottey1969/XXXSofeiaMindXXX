@@ -6,23 +6,20 @@ export class ResearchService {
     console.log(`🔍 REAL-TIME RESEARCH: Finding authentic statistics for "${topic}"`);
     
     try {
-      // Use multiple research approaches for comprehensive data
-      const results = await Promise.all([
-        this.searchGovernmentData(topic),
-        this.searchIndustryReports(topic),
-        this.searchAcademicData(topic)
-      ]);
+      // Phase 1: Try government APIs first (most authoritative)
+      const govResults = await this.searchGovernmentData(topic);
       
-      // Combine and validate results
-      const combinedStats = this.combineAndValidateResults(results, topic);
-      
-      if (combinedStats && combinedStats.length > 0) {
-        console.log(`✅ Found ${combinedStats.length} authentic statistics for: ${topic}`);
-        return combinedStats;
+      if (govResults && govResults.length > 0) {
+        console.log(`✅ Found ${govResults.length} government statistics for: ${topic}`);
+        return this.validateAndRankResults(govResults);
       }
       
-      console.log(`❌ No authentic statistics found for: ${topic}`);
-      return null;
+      // Phase 2: If no government data, clarify what specific data is needed
+      console.log(`❌ No government statistics found for "${topic}"`);
+      console.log(`🤔 Topic may need clarification for specific statistical research`);
+      console.log(`💡 Suggest user specify: geographic area, time period, specific metrics needed`);
+      
+      return null; // No dummy data - ask for clarification instead
       
     } catch (error) {
       console.error('Research error:', error);
@@ -31,15 +28,88 @@ export class ResearchService {
   }
   
   private async searchGovernmentData(topic: string): Promise<Array<{ metric: string; percentage: string; source: string }>> {
-    // Search government databases and APIs for topic-specific data
     console.log(`🏛️ Searching government data sources for: ${topic}`);
     
     const govResults: Array<{ metric: string; percentage: string; source: string }> = [];
     
-    // This would integrate with multiple government APIs based on topic
-    // Census Bureau, BLS, CDC, EPA, DOE, SBA, etc.
+    // Try specific government APIs based on topic keywords
+    try {
+      // Business-related topics → Census Bureau Business API
+      if (this.isBusinessTopic(topic)) {
+        const businessData = await this.fetchCensusBusiness(topic);
+        if (businessData) govResults.push(...businessData);
+      }
+      
+      // Employment topics → Bureau of Labor Statistics
+      if (this.isEmploymentTopic(topic)) {
+        const employmentData = await this.fetchBLSData(topic);
+        if (employmentData) govResults.push(...employmentData);
+      }
+      
+      // Economic topics → Federal Reserve FRED API
+      if (this.isEconomicTopic(topic)) {
+        const economicData = await this.fetchFREDData(topic);
+        if (economicData) govResults.push(...economicData);
+      }
+      
+    } catch (error) {
+      console.log('Government API search failed:', error);
+    }
     
     return govResults;
+  }
+  
+  private isBusinessTopic(topic: string): boolean {
+    return ['business', 'company', 'enterprise', 'startup', 'revenue', 'profit'].some(term => topic.toLowerCase().includes(term));
+  }
+  
+  private isEmploymentTopic(topic: string): boolean {
+    return ['employment', 'job', 'unemployment', 'worker', 'labor', 'hiring'].some(term => topic.toLowerCase().includes(term));
+  }
+  
+  private isEconomicTopic(topic: string): boolean {
+    return ['economic', 'economy', 'gdp', 'inflation', 'financial'].some(term => topic.toLowerCase().includes(term));
+  }
+  
+  private async fetchCensusBusiness(topic: string): Promise<Array<{ metric: string; percentage: string; source: string }> | null> {
+    try {
+      const response = await fetch('https://api.census.gov/data/timeseries/bds?get=FIRMS,JOB_CREATION_RATE&for=us:1&YEAR=2022');
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.length > 1) {
+          return [
+            { metric: "U.S. Business Firms", percentage: `${parseInt(data[1][0]).toLocaleString()}`, source: "Census Bureau BDS API" },
+            { metric: "Job Creation Rate", percentage: `${parseFloat(data[1][1]).toFixed(1)}%`, source: "Census Bureau BDS API" }
+          ];
+        }
+      }
+    } catch (error) {
+      console.log('Census Business API error');
+    }
+    return null;
+  }
+  
+  private async fetchBLSData(topic: string): Promise<Array<{ metric: string; percentage: string; source: string }> | null> {
+    try {
+      const response = await fetch('https://api.bls.gov/publicAPI/v1/timeseries/data/LNS14000000');
+      if (response.ok) {
+        const data = await response.json();
+        if (data?.Results?.series?.[0]?.data?.length > 0) {
+          const latest = data.Results.series[0].data[0];
+          return [
+            { metric: "U.S. Unemployment Rate", percentage: `${latest.value}%`, source: `BLS API ${latest.periodName} ${latest.year}` }
+          ];
+        }
+      }
+    } catch (error) {
+      console.log('BLS API error');
+    }
+    return null;
+  }
+  
+  private async fetchFREDData(topic: string): Promise<Array<{ metric: string; percentage: string; source: string }> | null> {
+    console.log('FRED API requires API key for economic data');
+    return null; // Would need API key configuration
   }
   
   private async searchIndustryReports(topic: string): Promise<Array<{ metric: string; percentage: string; source: string }>> {
@@ -66,24 +136,21 @@ export class ResearchService {
     return academicResults;
   }
   
-  private combineAndValidateResults(
-    results: Array<Array<{ metric: string; percentage: string; source: string }>>, 
-    topic: string
+  private validateAndRankResults(
+    results: Array<{ metric: string; percentage: string; source: string }>
   ): Array<{ metric: string; percentage: string; source: string }> | null {
     
-    // Combine all research results
-    const allResults = results.flat().filter(result => result && result.metric);
-    
-    if (allResults.length === 0) {
+    if (results.length === 0) {
       return null;
     }
     
-    // Validate and rank by source authority
-    const validatedResults = allResults
+    // Validate each statistic for authenticity
+    const validatedResults = results
       .filter(this.validateStatistic)
       .sort(this.rankBySourceAuthority)
       .slice(0, 6); // Limit to top 6 most authoritative statistics
     
+    console.log(`✅ Validated ${validatedResults.length} authentic statistics`);
     return validatedResults.length > 0 ? validatedResults : null;
   }
   

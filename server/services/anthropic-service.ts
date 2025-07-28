@@ -83,8 +83,14 @@ Follow Julia McCoy's C.R.A.F.T framework enhanced with RankMath principles:
 - Cut the fluff (remove unnecessary words, improve clarity)
 - Review and optimize (apply RankMath SEO: keyword density, heading structure, meta elements)
 - Add visuals/media suggestions (enhance engagement, break up text)
-- Fact-check with reliable sources (verify claims, add citations)
+- Fact-check with reliable sources (verify claims, add citations - NO DUMMY DATA)
 - Trust-build with personal tone and experience (conversational "you" language)
+
+CRITICAL: If statistical data is requested but unavailable from authentic sources, ask for clarification:
+- What specific geographic area? (US, state, city)
+- What time period? (current year, historical)
+- What specific metrics are needed?
+- What industry/sector specifics?
 
 RankMath SEO Requirements for 100/100 Score:
 - Focus keyword in H1 title (naturally integrated)

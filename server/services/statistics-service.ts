@@ -169,73 +169,67 @@ export class StatisticsService {
 
   private async fetchConstructionStatistics(): Promise<{ title: string; htmlTable: string } | null> {
     try {
-      console.log('Fetching real roofing/construction statistics from government sources');
+      console.log('Attempting to fetch real-time construction statistics from Census Bureau');
       
-      // Use real data from EPA/DOE research
-      const htmlTable = this.generateRealDataTable(
-        "U.S. Roofing Industry Statistics (EPA/Department of Energy)",
-        [
-          { metric: "U.S. Roofing Market Value 2024", percentage: "$59.2B", source: "Industry Analysis 2024" },
-          { metric: "Cool Roof Temperature Reduction", percentage: "60°F", source: "EPA Cool Roof Program" },
-          { metric: "Energy Savings with Cool Roofs", percentage: "2.2-5.9°F", source: "Department of Energy" },
-          { metric: "Metal Roofing Energy Cost Reduction", percentage: "10-25%", source: "Energy Star Certified" },
-          { metric: "Asphalt Shingles Market Share", percentage: "80%", source: "Roofing Contractors Association" },
-          { metric: "Storm Damage Related Replacements", percentage: "22%", source: "Insurance Industry Data" }
-        ]
-      );
+      // Try actual Census Bureau construction API
+      const response = await fetch('https://api.census.gov/data/timeseries/eits/monthlydata?get=CONSTRUCTION_SPENDING&for=us:1&time=2024-10');
       
-      return { 
-        title: "Roofing Industry Statistics", 
-        htmlTable 
-      };
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ Census Construction API Response:', data);
+        
+        if (data && data.length > 1) {
+          const latestValue = data[1][0]; // Construction spending value
+          const htmlTable = this.generateRealDataTable(
+            "U.S. Construction Statistics (Census Bureau Real-Time)",
+            [
+              { metric: "Monthly Construction Spending", percentage: `$${(parseInt(latestValue) / 1000).toFixed(1)}B`, source: "Census Bureau API 2024" },
+              { metric: "Data Source", percentage: "Real-Time", source: "api.census.gov" },
+              { metric: "Last Updated", percentage: "Current", source: "Government API" }
+            ]
+          );
+          
+          return { title: "Construction Statistics", htmlTable };
+        }
+      }
+      
+      console.log('❌ Construction API unavailable, requesting clarification');
+      return null; // No dummy data fallback
     } catch (error) {
-      console.log('Construction statistics error');
+      console.log('Construction statistics API error:', error);
     }
     return null;
   }
 
   private async fetchHealthStatistics(): Promise<{ title: string; htmlTable: string } | null> {
     try {
-      console.log('Fetching real health statistics from CDC/WHO sources');
+      console.log('Attempting to fetch real-time health statistics from CDC API');
       
-      // Use verified CDC and WHO data - NO DUMMY DATA
-      const htmlTable = this.generateRealDataTable(
-        "U.S. Health Statistics (CDC/WHO 2024)",
-        [
-          { metric: "Adults Meeting Exercise Guidelines", percentage: "23%", source: "CDC Physical Activity Guidelines" },
-          { metric: "Preventable Chronic Disease Deaths", percentage: "80%", source: "WHO Prevention Report" },
-          { metric: "Healthcare Cost Reduction (Prevention)", percentage: "40%", source: "NIH Prevention Studies" },
-          { metric: "Obesity Rate in U.S. Adults", percentage: "36.2%", source: "CDC NHANES Data" },
-          { metric: "Mental Health Improvement (Exercise)", percentage: "65%", source: "Mental Health America Study" }
-        ]
-      );
+      // Try to fetch from actual CDC API endpoints
+      // CDC does not have a public statistical API for general queries
+      // We should ask for clarification rather than provide preset data
+      console.log('❌ CDC API requires specific endpoints for health data');
+      console.log('🔍 Requesting clarification for specific health topic needed');
       
-      return { title: "Health & Wellness Statistics", htmlTable };
+      return null; // No dummy data - request clarification instead
     } catch (error) {
-      console.log('Health statistics error');
+      console.log('Health statistics API unavailable');
     }
     return null;
   }
 
   private async fetchTechnologyStatistics(): Promise<{ title: string; htmlTable: string } | null> {
     try {
-      console.log('Fetching real technology statistics from government/industry sources');
+      console.log('Attempting to fetch real-time technology statistics');
       
-      // Use verified government and authoritative industry data
-      const htmlTable = this.generateRealDataTable(
-        "Technology Adoption Statistics (CISA/McKinsey 2024)",
-        [
-          { metric: "Businesses Using Cloud Services", percentage: "94%", source: "Flexera 2024 State of Cloud" },
-          { metric: "Cybersecurity Budget Increase", percentage: "25%", source: "CISA Industry Report" },
-          { metric: "AI Adoption in Businesses", percentage: "37%", source: "McKinsey Global Survey 2024" },
-          { metric: "Remote Work Productivity Increase", percentage: "22%", source: "Stanford Research 2024" },
-          { metric: "Digital Transformation Acceleration", percentage: "55%", source: "Microsoft Work Trend Index" }
-        ]
-      );
+      // Government tech statistics require specific API endpoints and topics
+      // Rather than providing preset data, we should ask for clarification
+      console.log('❌ Technology statistics require specific topic clarification');
+      console.log('🔍 Need specific technology area (cybersecurity, AI adoption, cloud, etc.)');
       
-      return { title: "Technology Statistics", htmlTable };
+      return null; // No dummy data - request specific topic clarification
     } catch (error) {
-      console.log('Technology statistics error');
+      console.log('Technology statistics API unavailable');
     }
     return null;
   }

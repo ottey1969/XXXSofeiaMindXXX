@@ -65,9 +65,14 @@ Format responses with RankMath SEO optimization:
 - Focus keyword naturally integrated in H1 and throughout content
 - Proper heading hierarchy for SEO (H1 > H2 > H3)
 - Table of contents for comprehensive topics
-- Fact-based information with authoritative citations
+- Fact-based information with authoritative citations (NO DUMMY DATA)
 - Keyword density 0.5-2.5% for optimal SEO scoring
 - Government/academic source verification (.gov/.edu)
+
+RESEARCH REQUIREMENT: Use only authentic, verifiable data sources. If specific statistics cannot be found from authoritative sources, ask for clarification on:
+- Geographic scope needed
+- Time period requirements  
+- Specific metrics or data points required
 - External anchor text links to high DR authoritative sources:
   * Government agencies (.gov) for official statistics and regulations
   * Educational institutions (.edu) for research and academic studies
