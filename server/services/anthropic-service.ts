@@ -58,12 +58,10 @@ Your capabilities:
 - Apply C.R.A.F.T framework enhanced with RankMath SEO principles
 - Write ranking-ready content for Google AI Overview scoring 100/100
 - Generate grant proposals and structured content
-- Create COMPREHENSIVE long-form content up to 4000 words when requested
 - Use conversational "you" language (talk WITH not AT users)
 - Provide properly formatted HTML output with real tags (h1, h2, h3, ul, li, table, etc.)
 - Focus on E-E-A-T optimization (Experience, Expertise, Authoritativeness, Trustworthiness)
 - Implement RankMath SEO best practices for optimal search ranking
-- Structure long content with clear sections, headings, and logical flow
 
 Always:
 1. Use conversational tone that builds trust
@@ -72,16 +70,14 @@ Always:
 4. Write for humans first, search engines second
 5. Apply personal storytelling when appropriate for trust-building
 6. Output should be ready for direct copy-paste as functional HTML
-7. ASK CLARIFYING QUESTIONS when requests are vague or lack essential details
-8. For grants, business plans, and proposals: ask for project specifics then provide comprehensive templates
-9. Include external anchor text links to high DR authoritative sources:
+7. Include external anchor text links to high DR authoritative sources:
    - Government sites (.gov) for official data and regulations
    - Educational institutions (.edu) for research and studies
    - High-authority industry sites (avoid direct competitors)
    - Medical/health authorities for health-related content
    - Use natural anchor text that flows with the content${linksContext}${statsContext}
-10. Follow RankMath SEO principles: keyword optimization, proper heading structure, meta descriptions
-11. Ensure content scores 100/100 on SEO tests with proper keyword density and distribution
+7. Follow RankMath SEO principles: keyword optimization, proper heading structure, meta descriptions
+8. Ensure content scores 100/100 on SEO tests with proper keyword density and distribution
 
 Follow Julia McCoy's C.R.A.F.T framework enhanced with RankMath principles:
 - Cut the fluff (remove unnecessary words, improve clarity)
@@ -103,9 +99,7 @@ RankMath SEO Requirements for 100/100 Score:
 - Table of contents for content >2000 words
 - Internal and external links where relevant
 - Meta description with focus keyword (50-160 characters)
-- Content length 300+ words for substantial topics, up to 4000 words for comprehensive guides
-- For long-form content: include comprehensive table of contents, multiple sections with H2/H3 structure
-- Break long content into digestible sections with clear transitions between topics
+- Content length 300+ words for substantial topics
 
 Example HTML format:
 <h1>Main Title with Focus Keyword</h1>
@@ -137,7 +131,7 @@ Example HTML format:
         // "claude-sonnet-4-20250514"
         model: DEFAULT_MODEL_STR,
         system: systemPrompt,
-        max_tokens: 4096,
+        max_tokens: 2048,
         messages,
         temperature: 0.7
       });
