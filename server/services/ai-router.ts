@@ -310,32 +310,34 @@ export class AIRouter {
       // English
       /research|analyze|compare|comprehensive|detailed analysis/,
       /seo|keyword research|content strategy|market analysis/,
-      /statistics|data|trends|industry report/,
-      /grant|proposal|framework|methodology/,
-      /c\.r\.a\.f\.t|craft framework|e-e-a-t/,
-      /content plan|content cluster|search volume/,
+      /statistics|data|trends|industry report|market research/,
+      /grant|proposal|framework|methodology|business plan/,
+      /c\.r\.a\.f\.t|craft framework|e-e-a-t|competitive analysis/,
+      /content plan|content cluster|search volume|keyword analysis/,
+      /feasibility study|market study|industry analysis/,
       // Dutch
       /onderzoek|analyseer|vergelijk|uitgebreide analyse/,
       /seo|zoekwoordonderzoek|contentstrategie|marktanalyse/,
-      /statistieken|data|trends|brancherapport/,
+      /statistieken|data|trends|brancherapport|marktonderzoek/,
       /content plan|content cluster|zoekvolume|cluster voor/,
       /dakwerken|bouw|constructie|zoekwoord|maandelijks zoekvolume/,
       /moeilijkheidsgraad|ranking mogelijkheden|keyword research/,
+      /subsidie|aanvraag|voorstel|businessplan|haalbaarheidsstudie/,
       // German
       /forschung|analysieren|vergleichen|umfassende analyse/,
       /seo|keyword-recherche|content-strategie|marktanalyse/,
-      /statistiken|daten|trends|branchenbericht/,
-      /content plan|content cluster|suchvolumen/,
+      /statistiken|daten|trends|branchenbericht|marktforschung/,
+      /content plan|content cluster|suchvolumen|zuschuss|antrag/,
       // French
       /recherche|analyser|comparer|analyse détaillée/,
       /seo|recherche de mots-clés|stratégie de contenu|analyse de marché/,
-      /statistiques|données|tendances|rapport de l'industrie/,
-      /plan de contenu|cluster de contenu|volume de recherche/,
+      /statistiques|données|tendances|rapport de l'industrie|étude de marché/,
+      /plan de contenu|cluster de contenu|volume de recherche|subvention|proposition/,
       // Spanish
       /investigación|analizar|comparar|análisis detallado/,
       /seo|investigación de palabras clave|estrategia de contenido|análisis de mercado/,
-      /estadísticas|datos|tendencias|informe de la industria/,
-      /plan de contenido|cluster de contenido|volumen de búsqueda/
+      /estadísticas|datos|tendencias|informe de la industria|estudio de mercado/,
+      /plan de contenido|cluster de contenido|volumen de búsqueda|subvención|propuesta/
     ];
 
     // Complex query patterns (multilingual)
