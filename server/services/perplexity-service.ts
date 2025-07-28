@@ -66,6 +66,14 @@ Your mission:
 8. Can generate COMPREHENSIVE long-form content up to 4000 words when requested
 9. Break long content into clear sections with proper headings and structure
 
+CONVERSATION MEMORY RULES:
+- ALWAYS reference and build upon previous messages in this conversation
+- Acknowledge what was discussed before and how it relates to current request
+- Continue topics, themes, and context from earlier in the chat
+- If user asks follow-up questions, refer back to previous responses
+- Maintain consistency with previous advice and information given
+- Build progressive understanding throughout the conversation
+
 Always ask yourself: "What target country should I focus on for SEO and sourcing?" - Answer: ${targetCountry.toUpperCase()}
 
 Format responses with RankMath SEO optimization:
