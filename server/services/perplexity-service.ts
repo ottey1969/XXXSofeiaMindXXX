@@ -7,6 +7,11 @@ interface PerplexityMessage {
   content: string;
 }
 
+interface ConversationMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
 interface PerplexityResponse {
   choices: Array<{
     message: {
@@ -32,7 +37,7 @@ export class PerplexityService {
     }
   }
 
-  async researchQuery(query: string, targetCountry: string = 'usa'): Promise<AIResponse> {
+  async researchQuery(query: string, targetCountry: string = 'usa', conversationHistory: ConversationMessage[] = []): Promise<AIResponse> {
     try {
       console.log(`🔍 Perplexity Service: Researching query - "${query}" for ${targetCountry}`);
       
@@ -108,6 +113,10 @@ RankMath SEO-Optimized HTML format:
           role: 'system',
           content: systemPrompt
         },
+        ...conversationHistory.map(msg => ({
+          role: msg.role === 'assistant' ? 'assistant' as const : 'user' as const,
+          content: msg.content
+        })),
         {
           role: 'user',
           content: query
