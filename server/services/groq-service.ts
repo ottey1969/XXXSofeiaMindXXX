@@ -67,7 +67,7 @@ CONVERSATION CONTEXT: Maintain conversation context and continue the discussion 
         }
         
         if (reqAnalysis.focusKeyword) {
-          systemContent += `\n\nFOCUS KEYWORD DETECTED: "${reqAnalysis.focusKeyword}" - This is the main topic/keyword the user wants content about. Build your entire response around this specific keyword, not around the request format. For keyword research, use this as the primary focus keyword and find related terms in the same industry/niche.`;
+          systemContent += `\n\nACTUAL TOPIC DETECTED: "${reqAnalysis.focusKeyword}" - This is what the user wants content ABOUT. Ignore request format words like "content plan" or "cluster" - focus ONLY on this topic. Build your entire response around "${reqAnalysis.focusKeyword}" as the main subject.`;
         }
         
         if (reqAnalysis.mainKeywords.length > 0) {

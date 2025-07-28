@@ -75,6 +75,18 @@ export class AIRouter {
       keywords.push(...quotedMatches.map(match => match.replace(/"/g, '')));
     }
     
+    // Remove common request phrases to focus on actual topics
+    const cleanedQuery = lowercaseQuery
+      .replace(/geef me een|maak een|creëer een|schrijf een|genereer een/g, '') // Dutch
+      .replace(/give me a|make a|create a|write a|generate a/g, '') // English
+      .replace(/gib mir ein|mach ein|erstelle ein|schreibe ein/g, '') // German
+      .replace(/donne-moi un|fais un|crée un|écris un/g, '') // French
+      .replace(/dame un|haz un|crea un|escribe un/g, '') // Spanish
+      .replace(/dammi un|fai un|crea un|scrivi un/g, '') // Italian
+      .replace(/content plan|content cluster|cluster|plan/g, '') // Remove format words
+      .replace(/voor|for|für|pour|para|per/g, '') // Remove prepositions
+      .trim();
+    
     // Multilingual keyword extraction patterns
     const keywordPatterns = {
       // Dutch patterns
@@ -213,6 +225,16 @@ export class AIRouter {
                                    /completo|detallado|exhaustivo|extenso|todo/.test(lowercaseQuery) ||
                                    /completo|dettagliato|approfondito|estensivo|tutto/.test(lowercaseQuery);
     
+    // Better focus keyword detection - extract the actual topic, not the request format
+    let focusKeyword = null;
+    if (mainKeywords.length > 0) {
+      // Filter out request-related words and keep only topic words
+      const topicKeywords = mainKeywords.filter(keyword => 
+        !keyword.match(/content|cluster|plan|geef|me|een|give|create|make|write/i)
+      );
+      focusKeyword = topicKeywords.length > 0 ? topicKeywords[0] : mainKeywords[0];
+    }
+    
     return {
       hasMultipleRequests,
       requestTypes,
@@ -220,7 +242,8 @@ export class AIRouter {
       hasConstraints,
       needsComprehensiveAnswer,
       mainKeywords,
-      focusKeyword: mainKeywords.length > 0 ? mainKeywords[0] : null
+      focusKeyword,
+      actualTopic: focusKeyword // The real topic user wants content about
     };
   }
   

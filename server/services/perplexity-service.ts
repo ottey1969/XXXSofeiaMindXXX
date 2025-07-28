@@ -67,7 +67,7 @@ CRITICAL INSTRUCTION: Follow ALL user requests comprehensively. Analyze every pa
         }
         
         if (reqAnalysis.focusKeyword) {
-          systemPrompt += `\n\nFOCUS KEYWORD DETECTED: "${reqAnalysis.focusKeyword}" - This is the main topic/keyword the user wants content about. Build your entire response around this specific keyword, not around the request format. For keyword research and content clusters, use this as the primary focus keyword.`;
+          systemPrompt += `\n\nACTUAL TOPIC DETECTED: "${reqAnalysis.focusKeyword}" - This is what the user wants content ABOUT. Ignore request format words like "content plan" or "cluster" - focus ONLY on this topic. For keyword research, use "${reqAnalysis.focusKeyword}" as the primary focus keyword and find related industry terms.`;
         }
         
         if (reqAnalysis.mainKeywords.length > 0) {

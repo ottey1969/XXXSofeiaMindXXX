@@ -75,7 +75,7 @@ CONVERSATION CONTEXT: Maintain conversation context and continue discussions nat
         }
         
         if (reqAnalysis.focusKeyword) {
-          systemPrompt += `\n\nFOCUS KEYWORD DETECTED: "${reqAnalysis.focusKeyword}" - This is the main topic/keyword the user wants content about. Build your entire response around this specific keyword, not around the request format.`;
+          systemPrompt += `\n\nACTUAL TOPIC DETECTED: "${reqAnalysis.focusKeyword}" - This is what the user wants content ABOUT. Ignore request format words like "content plan" or "cluster" - focus ONLY on this topic. Build your entire response around "${reqAnalysis.focusKeyword}" as the main subject.`;
         }
         
         if (reqAnalysis.mainKeywords.length > 0) {
