@@ -1,22 +1,56 @@
 // Audio utility functions for notification sounds and TTS
 
 export const playNotificationSound = () => {
-  // Create a simple notification sound using Web Audio API
+  // Create a longer, more noticeable notification sound using Web Audio API
   try {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     
-    // Create a simple pleasant notification tone
+    // Create a pleasant multi-tone notification sequence
+    const createTone = (frequency: number, startTime: number, duration: number, volume: number = 0.3) => {
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime + startTime);
+      oscillator.type = 'sine';
+      
+      // Smooth volume envelope
+      gainNode.gain.setValueAtTime(0, audioContext.currentTime + startTime);
+      gainNode.gain.linearRampToValueAtTime(volume, audioContext.currentTime + startTime + 0.05);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + startTime + duration);
+      
+      oscillator.start(audioContext.currentTime + startTime);
+      oscillator.stop(audioContext.currentTime + startTime + duration);
+    };
+    
+    // Create a pleasant 3-tone notification sequence (longer duration)
+    createTone(800, 0, 0.4, 0.25);      // First tone: 800Hz for 0.4s
+    createTone(1000, 0.5, 0.4, 0.25);   // Second tone: 1000Hz after 0.5s
+    createTone(1200, 1.0, 0.5, 0.25);   // Third tone: 1200Hz after 1s
+    
+    console.log('Playing extended notification sound (2 seconds)');
+  } catch (error) {
+    console.log('Audio notification not available');
+  }
+};
+
+// Create a shorter quick notification sound for less intrusive alerts
+export const playQuickNotificationSound = () => {
+  try {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
     
     oscillator.connect(gainNode);
     gainNode.connect(audioContext.destination);
     
-    // Set frequency for a pleasant notification sound
+    // Quick pleasant chime
     oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
     oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.1);
     
-    // Set volume envelope
     gainNode.gain.setValueAtTime(0, audioContext.currentTime);
     gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.01);
     gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
@@ -26,6 +60,40 @@ export const playNotificationSound = () => {
     oscillator.stop(audioContext.currentTime + 0.3);
   } catch (error) {
     console.log('Audio notification not available');
+  }
+};
+
+// Create an attention-grabbing alert sound for important notifications
+export const playAlertSound = () => {
+  try {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    
+    const createBeep = (frequency: number, startTime: number, duration: number) => {
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime + startTime);
+      oscillator.type = 'square'; // Square wave for more attention-grabbing sound
+      
+      gainNode.gain.setValueAtTime(0, audioContext.currentTime + startTime);
+      gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + startTime + 0.01);
+      gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + startTime + duration);
+      
+      oscillator.start(audioContext.currentTime + startTime);
+      oscillator.stop(audioContext.currentTime + startTime + duration);
+    };
+    
+    // Create attention-grabbing alert pattern
+    createBeep(1000, 0, 0.2);       // Beep 1
+    createBeep(1000, 0.3, 0.2);     // Beep 2
+    createBeep(1200, 0.6, 0.3);     // Higher pitch final beep
+    
+    console.log('Playing alert sound');
+  } catch (error) {
+    console.log('Alert sound not available');
   }
 };
 

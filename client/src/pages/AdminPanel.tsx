@@ -57,6 +57,7 @@ export default function AdminPanel() {
   // Sound notification state
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [continuousSound, setContinuousSound] = useState(false);
+  const [soundType, setSoundType] = useState<'normal' | 'quick' | 'alert'>('normal');
   const [previousMessageCount, setPreviousMessageCount] = useState(0);
   
   // WebSocket for real-time notifications
@@ -184,10 +185,23 @@ export default function AdminPanel() {
   };
 
   const playNotificationSound = () => {
-    if (!soundEnabled || !audioRef.current) return;
+    if (!soundEnabled) return;
     
     try {
-      audioRef.current.play().catch(console.error);
+      // Import audio functions dynamically and play based on sound type
+      import("@/utils/audioUtils").then(({ playNotificationSound, playQuickNotificationSound, playAlertSound }) => {
+        switch (soundType) {
+          case 'quick':
+            playQuickNotificationSound();
+            break;
+          case 'alert':
+            playAlertSound();
+            break;
+          default:
+            playNotificationSound(); // Extended 2-second notification
+            break;
+        }
+      });
     } catch (e) {
       console.log('Notification sound failed:', e);
     }
@@ -355,12 +369,49 @@ export default function AdminPanel() {
                 disabled={!soundEnabled}
                 className="flex items-center gap-1"
               >
-                🔊 Test
+                🔊 Test {soundType === 'normal' ? 'Long' : soundType === 'quick' ? 'Quick' : 'Alert'}
+              </Button>
+              
+              <div className="flex items-center gap-1 text-xs">
+                <label className="text-gray-600 dark:text-gray-400">Sound:</label>
+                <select 
+                  value={soundType}
+                  onChange={(e) => setSoundType(e.target.value as 'normal' | 'quick' | 'alert')}
+                  disabled={!soundEnabled}
+                  className="px-2 py-1 text-xs border rounded bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600"
+                >
+                  <option value="normal">Long (2s)</option>
+                  <option value="quick">Quick (0.3s)</option>
+                  <option value="alert">Alert (1s)</option>
+                </select>
+              </div>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  // Test all sound types in sequence
+                  import("@/utils/audioUtils").then(({ playQuickNotificationSound, playNotificationSound, playAlertSound }) => {
+                    playQuickNotificationSound();
+                    setTimeout(() => playNotificationSound(), 1000);
+                    setTimeout(() => playAlertSound(), 3500);
+                  });
+                  toast({
+                    title: "Sound Test",
+                    description: "Playing all sound types: Quick → Long → Alert",
+                    duration: 5000,
+                  });
+                }}
+                disabled={!soundEnabled}
+                className="flex items-center gap-1 text-xs"
+              >
+                🎵 Test All
               </Button>
             </div>
           </CardTitle>
           <CardDescription>
             Messages from users that need your attention • Sound alerts {soundEnabled ? 'enabled' : 'disabled'}
+            {soundEnabled && ` (${soundType} sound)`}
             {soundEnabled && continuousSound && " • Continuous alert active"}
             • Real-time notifications {wsConnected ? 'connected' : 'disconnected'}
             {realtimeNotifications.length > 0 && ` • ${realtimeNotifications.length} live alert(s) received`}

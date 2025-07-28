@@ -80,9 +80,9 @@ export default function Chat() {
         queryKey: ["/api/conversations", currentConversationId, "messages"] 
       });
       
-      // Play notification sound when response is ready
-      import("@/utils/audioUtils").then(({ playNotificationSound }) => {
-        playNotificationSound();
+      // Play quick notification sound when AI response is ready (less intrusive)
+      import("@/utils/audioUtils").then(({ playQuickNotificationSound }) => {
+        playQuickNotificationSound();
       });
       
       // Reset provider status after delay
