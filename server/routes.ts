@@ -715,6 +715,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
+      
       let userQuery = db.select({
         id: users.id,
         email: users.email,
@@ -734,7 +735,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (format === 'csv') {
         const csvData = [
           'Email,Credits,Email Verified,Created At',
-          ...userList.map(user => 
+          ...userList.map((user: any) => 
             `"${user.email}",${user.credits},${user.emailVerified},${user.createdAt}`
           )
         ].join('\n');
@@ -745,7 +746,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       if (format === 'emails') {
-        const emailList = userList.map(user => user.email).join('\n');
+        const emailList = userList.map((user: any) => user.email).join('\n');
         res.setHeader('Content-Type', 'text/plain');
         res.setHeader('Content-Disposition', 'attachment; filename="user_emails.txt"');
         return res.send(emailList);

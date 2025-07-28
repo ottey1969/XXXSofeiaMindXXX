@@ -70,6 +70,16 @@ export default function AdminPanel() {
   const [allUsers, setAllUsers] = useState<any[]>([]);
   const [totalUsers, setTotalUsers] = useState(0);
 
+  // Check for saved admin authentication on component mount
+  useEffect(() => {
+    const savedAdminAuth = localStorage.getItem('adminAuthenticated');
+    const savedAdminKey = localStorage.getItem('adminKey');
+    if (savedAdminAuth === 'true' && savedAdminKey) {
+      setIsAuthenticated(true);
+      setAdminKey(savedAdminKey);
+    }
+  }, []);
+
   // Messaging system fields
   const [broadcastTitle, setBroadcastTitle] = useState("");
   const [broadcastMessage, setBroadcastMessage] = useState("");
@@ -517,6 +527,8 @@ export default function AdminPanel() {
   const handleAdminLogin = () => {
     if (adminKey === ADMIN_KEY) {
       setIsAuthenticated(true);
+      localStorage.setItem('adminAuthenticated', 'true');
+      localStorage.setItem('adminKey', adminKey);
       toast({
         title: "Admin Access Granted",
         description: "Welcome to the admin panel",
