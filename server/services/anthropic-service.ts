@@ -81,13 +81,22 @@ CONVERSATION CONTEXT: Maintain conversation context and continue discussions nat
           if (isBusinessClusterRequest && !isContentClusterRequest) {
             systemPrompt += `\n\nBUSINESS CLUSTER REQUEST: User wants information about geographic concentration of ${reqAnalysis.focusKeyword} businesses (Michael Porter's cluster concept).`;
           } else if (isContentClusterRequest || /cluster voor/i.test(query)) {
-            systemPrompt += `\n\nCONTENT CLUSTER REQUEST: User wants SEO keyword research and content clusters for "${reqAnalysis.focusKeyword}". 
-            
-Provide:
-- Content cluster table with zoekwoorden and maandelijks zoekvolume
-- Related keywords grouped by topic/theme
-- Search volumes for Dutch market
-- Content opportunities and keyword difficulty`;
+            systemPrompt += `\n\nCONTENT CLUSTER REQUEST: User wants SEO keyword research ONLY for "${reqAnalysis.focusKeyword}" industry keywords.
+
+CRITICAL RULES:
+- Research keywords ABOUT ${reqAnalysis.focusKeyword} (the industry/topic)
+- DO NOT use the user's query as a keyword
+- DO NOT include phrases like "geef me een cluster voor"
+- ONLY provide ${reqAnalysis.focusKeyword}-related industry keywords
+- Focus on ${reqAnalysis.focusKeyword} services, products, and related terms
+
+Provide table format:
+Content Cluster | Zoekwoord | Maandelijks Zoekvolume (NL)
+[Topic Group] | [actual ${reqAnalysis.focusKeyword} keyword] | [volume]
+
+Example for dakwerken:
+Dakbedekking | dakbedekking | 1.900
+Dakrenovatie | dakrenovatie | 1.300`;
           } else {
             systemPrompt += `\n\nTOPIC: "${reqAnalysis.focusKeyword}" - User wants information about ${reqAnalysis.focusKeyword}.`;
           }
