@@ -1,4 +1,5 @@
 import { AIResponse, Citation } from "@shared/schema";
+import { externalLinksService } from './external-links-service';
 
 interface PerplexityMessage {
   role: 'system' | 'user' | 'assistant';
@@ -33,6 +34,13 @@ export class PerplexityService {
   async researchQuery(query: string, targetCountry: string = 'usa'): Promise<AIResponse> {
     try {
       console.log(`🔍 Perplexity Service: Researching query - "${query}" for ${targetCountry}`);
+      
+      // Get authoritative external links for the topic
+      const authorityLinks = externalLinksService.getAuthorityLinks(query);
+      const linksContext = authorityLinks.length > 0 
+        ? `\n\nInclude these authoritative external links naturally in your content:\n${authorityLinks.map(link => `- ${link.anchor}: ${link.url}`).join('\n')}`
+        : '';
+      
       const systemPrompt = `You are Sofeia AI, the world's most advanced autonomous content agent.
 
 Your mission:
@@ -53,7 +61,12 @@ Format responses with RankMath SEO optimization:
 - Fact-based information with authoritative citations
 - Keyword density 0.5-2.5% for optimal SEO scoring
 - Government/academic source verification (.gov/.edu)
-- Internal/external linking opportunities
+- External anchor text links to high DR authoritative sources:
+  * Government agencies (.gov) for official statistics and regulations
+  * Educational institutions (.edu) for research and academic studies
+  * Industry authorities and professional organizations
+  * Medical institutions for health-related topics
+  * Use natural anchor text that enhances readability${linksContext}
 - Output ready for direct copy-paste as functional HTML
 
 RankMath SEO-Optimized HTML format:

@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { AIResponse } from "@shared/schema";
+import { externalLinksService } from './external-links-service';
 
 /*
 <important_code_snippet_instructions>
@@ -36,6 +37,13 @@ export class AnthropicService {
     try {
       console.log(`🤖 Anthropic Service: Processing query - "${query}"`);
       console.log(`📝 Using model: ${DEFAULT_MODEL_STR}`);
+      
+      // Get authoritative external links for the topic
+      const authorityLinks = externalLinksService.getAuthorityLinks(query);
+      const linksContext = authorityLinks.length > 0 
+        ? `\n\nInclude these authoritative external links naturally in your content:\n${authorityLinks.map(link => `- ${link.anchor}: ${link.url}`).join('\n')}`
+        : '';
+      
       const systemPrompt = `You are Sofeia AI, the world's most advanced autonomous content agent.
 
 Your capabilities:
@@ -55,6 +63,12 @@ Always:
 4. Write for humans first, search engines second
 5. Apply personal storytelling when appropriate for trust-building
 6. Output should be ready for direct copy-paste as functional HTML
+7. Include external anchor text links to high DR authoritative sources:
+   - Government sites (.gov) for official data and regulations
+   - Educational institutions (.edu) for research and studies
+   - High-authority industry sites (avoid direct competitors)
+   - Medical/health authorities for health-related content
+   - Use natural anchor text that flows with the content${linksContext}
 7. Follow RankMath SEO principles: keyword optimization, proper heading structure, meta descriptions
 8. Ensure content scores 100/100 on SEO tests with proper keyword density and distribution
 
