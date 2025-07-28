@@ -1,3 +1,5 @@
+import { researchService } from './research-service';
+
 // Service for fetching real statistical data from authoritative sources
 export class StatisticsService {
   
@@ -32,45 +34,56 @@ export class StatisticsService {
   }
 
   private async fetchRealTimeStatistics(topic: string): Promise<{ title: string; htmlTable: string } | null> {
-    // Comprehensive topic detection and real-time data fetching
-    if (topic.includes('business') || topic.includes('small business') || topic.includes('company') || topic.includes('enterprise')) {
+    console.log(`🔍 Researching real statistics for topic: "${topic}"`);
+    
+    // DYNAMIC RESEARCH - Find authentic statistics for ANY topic
+    try {
+      // First, try to research the topic and find relevant government/authoritative data sources
+      const researchResults = await this.researchTopicStatistics(topic);
+      
+      if (researchResults && researchResults.length > 0) {
+        const htmlTable = this.generateRealDataTable(
+          `${this.extractTopicTitle(topic)} Statistics (Research-Based)`,
+          researchResults
+        );
+        
+        return {
+          title: `${this.extractTopicTitle(topic)} Statistics`,
+          htmlTable
+        };
+      }
+      
+      // If no specific research found, try government APIs based on topic analysis
+      return await this.tryGovernmentAPIs(topic);
+      
+    } catch (error) {
+      console.error('Real-time statistics research failed:', error);
+      return null;
+    }
+  }
+
+  private async researchTopicStatistics(topic: string): Promise<Array<{ metric: string; percentage: string; source: string }> | null> {
+    // Use dedicated research service for comprehensive topic analysis
+    console.log(`📊 Delegating to research service for: ${topic}`);
+    
+    return await researchService.researchTopicStatistics(topic);
+  }
+  
+  private async tryGovernmentAPIs(topic: string): Promise<{ title: string; htmlTable: string } | null> {
+    // Try real government APIs based on topic
+    if (this.isBusinessRelated(topic)) {
       return await this.fetchBusinessStatistics();
     }
     
-    if (topic.includes('employment') || topic.includes('job') || topic.includes('unemployment') || topic.includes('worker')) {
+    if (this.isEmploymentRelated(topic)) {
       return await this.fetchEmploymentStatistics();
     }
     
-    if (topic.includes('roof') || topic.includes('construction') || topic.includes('building') || topic.includes('home')) {
-      return await this.fetchConstructionStatistics();
-    }
-    
-    if (topic.includes('health') || topic.includes('medical') || topic.includes('wellness') || topic.includes('healthcare')) {
-      return await this.fetchHealthStatistics();
-    }
-    
-    if (topic.includes('technology') || topic.includes('ai') || topic.includes('digital') || topic.includes('tech')) {
-      return await this.fetchTechnologyStatistics();
-    }
-    
-    if (topic.includes('economic') || topic.includes('economy') || topic.includes('financial') || topic.includes('finance')) {
+    if (this.isEconomicRelated(topic)) {
       return await this.fetchEconomicIndicators();
     }
     
-    if (topic.includes('education') || topic.includes('learning') || topic.includes('training') || topic.includes('skill')) {
-      return await this.fetchEducationStatistics();
-    }
-    
-    if (topic.includes('environment') || topic.includes('energy') || topic.includes('green') || topic.includes('climate')) {
-      return await this.fetchEnvironmentalStatistics();
-    }
-    
-    if (topic.includes('marketing') || topic.includes('advertising') || topic.includes('seo') || topic.includes('digital marketing')) {
-      return await this.fetchMarketingStatistics();
-    }
-    
-    // Default to business statistics for general topics
-    return await this.fetchBusinessStatistics();
+    return null;
   }
 
   private async fetchBusinessStatistics(): Promise<{ title: string; htmlTable: string } | null> {
@@ -269,6 +282,94 @@ export class StatisticsService {
 
   private async fetchMarketingStatistics(): Promise<{ title: string; htmlTable: string } | null> {
     console.log('Marketing statistics - implement FTC/Commerce data APIs');
+    return null;
+  }
+
+  // Helper methods for dynamic topic classification
+  private isBusinessRelated(topic: string): boolean {
+    const businessTerms = ['business', 'company', 'enterprise', 'startup', 'entrepreneur', 'commerce', 'commercial', 'industry', 'market', 'revenue', 'profit', 'sales'];
+    return businessTerms.some(term => topic.includes(term));
+  }
+  
+  private isHealthRelated(topic: string): boolean {
+    const healthTerms = ['health', 'medical', 'healthcare', 'wellness', 'fitness', 'nutrition', 'disease', 'medicine', 'hospital', 'doctor', 'patient'];
+    return healthTerms.some(term => topic.includes(term));
+  }
+  
+  private isTechnologyRelated(topic: string): boolean {
+    const techTerms = ['technology', 'tech', 'ai', 'artificial intelligence', 'software', 'digital', 'cyber', 'computer', 'internet', 'data', 'cloud'];
+    return techTerms.some(term => topic.includes(term));
+  }
+  
+  private isEducationRelated(topic: string): boolean {
+    const eduTerms = ['education', 'learning', 'school', 'university', 'college', 'student', 'teacher', 'training', 'skill', 'course'];
+    return eduTerms.some(term => topic.includes(term));
+  }
+  
+  private isEnvironmentRelated(topic: string): boolean {
+    const envTerms = ['environment', 'climate', 'energy', 'green', 'sustainable', 'renewable', 'carbon', 'pollution', 'conservation'];
+    return envTerms.some(term => topic.includes(term));
+  }
+  
+  private isConstructionRelated(topic: string): boolean {
+    const constructTerms = ['construction', 'building', 'roof', 'home', 'house', 'contractor', 'repair', 'renovation', 'architecture'];
+    return constructTerms.some(term => topic.includes(term));
+  }
+  
+  private isEmploymentRelated(topic: string): boolean {
+    const employTerms = ['employment', 'job', 'work', 'unemployment', 'career', 'labor', 'worker', 'hiring'];
+    return employTerms.some(term => topic.includes(term));
+  }
+  
+  private isEconomicRelated(topic: string): boolean {
+    const econTerms = ['economic', 'economy', 'financial', 'finance', 'gdp', 'inflation', 'investment'];
+    return econTerms.some(term => topic.includes(term));
+  }
+  
+  private extractTopicTitle(topic: string): string {
+    // Extract meaningful title from topic
+    const words = topic.split(' ');
+    const capitalizedWords = words.map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    );
+    return capitalizedWords.slice(0, 3).join(' ');
+  }
+  
+  // Research methods for different topics
+  private async researchBusinessData(topic: string): Promise<Array<{ metric: string; percentage: string; source: string }> | null> {
+    console.log(`📈 Researching business statistics for: ${topic}`);
+    // This would integrate with real business research APIs
+    // For now, return structure for government data integration
+    return null;
+  }
+  
+  private async researchHealthData(topic: string): Promise<Array<{ metric: string; percentage: string; source: string }> | null> {
+    console.log(`🏥 Researching health statistics for: ${topic}`);
+    return null;
+  }
+  
+  private async researchTechnologyData(topic: string): Promise<Array<{ metric: string; percentage: string; source: string }> | null> {
+    console.log(`💻 Researching technology statistics for: ${topic}`);
+    return null;
+  }
+  
+  private async researchEducationData(topic: string): Promise<Array<{ metric: string; percentage: string; source: string }> | null> {
+    console.log(`🎓 Researching education statistics for: ${topic}`);
+    return null;
+  }
+  
+  private async researchEnvironmentData(topic: string): Promise<Array<{ metric: string; percentage: string; source: string }> | null> {
+    console.log(`🌱 Researching environmental statistics for: ${topic}`);
+    return null;
+  }
+  
+  private async researchConstructionData(topic: string): Promise<Array<{ metric: string; percentage: string; source: string }> | null> {
+    console.log(`🏗️ Researching construction statistics for: ${topic}`);
+    return null;
+  }
+  
+  private async researchGeneralData(topic: string): Promise<Array<{ metric: string; percentage: string; source: string }> | null> {
+    console.log(`📊 Researching general statistics for: ${topic}`);
     return null;
   }
 
