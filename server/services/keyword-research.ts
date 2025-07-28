@@ -18,38 +18,86 @@ export class KeywordResearchService {
     return keywords.sort((a, b) => this.parseVolume(b.volume) - this.parseVolume(a.volume));
   }
 
-  private generateBaseKeywords(topic: string): string[] {
-    const words = topic.toLowerCase().split(' ').filter(w => w.length > 2);
+  private generateBaseKeywords(query: string): string[] {
+    console.log(`🔍 Keyword Research: Extracting keywords from query: "${query}"`);
+    
+    // Extract the actual topic from user requests like "write a blog post about X"
+    const extractedTopic = this.extractMainTopic(query);
+    console.log(`📝 Extracted topic: "${extractedTopic}"`);
+    
     const keywords: string[] = [];
     
-    // Primary keyword
-    keywords.push(topic.toLowerCase());
+    // Primary keyword (the extracted topic)
+    keywords.push(extractedTopic);
     
-    // Long-tail variations
-    keywords.push(`best ${topic.toLowerCase()}`);
-    keywords.push(`${topic.toLowerCase()} guide`);
-    keywords.push(`${topic.toLowerCase()} tips`);
-    keywords.push(`how to ${topic.toLowerCase()}`);
-    keywords.push(`${topic.toLowerCase()} 2025`);
+    // Long-tail variations based on extracted topic
+    keywords.push(`best ${extractedTopic}`);
+    keywords.push(`${extractedTopic} guide`);
+    keywords.push(`${extractedTopic} tips`);
+    keywords.push(`how to ${extractedTopic}`);
+    keywords.push(`${extractedTopic} 2025`);
     
-    // Related terms based on common patterns
-    if (topic.includes('energy')) {
+    // Industry-specific keywords based on detected topic
+    this.addIndustryKeywords(extractedTopic, keywords);
+    
+    return Array.from(new Set(keywords)).slice(0, 10); // Remove duplicates and limit
+  }
+
+  private extractMainTopic(query: string): string {
+    // Remove common request phrases to extract the actual topic
+    let topic = query.toLowerCase()
+      .replace(/please\s+/g, '')
+      .replace(/write\s+(me\s+)?(a\s+)?blog\s*post\s+(about\s+)?/g, '')
+      .replace(/create\s+(an?\s+)?article\s+(about\s+)?/g, '')
+      .replace(/generate\s+content\s+(for\s+|about\s+)?/g, '')
+      .replace(/company\s+[^,]+,?\s*/g, '') // Remove company names
+      .replace(/https?:\/\/[^\s,]+/g, '') // Remove URLs
+      .replace(/[,]+/g, ' ') // Replace commas with spaces
+      .replace(/\s+/g, ' ') // Normalize spaces
+      .trim();
+
+    // If topic is too short or empty, try to extract key business terms
+    if (topic.length < 3) {
+      const businessTerms = query.match(/\b(roofing|repair|SEO|marketing|AI|technology|business|services?|solutions?)\b/gi);
+      topic = businessTerms ? businessTerms[0].toLowerCase() : 'business services';
+    }
+
+    // Clean up and format
+    topic = topic.replace(/\s+near\s+me$/i, '').trim();
+    
+    return topic || 'business services';
+  }
+
+  private addIndustryKeywords(topic: string, keywords: string[]): void {
+    const topicLower = topic.toLowerCase();
+    
+    if (topicLower.includes('roof')) {
+      keywords.push('roof repair', 'roofing services', 'roof installation', 'roof contractors', 'residential roofing');
+    }
+    
+    if (topicLower.includes('repair')) {
+      keywords.push('home repair', 'repair services', 'emergency repair', 'professional repair');
+    }
+    
+    if (topicLower.includes('energy')) {
       keywords.push('renewable energy solutions', 'clean energy benefits', 'sustainable energy trends');
     }
     
-    if (topic.includes('AI') || topic.includes('artificial intelligence')) {
+    if (topicLower.includes('ai') || topicLower.includes('artificial intelligence')) {
       keywords.push('AI tools', 'artificial intelligence applications', 'machine learning');
     }
     
-    if (topic.includes('SEO')) {
+    if (topicLower.includes('seo')) {
       keywords.push('SEO optimization', 'search engine ranking', 'keyword research');
     }
     
-    if (topic.includes('content')) {
-      keywords.push('content marketing', 'content strategy', 'content creation');
+    if (topicLower.includes('marketing')) {
+      keywords.push('digital marketing', 'content marketing', 'marketing strategy');
     }
     
-    return Array.from(new Set(keywords)).slice(0, 10); // Remove duplicates and limit
+    if (topicLower.includes('business')) {
+      keywords.push('business services', 'local business', 'business solutions');
+    }
   }
 
   private async analyzeKeyword(keyword: string, targetCountry: string): Promise<KeywordData> {

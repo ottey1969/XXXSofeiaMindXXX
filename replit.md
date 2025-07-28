@@ -5,6 +5,16 @@ Sofeia AI Agent is an intelligent multi-provider content creation platform with 
 
 ## Recent Changes (January 27, 2025)
 
+### AI Provider Routing Enhancement (January 27, 2025 - 2:32 AM)
+✅ **FIXED:** Blog content now properly routes to Anthropic instead of defaulting to Groq
+✅ **ENHANCED:** AI provider routing with priority-based pattern matching
+✅ **IMPROVED:** Keyword research service to extract meaningful topics from user queries
+✅ **ADDED:** Comprehensive debugging logs for provider selection
+✅ **ROUTING LOGIC:**
+  - **Anthropic**: Blog posts, articles, content creation, copywriting (using Claude Sonnet 4.0)
+  - **Perplexity**: Research queries, market analysis, trending topics
+  - **Groq**: Simple questions, quick responses
+
 ### Anti-Sleep Deployment Fixes (January 27, 2025)
 ✅ **CRITICAL FIX:** Implemented keep-alive mechanisms to prevent server sleep
 ✅ **SOLVED:** "Not Found" errors when accessing deployed site (contentscale.site/admin)
