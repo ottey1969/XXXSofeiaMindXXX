@@ -14,6 +14,9 @@ Sofeia AI Agent is an intelligent multi-provider content creation platform with 
 ✅ **FIXED:** AI now understands the difference between what users want content ABOUT vs. what type of content they want
 ✅ **RESOLVED:** Duplicate content issues - AI now creates only ONE table of contents without English/Dutch mixing
 ✅ **IMPLEMENTED:** Strict anti-duplication rules preventing double inhoudsopgaves and repeated sections
+✅ **ENHANCED:** Ultra-strict rules to prevent "Table of Contents" + "Inhoudsopgave" duplication
+✅ **FIXED:** Citation markers [1][3] completely removed from all AI responses
+✅ **IMPROVED:** Better keyword extraction to focus on actual topics (e.g., "dakwerken") not full queries
 
 ### Comprehensive Request Understanding Enhancement (January 27, 2025)
 ✅ **CRITICAL FIX:** Enhanced AI to follow and understand ALL user requests comprehensively

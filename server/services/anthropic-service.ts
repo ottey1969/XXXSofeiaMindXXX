@@ -84,14 +84,14 @@ CONVERSATION CONTEXT: Maintain conversation context and continue discussions nat
         
         // Add specific anti-duplication rules for Dutch content
         if (detectedLanguage === 'nl') {
-          systemPrompt += `\n\nSTRIKTE NEDERLANDSE CONTENT REGELS:
-- Maak SLECHTS ÉÉN inhoudsopgave aan het begin (gebruik ALLEEN "Inhoudsopgave", NOOIT "Table of Contents")
-- Dupliceer NOOIT tabellen, secties, koppen of content blokken
-- Elke sectie moet precies ÉÉN keer verschijnen in je antwoord
-- Gebruik geen Engelse termen - alles moet in het Nederlands
-- Vermijd herhaling van dezelfde informatie in verschillende formats
-- Start met één duidelijke Nederlandse inhoudsopgave en stop daar
-- VERWIJDER ALLE citation markers zoals [1], [2], [1][3] uit je antwoord - gebruikers willen GEEN referentie nummers in de tekst`;
+          systemPrompt += `\n\nSTRIKTE NEDERLANDSE CONTENT REGELS - VOLG EXACT:
+- Maak precies ÉÉN inhoudsopgave met de titel "Inhoudsopgave"
+- Gebruik NOOIT "Table of Contents" - dit is VERBODEN in Nederlandse content
+- Na de eerste inhoudsopgave, maak GEEN tweede inhoudsopgave meer
+- Alle koppen, tabellen en content moeten volledig in het Nederlands zijn
+- VERWIJDER ALLE citation markers zoals [1], [2], [1][3] volledig uit je antwoord
+- Als je een inhoudsopgave hebt gemaakt, stop dan met het maken van meer inhoudsopgaves
+- Elke sectie mag maar ÉÉN keer voorkomen in je antwoord`;
         }
       }
 

@@ -82,7 +82,9 @@ export class AIRouter {
         /voor\s+"?([^".\s,]+)"?/g,
         /van\s+"?([^".\s,]+)"?/g,
         /over\s+"?([^".\s,]+)"?/g,
-        /\b(dakwerken|dakbedekking|dakpannen|golfplaten|zinken|dakisolatie|dakrenovatie|dakonderhoud|bouw|constructie|renovatie|installatie|onderhoud|reparatie)\b/g
+        /cluster\s+voor\s+"?([^".\s,]+)"?/g,
+        /content\s+voor\s+"?([^".\s,]+)"?/g,
+        /\b(dakwerken|dakbedekking|dakpannen|golfplaten|zinken|dakisolatie|dakrenovatie|dakonderhoud|bouw|constructie|renovatie|installatie|onderhoud|reparatie|tuinonderhoud|elektricien|schilder|loodgieter)\b/g
       ],
       // German patterns
       german: [

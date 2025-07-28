@@ -76,13 +76,13 @@ CRITICAL INSTRUCTION: Follow ALL user requests comprehensively. Analyze every pa
         
         // Add anti-duplication rules specifically for Dutch content
         if (detectedLanguage === 'nl') {
-          systemPrompt += `\n\nSTRIKTE REGELS TEGEN DUBBELE CONTENT:
-- Maak SLECHTS ÉÉN inhoudsopgave aan het begin (gebruik ALLEEN "Inhoudsopgave", NIET "Table of Contents")
-- Dupliceer NOOIT tabellen, secties, koppen of content blokken
-- Elke sectie moet precies ÉÉN keer verschijnen
-- Gebruik geen Engelse termen zoals "Table of Contents" - gebruik alleen Nederlandse termen
-- Vermijd herhaling van dezelfde informatie in verschillende formats
-- VERWIJDER ALLE citation markers zoals [1], [2], [1][3] uit je antwoord - gebruikers willen GEEN referentie nummers in de tekst`;
+          systemPrompt += `\n\nSTRIKTE NEDERLANDSE CONTENT REGELS - VOLG EXACT:
+- Maak precies ÉÉN inhoudsopgave met de titel "Inhoudsopgave" 
+- Gebruik NOOIT "Table of Contents" - dit is VERBODEN
+- Na de eerste inhoudsopgave, maak GEEN tweede inhoudsopgave meer
+- Alle koppen en content moeten in het Nederlands zijn
+- VERWIJDER ALLE citation markers zoals [1], [2], [1][3] volledig uit je antwoord
+- Als je een inhoudsopgave hebt gemaakt, stop dan met het maken van meer inhoudsopgaves`;
         }
       }
 
