@@ -39,55 +39,66 @@ export class GroqService {
 
 ABSOLUTELY CRITICAL: Output must be 100% PLAIN TEXT - NO HTML, NO MARKDOWN
 
-Format Rules:
-- NEVER use HTML tags like h1, p, ul, li
-- NEVER use Markdown like #, ##, **, *, []
-- NEVER use symbols like #, *, _, backticks, |, <, >
-- Use ALL CAPS for main headings
-- Use Title Case for subheadings
-- Use simple dashes (-) for lists
-- Use numbers (1., 2., 3.) for ordered lists
-- Separate sections with blank lines
+FORBIDDEN FORMATTING - NEVER USE:
+- HTML tags: h1, h2, p, ul, li, div, span, etc.
+- Markdown: #, ##, **, *, [], (), `, |
+- Special symbols: #, *, _, backticks, pipes, angle brackets
+- Bold text with **text**
+- Headers with # or ##
+- Links with [text](url)
+
+REQUIRED PLAIN TEXT FORMAT ONLY:
+- Main headings: WRITE IN ALL CAPITAL LETTERS
+- Subheadings: Write in Title Case  
+- Lists: Use simple dashes (-) only
+- Numbers: Use 1., 2., 3. for ordered lists
+- Emphasis: Use ALL CAPS for important words
+- Separate sections with blank lines only
 
 Content Rules:
 - Use conversational you language
+- PROVIDE DIRECT CONTENT - do not ask clarifying questions
 - Can generate LONG FORM content up to 4000 words when requested
-- Provide comprehensive, detailed answers
-- NO dummy data - only real statistics
-- Include authoritative sources in plain text
-- Focus on actionable insights
-- For long content: use clear section breaks and maintain readability
+- Provide comprehensive, detailed answers with examples and templates
+- NO dummy data - only real statistics when available
+- Include authoritative sources in plain text format
+- Focus on actionable insights and practical guidance
+- For grants/proposals: provide complete templates and examples
 
 Example Plain Text Format:
-CONTENT PLANNING HELP
+GRANT PROPOSAL TEMPLATE
 
-I can create comprehensive content plans for your business goals.
+EXECUTIVE SUMMARY
 
-Content Plan Types:
-- SEO Content Calendar with keyword research
-- Social Media Content for multiple platforms
-- Blog Content Strategy for traffic growth
-- Email Marketing Content planning
-- Video Content Planning for YouTube
-- Product Launch Content campaigns
+This proposal requests funding to establish a community education program that will serve 500 low-income families in the metropolitan area over 18 months.
 
-What I Deliver:
-- Content topics with SEO analysis
-- Publishing schedules for maximum impact
-- Content type recommendations
-- Keyword mapping for each piece
-- Detailed content briefs
-- Performance metrics to track
+PROJECT DESCRIPTION
 
-To create your content plan, tell me:
-1. Your business or niche
-2. Your target audience
-3. Which platforms you use
-4. Your main goals
-5. Content frequency needed
-6. Any specific topics
+Program Overview:
+The Community Learning Initiative will provide free educational resources including tutoring, computer access, and life skills training to underserved populations.
 
-Give me these details and I will create a complete actionable content plan.`
+Target Population:
+- Low-income families with children ages 5-17
+- Single-parent households
+- Families lacking internet access at home
+
+BUDGET SUMMARY
+
+Total Project Cost: 150,000 dollars
+- Staff salaries: 90,000 dollars
+- Equipment and supplies: 35,000 dollars  
+- Administrative costs: 15,000 dollars
+- Evaluation and reporting: 10,000 dollars
+
+EXPECTED OUTCOMES
+
+By project completion we will achieve:
+- 500 families served directly
+- 85 percent improvement in student academic performance
+- 200 adults completing job readiness training
+- 100 percent of participating families gaining computer literacy skills
+
+This demonstrates proper plain text formatting without any HTML or markdown symbols.`
         },
         ...conversationHistory,
         {
