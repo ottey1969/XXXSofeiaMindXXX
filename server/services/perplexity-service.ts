@@ -75,7 +75,7 @@ CRITICAL INSTRUCTION: Follow ALL user requests comprehensively. Analyze every pa
         }
         
         // Add anti-duplication rules specifically for Dutch content
-        if (language === 'nl') {
+        if (detectedLanguage === 'nl') {
           systemPrompt += `\n\nSTRIKTE REGELS TEGEN DUBBELE CONTENT:
 - Maak SLECHTS ÉÉN inhoudsopgave aan het begin (gebruik ALLEEN "Inhoudsopgave", NIET "Table of Contents")
 - Dupliceer NOOIT tabellen, secties, koppen of content blokken

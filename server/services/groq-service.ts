@@ -75,7 +75,7 @@ CONVERSATION CONTEXT: Maintain conversation context and continue the discussion 
         }
         
         // Add specific anti-duplication rules for Dutch content
-        if (language === 'nl') {
+        if (detectedLanguage === 'nl') {
           systemContent += `\n\nSTRIKTE NEDERLANDSE CONTENT REGELS:
 - Maak SLECHTS ÉÉN inhoudsopgave aan het begin (gebruik ALLEEN "Inhoudsopgave", NOOIT "Table of Contents")
 - Dupliceer NOOIT tabellen, secties, koppen of content blokken
