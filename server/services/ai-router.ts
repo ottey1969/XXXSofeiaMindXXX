@@ -65,7 +65,7 @@ export class AIRouter {
       complexity = 'research';
       provider = 'perplexity';
       requiresCraft = true;
-      requiresKeywordResearch = true;
+      requiresKeywordResearch = false; // Only show when explicitly requested
     } 
     // Complex analysis and strategies
     else if (complexPatterns.some(pattern => pattern.test(lowercaseQuery))) {
@@ -92,8 +92,12 @@ export class AIRouter {
     }
 
     // Check for C.R.A.F.T or SEO mentions
-    if (/craft|c\.r\.a\.f\.t|seo|content optimization|keyword/i.test(lowercaseQuery)) {
+    if (/craft|c\.r\.a\.f\.t|seo|content optimization/i.test(lowercaseQuery)) {
       requiresCraft = true;
+    }
+
+    // Only enable keyword research when explicitly requested
+    if (/keyword research|show keywords|seo keywords|keyword analysis/i.test(lowercaseQuery)) {
       requiresKeywordResearch = true;
     }
 
@@ -101,7 +105,7 @@ export class AIRouter {
     if (/research.*blog|research.*article|trending.*topics|current.*news/i.test(lowercaseQuery)) {
       provider = 'perplexity';
       complexity = 'research';
-      requiresKeywordResearch = true;
+      // Don't auto-enable keyword research unless explicitly requested
     }
 
     console.log(`AI Router Decision: "${query}" -> Provider: ${provider}, Complexity: ${complexity}`);
