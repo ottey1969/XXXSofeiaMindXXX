@@ -67,7 +67,16 @@ CRITICAL INSTRUCTION: Follow ALL user requests comprehensively. Analyze every pa
         }
         
         if (reqAnalysis.focusKeyword) {
-          systemPrompt += `\n\nACTUAL TOPIC DETECTED: "${reqAnalysis.focusKeyword}" - This is what the user wants content ABOUT. Ignore request format words like "content plan" or "cluster" - focus ONLY on this topic. For keyword research, use "${reqAnalysis.focusKeyword}" as the primary focus keyword and find related industry terms.`;
+          systemPrompt += `\n\nTOPIC: "${reqAnalysis.focusKeyword}" - User wants information about ${reqAnalysis.focusKeyword}.
+          
+If user asks about "cluster voor ${reqAnalysis.focusKeyword}" or similar, provide information about:
+1. Geographic concentration of ${reqAnalysis.focusKeyword} businesses (bedrijvencluster)
+2. Companies and suppliers in the ${reqAnalysis.focusKeyword} industry
+3. Regional advantages and networking opportunities
+4. Michael Porter's industrial district concept applied to ${reqAnalysis.focusKeyword}
+5. How businesses collaborate and benefit from clustering
+
+Do NOT provide content marketing or SEO keyword lists. Focus on actual business cluster information.`;
         }
         
         if (reqAnalysis.mainKeywords.length > 0) {
@@ -76,13 +85,15 @@ CRITICAL INSTRUCTION: Follow ALL user requests comprehensively. Analyze every pa
         
         // Add anti-duplication rules specifically for Dutch content
         if (detectedLanguage === 'nl') {
-          systemPrompt += `\n\nSTRIKTE NEDERLANDSE CONTENT REGELS - VOLG EXACT:
-- Maak precies ÉÉN inhoudsopgave met de titel "Inhoudsopgave" 
-- Gebruik NOOIT "Table of Contents" - dit is VERBODEN
-- Na de eerste inhoudsopgave, maak GEEN tweede inhoudsopgave meer
-- Alle koppen en content moeten in het Nederlands zijn
-- VERWIJDER ALLE citation markers zoals [1], [2], [1][3] volledig uit je antwoord
-- Als je een inhoudsopgave hebt gemaakt, stop dan met het maken van meer inhoudsopgaves`;
+          systemPrompt += `\n\nSTRIKTE NEDERLANDSE CONTENT REGELS - GEEN UITZONDERINGEN:
+- Schrijf ALLES in het Nederlands - GEEN Engels
+- Maak precies ÉÉN inhoudsopgave met ALLEEN de titel "Inhoudsopgave"
+- VERBODEN WOORDEN: "Table of Contents", "Keyword Research", "Volume", "Difficulty", "Intent"
+- Gebruik Nederlandse alternatieven: "Zoekwoordonderzoek", "Zoekvolume", "Moeilijkheidsgraad", "Intentie"
+- VERBODEN: Elke vorm van Engels in koppen, tabellen of tekst
+- VERBODEN: Dubbele inhoudsopgave of herhaling van secties
+- VERBODEN: Citation markers [1], [2], [1][3]
+- Controleer je antwoord: bevat het ENIG Engels woord? Dan herschrijf volledig in Nederlands.`;
         }
       }
 

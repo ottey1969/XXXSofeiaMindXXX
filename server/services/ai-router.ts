@@ -75,17 +75,23 @@ export class AIRouter {
       keywords.push(...quotedMatches.map(match => match.replace(/"/g, '')));
     }
     
-    // Remove common request phrases to focus on actual topics
+    // Remove ALL request phrases to focus on actual topics
     const cleanedQuery = lowercaseQuery
-      .replace(/geef me een|maak een|creëer een|schrijf een|genereer een/g, '') // Dutch
-      .replace(/give me a|make a|create a|write a|generate a/g, '') // English
-      .replace(/gib mir ein|mach ein|erstelle ein|schreibe ein/g, '') // German
-      .replace(/donne-moi un|fais un|crée un|écris un/g, '') // French
-      .replace(/dame un|haz un|crea un|escribe un/g, '') // Spanish
-      .replace(/dammi un|fai un|crea un|scrivi un/g, '') // Italian
-      .replace(/content plan|content cluster|cluster|plan/g, '') // Remove format words
+      .replace(/geef me een|maak een|creëer een|schrijf een|genereer een|cluster voor|plan voor/g, '') // Dutch
+      .replace(/give me a|make a|create a|write a|generate a|cluster for|plan for/g, '') // English
+      .replace(/gib mir ein|mach ein|erstelle ein|schreibe ein|cluster für|plan für/g, '') // German
+      .replace(/donne-moi un|fais un|crée un|écris un|cluster pour|plan pour/g, '') // French
+      .replace(/dame un|haz un|crea un|escribe un|cluster para|plan para/g, '') // Spanish
+      .replace(/dammi un|fai un|crea un|scrivi un|cluster per|piano per/g, '') // Italian
+      .replace(/content plan|content cluster|cluster|plan|guide|tips|how to|best|2025/g, '') // Remove ALL format words
       .replace(/voor|for|für|pour|para|per/g, '') // Remove prepositions
+      .replace(/\s+/g, ' ') // Clean multiple spaces
       .trim();
+      
+    // If we found a clean topic word, use it
+    if (cleanedQuery && cleanedQuery.length > 2) {
+      keywords.push(cleanedQuery);
+    }
     
     // Multilingual keyword extraction patterns
     const keywordPatterns = {
@@ -227,12 +233,27 @@ export class AIRouter {
     
     // Better focus keyword detection - extract the actual topic, not the request format
     let focusKeyword = null;
+    let actualTopic = null;
+    
     if (mainKeywords.length > 0) {
       // Filter out request-related words and keep only topic words
       const topicKeywords = mainKeywords.filter(keyword => 
-        !keyword.match(/content|cluster|plan|geef|me|een|give|create|make|write/i)
+        !keyword.match(/content|cluster|plan|geef|me|een|give|create|make|write|guide|tips|how|to|best|2025/i)
       );
       focusKeyword = topicKeywords.length > 0 ? topicKeywords[0] : mainKeywords[0];
+      actualTopic = focusKeyword;
+    }
+    
+    // Enhanced context understanding for Dutch business terms
+    const isBusinessClusterRequest = /cluster voor|bedrijvencluster|industrieel district|geografische concentratie/i.test(query);
+    const isContentRequest = /content|artikel|blog|tekst|schrijf/i.test(query);
+    
+    // Determine request intent
+    let requestIntent = 'general';
+    if (isBusinessClusterRequest && !isContentRequest) {
+      requestIntent = 'business_cluster_info';
+    } else if (isContentRequest || /content|plan|cluster/i.test(query)) {
+      requestIntent = 'content_creation';
     }
     
     return {
@@ -243,7 +264,10 @@ export class AIRouter {
       needsComprehensiveAnswer,
       mainKeywords,
       focusKeyword,
-      actualTopic: focusKeyword // The real topic user wants content about
+      actualTopic,
+      requestIntent,
+      isBusinessClusterRequest,
+      isContentRequest
     };
   }
   
