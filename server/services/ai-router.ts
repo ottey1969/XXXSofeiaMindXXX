@@ -58,7 +58,7 @@ export class AIRouter {
       complexity = 'complex';
       provider = 'anthropic';
       requiresCraft = true;
-      requiresKeywordResearch = true;
+      requiresKeywordResearch = false; // Don't show keyword research for blog posts
     } 
     // Research queries for data-heavy content
     else if (researchPatterns.some(pattern => pattern.test(lowercaseQuery))) {

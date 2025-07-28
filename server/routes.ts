@@ -497,7 +497,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         craftSteps = craftResult.steps;
       }
 
-      // Get keyword research if needed
+      // Get keyword research if needed (only for research queries, not blog posts)
       let keywordData = undefined;
       if (analysis.requiresKeywordResearch) {
         keywordData = await keywordResearchService.researchKeywords(
