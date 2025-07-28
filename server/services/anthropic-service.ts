@@ -90,13 +90,18 @@ CRITICAL RULES:
 - ONLY provide ${reqAnalysis.focusKeyword}-related industry keywords
 - Focus on ${reqAnalysis.focusKeyword} services, products, and related terms
 
-Provide table format:
-Content Cluster | Zoekwoord | Maandelijks Zoekvolume (NL)
-[Topic Group] | [actual ${reqAnalysis.focusKeyword} keyword] | [volume]
+VERPLICHTE TABEL FORMAT met zoekvolumes en moeilijkheidsgraad:
 
-Example for dakwerken:
-Dakbedekking | dakbedekking | 1.900
-Dakrenovatie | dakrenovatie | 1.300`;
+Content Cluster | Zoekwoord | Maandelijks Zoekvolume (NL) | Moeilijkheidsgraad | Ranking Mogelijkheden
+Dakbedekking | dakbedekking | 1.900 | Gemiddeld | Hoog
+Dakbedekking | bitumen dakbedekking | 1.000 | Laag | Hoog  
+Dakbedekking | EPDM dakbedekking | 720 | Laag | Hoog
+Dakrenovatie | dakrenovatie | 1.300 | Gemiddeld | Gemiddeld
+Dakrenovatie | dakrenovatie kosten | 880 | Laag | Hoog
+Dakisolatie | dakisolatie | 2.400 | Hoog | Gemiddeld
+Dakisolatie | dakisolatie subsidie | 1.000 | Gemiddeld | Hoog
+
+VERPLICHT: Geef altijd zoekvolumes, moeilijkheidsgraad (Laag/Gemiddeld/Hoog) en ranking mogelijkheden.`;
           } else {
             systemPrompt += `\n\nTOPIC: "${reqAnalysis.focusKeyword}" - User wants information about ${reqAnalysis.focusKeyword}.`;
           }
