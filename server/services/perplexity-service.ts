@@ -1,5 +1,6 @@
 import { AIResponse, Citation } from "@shared/schema";
 import { externalLinksService } from './external-links-service';
+import { statisticsService } from './statistics-service';
 
 interface PerplexityMessage {
   role: 'system' | 'user' | 'assistant';
@@ -41,6 +42,12 @@ export class PerplexityService {
         ? `\n\nInclude these authoritative external links naturally in your content:\n${authorityLinks.map(link => `- ${link.anchor}: ${link.url}`).join('\n')}`
         : '';
       
+      // Get relevant statistics table for the topic
+      const statsTable = statisticsService.getStatisticsTable(query);
+      const statsContext = statsTable 
+        ? `\n\nInclude this statistics table in your content where it adds value:\n${statsTable.htmlTable}`
+        : '';
+      
       const systemPrompt = `You are Sofeia AI, the world's most advanced autonomous content agent.
 
 Your mission:
@@ -66,7 +73,7 @@ Format responses with RankMath SEO optimization:
   * Educational institutions (.edu) for research and academic studies
   * Industry authorities and professional organizations
   * Medical institutions for health-related topics
-  * Use natural anchor text that enhances readability${linksContext}
+  * Use natural anchor text that enhances readability${linksContext}${statsContext}
 - Output ready for direct copy-paste as functional HTML
 
 RankMath SEO-Optimized HTML format:

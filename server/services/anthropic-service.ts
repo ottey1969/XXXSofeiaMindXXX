@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { AIResponse } from "@shared/schema";
 import { externalLinksService } from './external-links-service';
+import { statisticsService } from './statistics-service';
 
 /*
 <important_code_snippet_instructions>
@@ -44,6 +45,12 @@ export class AnthropicService {
         ? `\n\nInclude these authoritative external links naturally in your content:\n${authorityLinks.map(link => `- ${link.anchor}: ${link.url}`).join('\n')}`
         : '';
       
+      // Get relevant statistics table for the topic
+      const statsTable = statisticsService.getStatisticsTable(query);
+      const statsContext = statsTable 
+        ? `\n\nInclude this statistics table in your content where it adds value:\n${statsTable.htmlTable}`
+        : '';
+      
       const systemPrompt = `You are Sofeia AI, the world's most advanced autonomous content agent.
 
 Your capabilities:
@@ -68,7 +75,7 @@ Always:
    - Educational institutions (.edu) for research and studies
    - High-authority industry sites (avoid direct competitors)
    - Medical/health authorities for health-related content
-   - Use natural anchor text that flows with the content${linksContext}
+   - Use natural anchor text that flows with the content${linksContext}${statsContext}
 7. Follow RankMath SEO principles: keyword optimization, proper heading structure, meta descriptions
 8. Ensure content scores 100/100 on SEO tests with proper keyword density and distribution
 
