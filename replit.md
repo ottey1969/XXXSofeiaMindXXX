@@ -31,6 +31,8 @@ Sofeia AI Agent is an intelligent multi-provider content creation platform with 
 ✅ **PURE LANGUAGE ONLY:** AI responds in ONLY ONE language - English OR Dutch OR French - NO MIXING
 ✅ **LANGUAGE DETECTION:** User input language determines response language - strict single-language enforcement
 ✅ **ZERO TOLERANCE:** Absolutely no words from other languages allowed in responses
+✅ **ULTRA-STRICT:** Enhanced language enforcement with specific forbidden words and mandatory translations
+✅ **SELF-CHECKING:** AI must scan entire response and rewrite if ANY foreign word is detected
 ✅ **ENHANCED:** Added mandatory table format with search volumes, difficulty levels, and ranking possibilities
 ✅ **REQUIRED:** All content cluster requests must include 5-column table: Content Cluster | Zoekwoord | Maandelijks Zoekvolume | Moeilijkheidsgraad | Ranking Mogelijkheden
 ✅ **ROUTER FIX:** Enhanced AI routing to ensure "cluster voor" queries go to Perplexity for real research data

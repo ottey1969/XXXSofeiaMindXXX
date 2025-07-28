@@ -103,29 +103,31 @@ VERPLICHT: Geef altijd zoekvolumes, moeilijkheidsgraad (Laag/Gemiddeld/Hoog) en 
           systemPrompt += `\n\nMAIN KEYWORDS: ${reqAnalysis.mainKeywords.join(', ')} - These are the core topics to focus on in your response.`;
         }
         
-        // STRICT SINGLE LANGUAGE RULES - NO MIXING ALLOWED
+        // ULTRA-STRICT LANGUAGE ENFORCEMENT - ZERO MIXING TOLERANCE
         if (detectedLanguage === 'nl') {
-          systemPrompt += `\n\nSTRIKTE NEDERLANDSE TAALREGELS - ALLEEN NEDERLANDS:
-- ANTWOORD 100% IN HET NEDERLANDS - ABSOLUUT GEEN ANDERE TALEN
-- VERBODEN: Engels, Frans, Duits, Spaans of andere talen
-- VERBODEN ENGELSE WOORDEN: "Table", "Contents", "Keyword", "Research", "Volume", "Difficulty"
-- NEDERLANDSE VERTALINGEN: Inhoudsopgave, Zoekwoord, Onderzoek, Volume, Moeilijkheid
-- CONTROLE: Elke zin, elk woord moet Nederlands zijn
-- GEEN MENGTALEN - alleen pure Nederlandse tekst`;
+          systemPrompt += `\n\nABSOLUTE DUTCH ONLY - GEEN ANDERE TALEN TOEGESTAAN:
+- VERPLICHT: Antwoord UITSLUITEND in het Nederlands
+- STRIKT VERBODEN: Table of Contents, Keyword, Research, Volume, Difficulty, Search, Analysis, Content
+- VERPLICHTE NEDERLANDSE WOORDEN: Inhoudsopgave, Zoekwoord, Onderzoek, Zoekvolume, Moeilijkheid, Analyse, Inhoud
+- CONTROLE INSTRUCTIE: Lees je hele antwoord - als er EEN Engels woord in staat, herschrijf ALLES in Nederlands
+- GEEN UITZONDERING: Ook technische termen moeten Nederlands zijn
+- RESULTAAT: 100% Nederlandse tekst zonder ENIGE andere taal`;
         } else if (detectedLanguage === 'en') {
-          systemPrompt += `\n\nSTRICT ENGLISH LANGUAGE RULES - ENGLISH ONLY:
-- RESPOND 100% IN ENGLISH - ABSOLUTELY NO OTHER LANGUAGES
-- FORBIDDEN: Dutch, French, German, Spanish or any other languages
-- PURE ENGLISH: All words, phrases, and content must be in English
-- CONTROL: Every sentence, every word must be English
-- NO LANGUAGE MIXING - only pure English text`;
+          systemPrompt += `\n\nABSOLUTE ENGLISH ONLY - NO OTHER LANGUAGES PERMITTED:
+- MANDATORY: Respond EXCLUSIVELY in English
+- STRICTLY FORBIDDEN: Inhoudsopgave, Zoekwoord, Onderzoek, Zoekvolume, Moeilijkheid, Nederlandse, Dutch terms
+- REQUIRED ENGLISH WORDS: Table of Contents, Keyword, Research, Volume, Difficulty, Analysis, Content
+- CONTROL INSTRUCTION: Read your entire response - if there is ONE non-English word, rewrite EVERYTHING in English
+- NO EXCEPTIONS: Even technical terms must be English
+- RESULT: 100% English text without ANY other language`;
         } else if (detectedLanguage === 'fr') {
-          systemPrompt += `\n\nRÈGLES STRICTES DE LANGUE FRANÇAISE - FRANÇAIS SEULEMENT:
-- RÉPONDRE 100% EN FRANÇAIS - ABSOLUMENT AUCUNE AUTRE LANGUE
-- INTERDIT: Anglais, néerlandais, allemand, espagnol ou toute autre langue
-- FRANÇAIS PUR: Tous les mots, phrases et contenu doivent être en français
-- CONTRÔLE: Chaque phrase, chaque mot doit être français
-- AUCUN MÉLANGE DE LANGUES - seulement du texte français pur`;
+          systemPrompt += `\n\nABSOLU FRANÇAIS SEULEMENT - AUCUNE AUTRE LANGUE AUTORISÉE:
+- OBLIGATOIRE: Répondre EXCLUSIVEMENT en français
+- STRICTEMENT INTERDIT: Table of Contents, Keyword, Research, Inhoudsopgave, termes anglais ou hollandais
+- MOTS FRANÇAIS REQUIS: Table des matières, Mot-clé, Recherche, Volume, Difficulté, Analyse, Contenu
+- INSTRUCTION DE CONTRÔLE: Lisez votre réponse entière - s'il y a UN mot non-français, réécrivez TOUT en français
+- AUCUNE EXCEPTION: Même les termes techniques doivent être français
+- RÉSULTAT: 100% texte français sans AUCUNE autre langue`;
         }
       }
 
