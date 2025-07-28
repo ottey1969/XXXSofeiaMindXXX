@@ -221,13 +221,13 @@ export class ResearchService {
     return validatedResults.length > 0 ? validatedResults : null;
   }
   
-  private validateStatistic(stat: { metric: string; percentage: string; source: string }): boolean {
+  private validateStatistic = (stat: { metric: string; percentage: string; source: string }): boolean => {
     // Validate that the statistic has proper format and authoritative source
     return !!(
       stat.metric && 
       stat.percentage && 
       stat.source &&
-      stat.metric.length > 10 &&
+      stat.metric.length > 5 &&
       (stat.source.includes('gov') || 
        stat.source.includes('edu') || 
        this.isAuthoritySource(stat.source))
@@ -245,10 +245,10 @@ export class ResearchService {
     return authoritySources.some(auth => source.includes(auth));
   }
   
-  private rankBySourceAuthority(
+  private rankBySourceAuthority = (
     a: { metric: string; percentage: string; source: string }, 
     b: { metric: string; percentage: string; source: string }
-  ): number {
+  ): number => {
     // Rank government sources highest, then educational, then authoritative organizations
     const getSourceRank = (source: string): number => {
       if (source.includes('.gov') || source.includes('Census') || source.includes('Bureau')) return 1;
