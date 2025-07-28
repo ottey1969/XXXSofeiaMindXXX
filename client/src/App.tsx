@@ -7,7 +7,6 @@ import Chat from "@/pages/chat";
 import Landing from "@/pages/landing";
 import NotFound from "@/pages/not-found";
 import AdminPanel from "@/pages/AdminPanel";
-import ContactPage from "@/pages/ContactPage";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import TermsOfService from "@/pages/TermsOfService";
 import CookiePolicy from "@/pages/CookiePolicy";
@@ -54,7 +53,6 @@ function Router() {
       <Route path="/admin">
         <AdminPanel />
       </Route>
-      <Route path="/contact" component={ContactPage} />
       <Route path="/privacy" component={PrivacyPolicy} />
       <Route path="/terms" component={TermsOfService} />
       <Route path="/cookies" component={CookiePolicy} />

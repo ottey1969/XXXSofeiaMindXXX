@@ -4,7 +4,6 @@ import cors from "cors";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
-import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { insertMessageSchema, insertConversationSchema } from "@shared/schema";
 import { aiRouter } from "./services/ai-router";
@@ -826,96 +825,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // User Contact Form Endpoint
-  app.post('/api/contact', async (req, res) => {
-    try {
-      const { name, email, subject, message } = req.body;
-      
-      if (!name || !email || !subject || !message) {
-        return res.status(400).json({ message: 'All fields are required' });
-      }
-
-      // Save message to admin messages
-      await storage.createAdminMessage({
-        userEmail: email,
-        subject: `Contact Form: ${subject}`,
-        message: `From: ${name} (${email})\n\n${message}`,
-        userCredits: 0, // Unknown for contact form
-        isRead: false
-      });
-
-      // Notify admin via WebSocket if connected
-      notifyAdminOfNewMessage({
-        type: 'new_contact_message',
-        from: email,
-        subject: subject,
-        timestamp: new Date().toISOString()
-      });
-
-      res.json({ message: 'Your message has been sent successfully!' });
-    } catch (error) {
-      console.error('Error processing contact form:', error);
-      res.status(500).json({ message: 'Failed to send message' });
-    }
-  });
-
   const httpServer = createServer(app);
-  
-  // WebSocket server for real-time admin notifications
-  const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
-  
-  // Store admin WebSocket connections
-  const adminConnections = new Set<WebSocket>();
-  
-  wss.on('connection', (ws, req) => {
-    console.log('WebSocket connection established');
-    
-    ws.on('message', (data) => {
-      try {
-        const message = JSON.parse(data.toString());
-        
-        // Admin authentication via WebSocket
-        if (message.type === 'admin_auth' && message.adminKey === ADMIN_KEY) {
-          adminConnections.add(ws);
-          ws.send(JSON.stringify({
-            type: 'auth_success',
-            message: 'Admin connected to real-time updates'
-          }));
-          console.log('Admin authenticated via WebSocket');
-        }
-      } catch (error) {
-        console.error('WebSocket message error:', error);
-      }
-    });
-    
-    ws.on('close', () => {
-      adminConnections.delete(ws);
-      console.log('Admin WebSocket disconnected');
-    });
-    
-    ws.on('error', (error) => {
-      console.error('WebSocket error:', error);
-      adminConnections.delete(ws);
-    });
-  });
-
-  // Function to notify admin of new messages
-  const notifyAdminOfNewMessage = (messageData: any) => {
-    const notification = JSON.stringify({
-      type: 'admin_notification',
-      data: messageData
-    });
-    
-    // Send to all connected admin clients
-    adminConnections.forEach((ws) => {
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.send(notification);
-      }
-    });
-  };
-
-  // Make notifyAdminOfNewMessage available globally for other routes
-  (global as any).notifyAdminOfNewMessage = notifyAdminOfNewMessage;
-  
   return httpServer;
 }
