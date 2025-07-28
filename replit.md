@@ -26,6 +26,8 @@ Sofeia AI Agent is an intelligent multi-provider content creation platform with 
 ✅ **SMART:** Distinguishes between bedrijvencluster (business) and content cluster (SEO) requests
 ✅ **FIXED:** AI no longer uses user's query as keyword - only provides industry-specific keywords
 ✅ **CLEAR:** Content cluster requests now generate only topic-relevant keywords, not request phrases
+✅ **ULTRA-STRICT:** Absolute ban on "Table of Contents" - only "Inhoudsopgave" allowed in Dutch content
+✅ **ENFORCED:** Final solution to prevent any English/Dutch mixing in content structure
 
 ### Comprehensive Request Understanding Enhancement (January 27, 2025)
 ✅ **CRITICAL FIX:** Enhanced AI to follow and understand ALL user requests comprehensively
