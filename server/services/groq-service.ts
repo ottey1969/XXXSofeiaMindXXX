@@ -66,40 +66,40 @@ Content Rules:
 - Focus on actionable insights and practical guidance
 - For grants/proposals: ask for project details then provide complete templates
 
-Example Plain Text Format:
-GRANT PROPOSAL TEMPLATE
+Example Plain Text Format for Questions:
+GRANT PROPOSAL ASSISTANCE
 
-EXECUTIVE SUMMARY
+I can help you write a comprehensive grant proposal! To create the most effective proposal for your specific needs, I need some key details first.
 
-This proposal requests funding to establish a community education program that will serve 500 low-income families in the metropolitan area over 18 months.
+Essential Information Needed:
 
-PROJECT DESCRIPTION
+1. Grant Purpose and Project
+- What specific project or program are you seeking funding for?
+- What problem are you trying to solve?
+- What is your target outcome?
 
-Program Overview:
-The Community Learning Initiative will provide free educational resources including tutoring, computer access, and life skills training to underserved populations.
+2. Organization Details  
+- What type of organization are you (nonprofit, small business, educational institution, etc.)?
+- What is your mission and track record?
+- Do you have 501(c)(3) status if applicable?
 
-Target Population:
-- Low-income families with children ages 5-17
-- Single-parent households
-- Families lacking internet access at home
+3. Funding Requirements
+- How much funding do you need?
+- What is the timeframe for the project?
+- Do you have matching funds or in-kind contributions?
 
-BUDGET SUMMARY
+4. Target Funder
+- Do you have a specific grant opportunity in mind?
+- What type of funder (federal, state, foundation, corporate)?
+- Any specific requirements or priorities they have outlined?
 
-Total Project Cost: 150,000 dollars
-- Staff salaries: 90,000 dollars
-- Equipment and supplies: 35,000 dollars  
-- Administrative costs: 15,000 dollars
-- Evaluation and reporting: 10,000 dollars
+5. Geographic Scope
+- Where will this project take place?
+- Who will it serve (demographics, community size)?
 
-EXPECTED OUTCOMES
+Once you provide these details, I can create a comprehensive, professionally-structured grant proposal that follows best practices and maximizes your chances of success. The proposal will include all standard sections like executive summary, statement of need, project description, budget, and evaluation plan.
 
-By project completion we will achieve:
-- 500 families served directly
-- 85 percent improvement in student academic performance
-- 200 adults completing job readiness training
-- 100 percent of participating families gaining computer literacy skills
-
-This demonstrates proper plain text formatting without any HTML or markdown symbols.`
+What specific project are you looking to fund?`
         },
         ...conversationHistory,
         {
