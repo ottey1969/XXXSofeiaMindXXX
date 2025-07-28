@@ -69,6 +69,8 @@ export default function AdminPanel() {
   const [userSearchTerm, setUserSearchTerm] = useState("");
   const [allUsers, setAllUsers] = useState<any[]>([]);
   const [totalUsers, setTotalUsers] = useState(0);
+  const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Check for saved admin authentication on component mount
   useEffect(() => {
@@ -805,9 +807,102 @@ export default function AdminPanel() {
     document.body.removeChild(link);
     
     toast({
-      title: "Export Started",
+      title: "Export Started", 
       description: `Downloading ${format.toUpperCase()} file...`,
     });
+  };
+
+  // Toggle user selection for bulk operations
+  const toggleUserSelection = (email: string) => {
+    const newSelected = new Set(selectedUsers);
+    if (newSelected.has(email)) {
+      newSelected.delete(email);
+    } else {
+      newSelected.add(email);
+    }
+    setSelectedUsers(newSelected);
+  };
+
+  // Select all users
+  const selectAllUsers = () => {
+    if (selectedUsers.size === allUsers.length && allUsers.length > 0) {
+      setSelectedUsers(new Set());
+    } else {
+      setSelectedUsers(new Set(allUsers.map(user => user.email)));
+    }
+  };
+
+  // Delete single user
+  const deleteSingleUser = async (email: string) => {
+    if (!confirm(`Are you sure you want to delete user: ${email}?\n\nThis action cannot be undone.`)) return;
+    
+    setIsDeleting(true);
+    try {
+      await apiRequest("DELETE", `/api/admin/user/${email}`, null, {
+        'X-Admin-Key': ADMIN_KEY
+      });
+      
+      // Remove from local state
+      setAllUsers(prev => prev.filter(user => user.email !== email));
+      setSelectedUsers(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(email);
+        return newSet;
+      });
+      
+      toast({
+        title: "Success",
+        description: `User ${email} deleted successfully`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: `Failed to delete user: ${email}`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  // Bulk delete selected users
+  const bulkDeleteUsers = async () => {
+    if (selectedUsers.size === 0) {
+      toast({
+        title: "No Selection",
+        description: "Please select users to delete",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const userList = Array.from(selectedUsers);
+    if (!confirm(`Are you sure you want to delete ${userList.length} user(s)?\n\nThis action cannot be undone.`)) return;
+    
+    setIsDeleting(true);
+    try {
+      await apiRequest("POST", "/api/admin/users/bulk-delete", {
+        emails: userList,
+        adminKey: ADMIN_KEY
+      });
+      
+      // Remove deleted users from local state
+      setAllUsers(prev => prev.filter(user => !selectedUsers.has(user.email)));
+      setSelectedUsers(new Set());
+      
+      toast({
+        title: "Success",
+        description: `${userList.length} user(s) deleted successfully`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error", 
+        description: "Failed to delete selected users",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const sendNotificationMutation = useMutation({
@@ -1646,6 +1741,39 @@ export default function AdminPanel() {
                   >
                     📊 Full Data (.csv)
                   </Button>
+                  
+                  {/* Delete Controls */}
+                  {allUsers.length > 0 && (
+                    <>
+                      <div className="w-full border-t border-gray-300 dark:border-gray-600 mt-3 pt-3">
+                        <h3 className="font-semibold text-sm mb-2 text-red-700 dark:text-red-400">Delete Options:</h3>
+                        <div className="flex flex-wrap gap-2">
+                          <Button
+                            onClick={selectAllUsers}
+                            variant="outline"
+                            size="sm"
+                            className="flex items-center gap-2"
+                            disabled={isDeleting}
+                          >
+                            {selectedUsers.size === allUsers.length && allUsers.length > 0 ? '☐ Deselect All' : '☑️ Select All'}
+                          </Button>
+                          
+                          {selectedUsers.size > 0 && (
+                            <Button
+                              onClick={bulkDeleteUsers}
+                              variant="destructive"
+                              size="sm"
+                              className="flex items-center gap-2"
+                              disabled={isDeleting}
+                            >
+                              🗑️ Delete Selected ({selectedUsers.size})
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </>
+                  )}
+                  
                   <div className="text-xs text-gray-600 dark:text-gray-400 w-full mt-2">
                     Export will include {userSearchTerm ? 'filtered' : 'all'} users
                   </div>
@@ -1675,10 +1803,19 @@ export default function AdminPanel() {
                       <div className="max-h-96 overflow-y-auto space-y-3">
                         {allUsers.map((user: any) => (
                           <div key={user.id} className="p-4 border rounded-lg bg-white dark:bg-gray-800">
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                              <div>
-                                <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Email</label>
-                                <div className="font-medium">{user.email}</div>
+                            <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="checkbox"
+                                  checked={selectedUsers.has(user.email)}
+                                  onChange={() => toggleUserSelection(user.email)}
+                                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                                  disabled={isDeleting}
+                                />
+                                <div>
+                                  <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Email</label>
+                                  <div className="font-medium">{user.email}</div>
+                                </div>
                               </div>
                               <div>
                                 <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Credits</label>
@@ -1697,6 +1834,17 @@ export default function AdminPanel() {
                               <div>
                                 <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Joined</label>
                                 <div className="text-sm">{new Date(user.createdAt).toLocaleDateString()}</div>
+                              </div>
+                              <div className="flex justify-end">
+                                <Button
+                                  onClick={() => deleteSingleUser(user.email)}
+                                  variant="destructive"
+                                  size="sm"
+                                  className="flex items-center gap-1"
+                                  disabled={isDeleting}
+                                >
+                                  🗑️ Delete
+                                </Button>
                               </div>
                             </div>
                           </div>

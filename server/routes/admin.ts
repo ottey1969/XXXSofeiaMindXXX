@@ -341,4 +341,72 @@ router.patch('/announcements/:id/deactivate', requireAdmin, async (req, res) => 
   }
 });
 
+// Delete user by email (Admin only)
+router.delete('/user/:email', requireAdmin, async (req, res) => {
+  try {
+    const { email } = req.params;
+    
+    // First check if user exists
+    const user = await authService.getUserByEmail(email);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Delete user from database
+    await db.delete(users).where(eq(users.email, email));
+    
+    res.json({ 
+      message: `User ${email} deleted successfully`,
+      deletedUser: {
+        id: user.id,
+        email: user.email
+      }
+    });
+  } catch (error: any) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({ 
+      message: error.message || 'Failed to delete user' 
+    });
+  }
+});
+
+// Bulk delete users by email list (Admin only)
+router.post('/users/bulk-delete', requireAdmin, async (req, res) => {
+  try {
+    const { emails } = req.body;
+    
+    if (!Array.isArray(emails) || emails.length === 0) {
+      return res.status(400).json({ message: 'Email list is required' });
+    }
+
+    const deletedUsers = [];
+    const errors = [];
+
+    for (const email of emails) {
+      try {
+        const user = await authService.getUserByEmail(email);
+        if (user) {
+          await db.delete(users).where(eq(users.email, email));
+          deletedUsers.push({ id: user.id, email: user.email });
+        } else {
+          errors.push({ email, error: 'User not found' });
+        }
+      } catch (error: any) {
+        errors.push({ email, error: error.message });
+      }
+    }
+    
+    res.json({ 
+      message: `Bulk delete completed. ${deletedUsers.length} users deleted, ${errors.length} errors`,
+      deletedUsers,
+      errors: errors.length > 0 ? errors : undefined
+    });
+  } catch (error: any) {
+    console.error("Error in bulk delete:", error);
+    res.status(500).json({ 
+      message: error.message || 'Failed to bulk delete users' 
+    });
+  }
+});
+
 export default router;
