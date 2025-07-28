@@ -72,11 +72,15 @@ export default function AdminPanel() {
 
   // Check for saved admin authentication on component mount
   useEffect(() => {
-    const savedAdminAuth = localStorage.getItem('adminAuthenticated');
-    const savedAdminKey = localStorage.getItem('adminKey');
-    if (savedAdminAuth === 'true' && savedAdminKey) {
-      setIsAuthenticated(true);
-      setAdminKey(savedAdminKey);
+    try {
+      const savedAdminAuth = localStorage.getItem('adminAuthenticated');
+      const savedAdminKey = localStorage.getItem('adminKey');
+      if (savedAdminAuth === 'true' && savedAdminKey) {
+        setIsAuthenticated(true);
+        setAdminKey(savedAdminKey);
+      }
+    } catch (error) {
+      console.error('Error loading admin auth:', error);
     }
   }, []);
 
@@ -221,7 +225,8 @@ export default function AdminPanel() {
       queryKey: ["/api/admin/messages"],
       refetchInterval: 5000, // Refresh every 5 seconds for real-time notifications
       queryFn: async () => {
-        const response = await apiRequest("GET", `/api/admin/messages?adminKey=${ADMIN_KEY}`);
+        const response = await fetch(`/api/admin/messages?adminKey=${ADMIN_KEY}`);
+        if (!response.ok) throw new Error('Failed to fetch messages');
         return response.json();
       },
       enabled: isAuthenticated, // Only fetch when admin is authenticated
@@ -231,8 +236,8 @@ export default function AdminPanel() {
     useEffect(() => {
       if (!Array.isArray(userMessages) || !soundEnabled) return;
       
-      const unreadCount = userMessages.filter((msg: any) => !msg.isRead).length;
-      const totalCount = userMessages.length;
+      const unreadCount = Array.isArray(userMessages) ? userMessages.filter((msg: any) => !msg.isRead).length : 0;
+      const totalCount = Array.isArray(userMessages) ? userMessages.length : 0;
       
       console.log('Sound check:', {
         totalCount,
