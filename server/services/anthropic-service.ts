@@ -63,7 +63,7 @@ Your capabilities:
 - Apply C.R.A.F.T framework enhanced with RankMath SEO principles
 - Write ranking-ready content for Google AI Overview scoring 100/100
 - Generate grant proposals and structured content
-- Create COMPREHENSIVE long-form content up to 4000 words when requested
+- Create COMPREHENSIVE long-form content up to 5500 words when requested
 - Use conversational "you" language (talk WITH not AT users)
 - Provide properly formatted HTML output with real tags (h1, h2, h3, ul, li, table, etc.)
 - Focus on E-E-A-T optimization (Experience, Expertise, Authoritativeness, Trustworthiness)
@@ -116,27 +116,57 @@ RankMath SEO Requirements for 100/100 Score:
 - Table of contents for content >2000 words
 - Internal and external links where relevant
 - Meta description with focus keyword (50-160 characters)
-- Content length 300+ words for substantial topics, up to 4000 words for comprehensive guides
+- Content length 300+ words for substantial topics, up to 5500 words for comprehensive guides
 - For long-form content: include comprehensive table of contents, multiple sections with H2/H3 structure
 - Break long content into digestible sections with clear transitions between topics
+- For 4000+ word content: Use proper heading hierarchy, include section summaries, and add visual breaks
+- For 5500+ word content: Add executive summary, detailed table of contents, section-by-section navigation
 
-Example HTML format:
+Example HTML format for comprehensive content:
 <h1>Main Title with Focus Keyword</h1>
+<div class="executive-summary">
+<h2>Executive Summary</h2>
+<p>Brief overview of key points covered in this comprehensive guide...</p>
+</div>
 <h2>Table of Contents</h2>
+<ol>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#main-concepts">Main Concepts</a>
+  <ul>
+  <li><a href="#subconcept-1">Key Subconcept 1</a></li>
+  <li><a href="#subconcept-2">Key Subconcept 2</a></li>
+  </ul>
+</li>
+<li><a href="#detailed-analysis">Detailed Analysis</a></li>
+<li><a href="#practical-applications">Practical Applications</a></li>
+<li><a href="#case-studies">Case Studies</a></li>
+<li><a href="#conclusion">Conclusion & Next Steps</a></li>
+</ol>
+
+<h2 id="introduction">Introduction</h2>
+<p>Comprehensive introduction setting context and expectations...</p>
+
+<h2 id="main-concepts">Main Concepts</h2>
+<p>Overview paragraph for this major section...</p>
+
+<h3 id="subconcept-1">Key Subconcept 1</h3>
+<p>Detailed explanation with examples and practical insights...</p>
 <ul>
-<li><a href="#section1">Section One</a></li>
-<li><a href="#section2">Section Two</a></li>
+<li>Bullet point with actionable information</li>
+<li>Another key point with supporting details</li>
 </ul>
-<h2 id="section1">Section Heading</h2>
-<p>Paragraph content with natural keyword integration...</p>
-<ul>
-<li>Bullet point one</li>
-<li>Bullet point two</li>
-</ul>
+
+<h3 id="subconcept-2">Key Subconcept 2</h3>
+<p>Continuation of detailed analysis...</p>
 <table>
-<tr><th>Feature</th><th>Benefit</th></tr>
-<tr><td>Data</td><td>Value</td></tr>
-</table>`;
+<tr><th>Feature</th><th>Benefit</th><th>Implementation</th></tr>
+<tr><td>Data Point</td><td>Value Proposition</td><td>Action Step</td></tr>
+</table>
+
+<div class="section-summary">
+<h4>Section Summary</h4>
+<p>Key takeaways from this section before moving to the next...</p>
+</div>`;
 
       const messages: AnthropicMessage[] = [
         ...conversationHistory,
@@ -150,7 +180,7 @@ Example HTML format:
         // "claude-sonnet-4-20250514"
         model: DEFAULT_MODEL_STR,
         system: systemPrompt,
-        max_tokens: 4096,
+        max_tokens: 8192,
         messages,
         temperature: 0.7
       });

@@ -22,7 +22,7 @@ export class AIRouter {
       /website.*content|web.*content|landing.*page/,
       /long.*form|detailed.*guide|comprehensive.*guide/,
       /creative.*writing|storytelling|narrative/,
-      /4000.*word|long.*article|extensive.*content|in.*depth.*content/
+      /4000.*word|5000.*word|5500.*word|long.*article|extensive.*content|in.*depth.*content|comprehensive.*guide/
     ];
     
     // Research query patterns (use Perplexity)
@@ -33,7 +33,7 @@ export class AIRouter {
       /statistics|data.*analysis|survey.*results/,
       /government.*data|academic.*research|scientific.*study/,
       /seo.*research|keyword.*research|search.*trends/,
-      /4000.*word.*research|long.*form.*research|extensive.*research/
+      /4000.*word.*research|5000.*word.*research|5500.*word.*research|long.*form.*research|extensive.*research|comprehensive.*research/
     ];
 
     // Complex analysis patterns (use Anthropic)
