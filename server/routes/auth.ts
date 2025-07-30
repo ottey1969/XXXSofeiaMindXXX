@@ -2,11 +2,18 @@ import { Router } from 'express';
 import { authService } from '../auth';
 import { emailService } from '../services/emailService';
 import { z } from 'zod';
+import { 
+  registrationLimiter, 
+  loginLimiter, 
+  honeypotCheck, 
+  captchaVerify, 
+  validateEmail 
+} from '../middleware/security';
 
 const router = Router();
 
 // Login with email (for existing users)
-router.post('/login', async (req, res) => {
+router.post('/login', loginLimiter, validateEmail, async (req, res) => {
   try {
     const { email } = z.object({
       email: z.string().email('Invalid email address')
@@ -69,11 +76,17 @@ router.post('/login', async (req, res) => {
 });
 
 // Register/login with email
-router.post('/register', async (req, res) => {
+router.post('/register', registrationLimiter, validateEmail, honeypotCheck, captchaVerify, async (req, res) => {
   try {
     const { email, marketingConsent } = z.object({
       email: z.string().email('Invalid email address'),
-      marketingConsent: z.boolean().default(false)
+      marketingConsent: z.boolean().default(false),
+      // Honeypot fields - should be empty
+      website: z.string().optional(),
+      url: z.string().optional(),
+      honeypot: z.string().optional(),
+      // CAPTCHA token
+      captchaToken: z.string().optional()
     }).parse(req.body);
 
     // Check if user already exists
