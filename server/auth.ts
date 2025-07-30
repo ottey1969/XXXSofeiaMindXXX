@@ -35,7 +35,7 @@ export class AuthService {
       .values({
         email: normalizedEmail,
         credits: 3,
-        emailVerified: false,
+        emailVerified: true, // Bypassing email verification as per user request
         marketingConsent,
         ipAddress: ipAddress || null,
       })
