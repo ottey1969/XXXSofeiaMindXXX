@@ -36,19 +36,13 @@ function Router() {
   return (
     <Switch>
       <Route path="/">
-        <AuthWrapper>
-          <Chat />
-        </AuthWrapper>
+        <Landing />
       </Route>
       <Route path="/chat/:id?">
-        <AuthWrapper>
-          <Chat />
-        </AuthWrapper>
+        <Chat />
       </Route>
       <Route path="/sofeiaai">
-        <AuthWrapper>
-          <Chat />
-        </AuthWrapper>
+        <Chat />
       </Route>
       <Route path="/admin">
         <AdminPanel />

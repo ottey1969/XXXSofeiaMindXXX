@@ -9,8 +9,6 @@ import MessageBubble from "@/components/chat/message-bubble";
 import TypingIndicator from "@/components/chat/typing-indicator";
 import InputArea from "@/components/chat/input-area";
 import ProviderStatus from "@/components/chat/provider-status";
-import CreditStatus from "@/components/auth/CreditStatus";
-import { useAuth, useLogout } from "@/hooks/useAuth";
 import { Brain, Sparkles, MessageSquare, Paperclip } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import NotificationPopup from "@/components/NotificationPopup";
@@ -24,9 +22,7 @@ import { CreditRenewalNotification, NextRenewalInfo } from "@/components/CreditR
 
 export default function Chat() {
   const { id: conversationId } = useParams();
-  const { user, isVerified } = useAuth();
   const { toast } = useToast();
-  const logoutMutation = useLogout();
 
   // Create new conversation function
   const createNewConversation = () => {
@@ -195,7 +191,6 @@ export default function Chat() {
         </div>
         
         <div className="flex items-center gap-4">
-          <CreditStatus />
           <ProviderStatus currentProvider={currentProvider} />
           <AudioControls onVoiceInput={handleSendMessage} />
           <Button 
@@ -223,38 +218,10 @@ export default function Chat() {
             <MessageSquare className="w-4 h-4 mr-1" />
             Contact Admin
           </Button>
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => {
-              logoutMutation.mutate();
-            }}
-            disabled={logoutMutation.isPending}
-          >
-            {logoutMutation.isPending ? "Logging out..." : "Logout"}
-          </Button>
         </div>
       </header>
 
-      {/* Verification Banner for Unverified Users */}
-      {!isVerified && (
-        <div className="bg-yellow-50 border-b border-yellow-200 px-4 py-3">
-          <div className="max-w-4xl mx-auto flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <div className="w-5 h-5 bg-yellow-400 rounded-full flex items-center justify-center">
-                <span className="text-white text-xs">!</span>
-              </div>
-              <p className="text-sm text-yellow-800">
-                <strong>Verification Pending:</strong> Contact WhatsApp{" "}
-                <a href="https://wa.me/31628073996" className="underline font-medium" target="_blank">
-                  +31 6 2807 3996
-                </a>{" "}
-                with your email to unlock full AI features.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {/* Chat Container */}
       <main className="flex-1 flex flex-col max-w-4xl mx-auto w-full">

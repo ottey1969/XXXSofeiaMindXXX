@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import AuthDialog from "@/components/auth/AuthDialog";
+
 import { Bot, Sparkles, Globe, MessageSquare } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Landing() {
-  const [authOpen, setAuthOpen] = useState(false);
+
 
   // Set dynamic meta tags for enhanced SEO
   useEffect(() => {
@@ -61,14 +61,13 @@ export default function Landing() {
               </p>
             </div>
 
-            <Button 
-              size="lg" 
-              onClick={() => setAuthOpen(true)}
-              className="text-lg px-8 py-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-              aria-label="Start using AI content generator with special offer"
-            >
-              Get Free AI Content Generator - Start Now!
-            </Button>
+              <Link 
+                href="/chat"
+                className="text-lg px-8 py-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                aria-label="Start using AI content generator with special offer"
+              >
+                Get Free AI Content Generator - Start Now!
+              </Link>
           </div>
 
           {/* Features Grid */}
@@ -214,12 +213,7 @@ export default function Landing() {
                   </a>
                 </p>
               </div>
-              <Button 
-                onClick={() => setAuthOpen(true)}
-                className="w-full"
-              >
-                Get Started Now
-              </Button>
+
             </CardContent>
           </Card>
         </div>
@@ -262,7 +256,7 @@ export default function Landing() {
         </div>
       </footer>
 
-      <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
+
     </div>
   );
 }
