@@ -148,59 +148,57 @@
   }
 }
 
-@layer components {
-  /* Message content styling */
-  .message-content {
-    @apply prose prose-sm max-w-none;
-  }
+/* Message content styling */
+.message-content {
+  @apply prose prose-sm max-w-none;
+}
 
-  .message-content h1,
-  .message-content h2,
-  .message-content h3,
-  .message-content h4 {
-    @apply text-sofeia-slate-800 font-semibold mb-3;
-  }
+.message-content h1,
+.message-content h2,
+.message-content h3,
+.message-content h4 {
+  @apply text-sofeia-slate-800 font-semibold mb-3;
+}
 
-  .message-content h1 {
-    @apply text-lg;
-  }
+.message-content h1 {
+  @apply text-lg;
+}
 
-  .message-content h2 {
-    @apply text-base;
-  }
+.message-content h2 {
+  @apply text-base;
+}
 
-  .message-content p {
-    @apply text-sofeia-slate-600 mb-3;
-  }
+.message-content p {
+  @apply text-sofeia-slate-600 mb-3;
+}
 
-  .message-content ul,
-  .message-content ol {
-    @apply text-sofeia-slate-600 space-y-1 mb-4;
-  }
+.message-content ul,
+.message-content ol {
+  @apply text-sofeia-slate-600 space-y-1 mb-4;
+}
 
-  .message-content a {
-    @apply text-sofeia-blue hover:underline;
-  }
+.message-content a {
+  @apply text-sofeia-blue hover:underline;
+}
 
-  .message-content table {
-    @apply w-full text-sm border-collapse border border-gray-200 mb-4;
-  }
+.message-content table {
+  @apply w-full text-sm border-collapse border border-gray-200 mb-4;
+}
 
-  .message-content th {
-    @apply border border-gray-200 px-3 py-2 text-left bg-sofeia-slate-50 font-medium;
-  }
+.message-content th {
+  @apply border border-gray-200 px-3 py-2 text-left bg-sofeia-slate-50 font-medium;
+}
 
-  .message-content td {
-    @apply border border-gray-200 px-3 py-2;
-  }
+.message-content td {
+  @apply border border-gray-200 px-3 py-2;
+}
 
-  .message-content code {
-    @apply bg-gray-100 rounded px-1 text-sm font-mono;
-  }
+.message-content code {
+  @apply bg-gray-100 rounded px-1 text-sm font-mono;
+}
 
-  .message-content pre {
-    @apply bg-gray-100 rounded p-3 text-sm font-mono overflow-x-auto mb-4;
-  }
+.message-content pre {
+  @apply bg-gray-100 rounded p-3 text-sm font-mono overflow-x-auto mb-4;
 }
 
 /* Scrollbar styling */
@@ -261,5 +259,3 @@
 .animate-fadeIn {
   animation: fadeIn 0.3s ease-out;
 }
-
-
