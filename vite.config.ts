@@ -6,6 +6,7 @@ export default defineConfig({
   plugins: [
     react(),
   ],
+  root: "client", // Set root to client directory
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./client/src"),
@@ -13,7 +14,6 @@ export default defineConfig({
       "@assets": path.resolve(__dirname, "./attached_assets"),
     },
   },
-  root: path.resolve(__dirname, "./client"),
   build: {
     outDir: path.resolve(__dirname, "./dist/public"),
     emptyOutDir: true,
