@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { Bot, Sparkles, Globe, MessageSquare } from "lucide-react";
+import { Bot, Sparkles, Globe, MessageSquare, Whatsapp } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Landing() {
@@ -11,16 +11,16 @@ export default function Landing() {
   // Set dynamic meta tags for enhanced SEO
   useEffect(() => {
     // Add hreflang for international SEO
-    const hrefLang = document.createElement('link');
-    hrefLang.setAttribute('rel', 'alternate');
-    hrefLang.setAttribute('hreflang', 'en');
-    hrefLang.setAttribute('href', 'https://sofeia-ai.replit.app/');
+    const hrefLang = document.createElement("link");
+    hrefLang.setAttribute("rel", "alternate");
+    hrefLang.setAttribute("hreflang", "en");
+    hrefLang.setAttribute("href", "https://sofeia-ai.replit.app/");
     document.head.appendChild(hrefLang);
 
     // Add preconnect for performance
-    const preconnect = document.createElement('link');
-    preconnect.setAttribute('rel', 'preconnect');
-    preconnect.setAttribute('href', 'https://api.groq.com');
+    const preconnect = document.createElement("link");
+    preconnect.setAttribute("rel", "preconnect");
+    preconnect.setAttribute("href", "https://api.groq.com");
     document.head.appendChild(preconnect);
 
     // Clean up
@@ -61,6 +61,30 @@ export default function Landing() {
               </p>
             </div>
 
+            {/* WhatsApp Registration Section */}
+            <div className="bg-blue-100 dark:bg-blue-900/20 p-6 rounded-lg mb-8 mx-auto max-w-2xl">
+              <p className="text-lg font-semibold text-blue-800 dark:text-blue-200 mb-4">
+                🔧 Registration is temporarily offline.
+              </p>
+              <p className="text-blue-700 dark:text-blue-300 mb-4">
+                To get instant access to Sofeia AI, message us on WhatsApp:
+              </p>
+              <a 
+                href="https://wa.me/31628073996?text=Hi%2C%20I%20want%20to%20register%20for%20Sofeia%20AI.%20My%20email%20is%3A%20"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center px-8 py-4 bg-green-500 text-white font-bold rounded-lg shadow-lg hover:bg-green-600 transition-colors duration-300"
+              >
+                <Whatsapp className="w-6 h-6 mr-2" />
+                Click to Chat on WhatsApp
+              </a>
+              <p className="text-sm text-blue-600 dark:text-blue-400 mt-4">
+                Just send your email address, and we’ll activate your account with 3 free credits — no password needed.
+              </p>
+            </div>
+
+            {/* Original Button (commented out or removed if replaced) */}
+            {/*
               <Link 
                 href="/chat"
                 className="text-lg px-8 py-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
@@ -68,6 +92,7 @@ export default function Landing() {
               >
                 Get Free AI Content Generator - Start Now!
               </Link>
+            */}
           </div>
 
           {/* Features Grid */}
@@ -260,3 +285,4 @@ export default function Landing() {
     </div>
   );
 }
+
