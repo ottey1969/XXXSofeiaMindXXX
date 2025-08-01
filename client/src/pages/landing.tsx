@@ -84,15 +84,15 @@ export default function Landing() {
             </div>
 
             {/* Original Button (commented out or removed if replaced) */}
-            {/*
-              <Link 
-                href="/chat"
+            <Link href="/chat">
+              <Button 
+                size="lg"
                 className="text-lg px-8 py-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
                 aria-label="Start using AI content generator with special offer"
               >
                 Get Free AI Content Generator - Start Now!
-              </Link>
-            */}
+              </Button>
+            </Link>
           </div>
 
           {/* Features Grid */}

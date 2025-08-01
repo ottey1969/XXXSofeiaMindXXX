@@ -12,25 +12,6 @@ import TermsOfService from "@/pages/TermsOfService";
 import CookiePolicy from "@/pages/CookiePolicy";
 import GDPRCompliance from "@/pages/GDPRCompliance";
 import EmailVerify from "@/pages/EmailVerify";
-import { useAuth } from "@/hooks/useAuth";
-
-function AuthWrapper({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading } = useAuth();
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return <Landing />;
-  }
-
-  return <>{children}</>;
-}
 
 function Router() {
   return (
