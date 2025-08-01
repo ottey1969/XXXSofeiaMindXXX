@@ -41,9 +41,22 @@ export default {
           DEFAULT: "var(--destructive)",
           foreground: "var(--destructive-foreground)",
         },
-        border: "var(--border)",
+        border: {
+          DEFAULT: "var(--border)",
+        },
         input: "var(--input)",
         ring: "var(--ring)",
+        sofeia: {
+          blue: "var(--sofeia-blue)",
+          emerald: "var(--sofeia-emerald)",
+          amber: "var(--sofeia-amber)",
+          slate: {
+            "50": "var(--sofeia-slate-50)",
+            "500": "var(--sofeia-slate-500)",
+            "600": "var(--sofeia-slate-600)",
+            "800": "var(--sofeia-slate-800)",
+          },
+        },
         chart: {
           "1": "var(--chart-1)",
           "2": "var(--chart-2)",
